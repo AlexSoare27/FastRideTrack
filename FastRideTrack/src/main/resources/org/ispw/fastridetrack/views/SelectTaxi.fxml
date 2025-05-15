@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispw.fastridetrack.Controller.GUIController.SelectTaxiGUIController">
+   <children>
+      <!-- Background map image -->
+      <ImageView fitHeight="720.0" fitWidth="1280.0">
+         <image>
+            <Image url="@../images/SelectTaxi.jpg" />
+         </image>
+      </ImageView>
+
+      <!-- GridPane for dynamic driver buttons -->
+      <GridPane fx:id="driverGridPane" hgap="10" layoutX="579.0" layoutY="348.0" vgap="10" />
+
+      <!-- Payment selection -->
+      <VBox layoutX="982.0" layoutY="346.0" prefHeight="0.0" prefWidth="2.0" spacing="5" />
+
+      <!-- Confirm ride button -->
+      <Button fx:id="confirmRideButton" layoutX="942.0" layoutY="538.0" onAction="#onConfirmRide" prefHeight="35.0" prefWidth="270.0" style="-fx-background-color: transparent;" />
+
+      <!-- Back button (optional) -->
+      <Button layoutX="401.0" layoutY="158.0" prefHeight="25.0" prefWidth="27.0" style="-fx-background-color: transparent;" />
+      <Label layoutX="987.0" layoutY="334.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Select Payment Method" />
+      <ChoiceBox fx:id="paymentChoiceBox" layoutX="983.0" layoutY="347.0" prefHeight="25.0" prefWidth="187.0" style="-fx-background-color: transparent;" />
+      <!-- TextField per destinazione -->
+      <TextField fx:id="destinationTextField" layoutX="952.0" layoutY="497.0" prefHeight="25.0" prefWidth="270.0" editable="false" />
+      <!-- TextField per benvenuto -->
+      <TextField fx:id="welcomeTextField" layoutX="88.0" layoutY="254.0" prefHeight="25.0" prefWidth="232.0" editable="false" />
+
+   </children>
+</AnchorPane>

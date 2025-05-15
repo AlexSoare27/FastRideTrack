@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane fx:id="homePane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispw.fastridetrack.Controller.GUIController.HomeGUIController">
+   <children>
+
+      <!-- Simulazione Mappa -->
+      <Pane fx:id="mapPane" layoutX="387.0" layoutY="134.0" prefHeight="477.0" prefWidth="861.0" style="-fx-background-color: transparent;">
+         <Polygon fx:id="triangle" fill="#00ff1b" layoutX="350.0" layoutY="180.0" points="-16.3333740234375, -87.33332824707031, -27.66668701171875, -60.66667175292969, -51.0, -78.66667175292969" />
+         <WebView fx:id="mapWebView" layoutX="180.0" layoutY="5.0" prefHeight="470.0" prefWidth="681.0" />
+      </Pane>
+
+      <!-- Immagine di sfondo -->
+      <ImageView fitHeight="720.0" fitWidth="1280.0">
+         <image>
+            <Image url="@../images/Home.jpg" />
+         </image>
+      </ImageView>
+
+      <!-- Nuovo Label per il nome utente -->
+      <Label fx:id="welcomeLabel" layoutX="83.0" layoutY="255.0" prefHeight="18.0" prefWidth="200.0" style="-fx-text-fill: white; -fx-font-size: 16px;" text="Benvenuto" />
+
+      <!-- Pulsanti funzionali -->
+      <Button fx:id="myAccountButton" layoutX="93.0" layoutY="153.0" onAction="#onMyAccount" prefWidth="93.0" style="-fx-background-color: transparent;" />
+      <Button fx:id="myWalletButton" layoutX="145.0" layoutY="393.0" onAction="#onMyWallet" prefWidth="75.0" style="-fx-background-color: transparent;" />
+      <Button fx:id="logoutButton" layoutX="140.0" layoutY="521.0" onAction="#onLogout" prefWidth="61.0" style="-fx-background-color: transparent;" />
+
+      <!-- Raggio e destinazione -->
+      <ChoiceBox fx:id="rangeChoiceBox" layoutX="994.0" layoutY="474.0" prefWidth="150.0" style="-fx-background-color: transparent;" />
+      <TextField fx:id="destinationField" layoutX="956.0" layoutY="534.0" prefWidth="179.0" promptText="Inserisci destinazione" />
+      <Button fx:id="checkRiderButton" layoutX="1016.0" layoutY="564.0" onAction="#onCheckRider" prefWidth="135.0" style="-fx-background-color: transparent;" />
+
+   </children>
+</AnchorPane>
