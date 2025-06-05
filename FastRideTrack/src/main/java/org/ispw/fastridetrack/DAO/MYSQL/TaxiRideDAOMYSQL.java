@@ -82,7 +82,7 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
     }
 
     @Override
-    public void update(int rideID, TaxiRideConfirmationBean bean) {
+    public void update(TaxiRideConfirmationBean bean) {
         String sql = "UPDATE taxi_rides SET driverID = ?, clientID = ?, status = ?, estimatedFare = ?, estimatedTime = ?, paymentStatus = ?, confirmationTime = ? WHERE rideID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -93,16 +93,17 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
             stmt.setDouble(5, bean.getEstimatedTime());
             stmt.setString(6, bean.getPaymentStatus());
             stmt.setTimestamp(7, Timestamp.valueOf(bean.getConfirmationTime()));
-            stmt.setInt(8, rideID);
+            stmt.setInt(8, bean.getRideID()); // ← recuperato dal bean
 
             int rows = stmt.executeUpdate();
             if (rows == 0) {
-                throw new RuntimeException("Nessuna corsa trovata con rideID " + rideID);
+                throw new RuntimeException("Nessuna corsa trovata con rideID " + bean.getRideID());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento corsa in taxi_rides con rideID " + rideID, e);
+            throw new RuntimeException("Errore aggiornamento corsa in taxi_rides con rideID " + bean.getRideID(), e);
         }
     }
+
 
     @Override
     public boolean exists(int rideID) {

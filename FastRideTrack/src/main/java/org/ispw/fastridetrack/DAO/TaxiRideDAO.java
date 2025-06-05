@@ -10,7 +10,7 @@ public interface TaxiRideDAO {
 
     Optional<TaxiRideConfirmationBean> findById(int rideID);
 
-    void update(int rideID, TaxiRideConfirmationBean bean);
+    void update(TaxiRideConfirmationBean bean);
 
     boolean exists(int rideID);
 }

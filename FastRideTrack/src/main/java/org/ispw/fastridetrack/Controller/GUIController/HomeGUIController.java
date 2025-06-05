@@ -15,6 +15,7 @@ import org.ispw.fastridetrack.Bean.RideRequestBean;
 import org.ispw.fastridetrack.Bean.CoordinateBean;
 import org.ispw.fastridetrack.Controller.ApplicationController.DriverMatchingApplicationController;
 import org.ispw.fastridetrack.Controller.ApplicationController.MapApplicationController;
+import org.ispw.fastridetrack.Exception.FXMLLoadException;
 import org.ispw.fastridetrack.Model.Client;
 import org.ispw.fastridetrack.Model.Map;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
@@ -28,13 +29,13 @@ import java.util.ResourceBundle;
 
 public class HomeGUIController implements Initializable {
 
+    @FXML public Button checkRiderButton;
+    @FXML public Button myAccountButton;
+    @FXML public Button myWalletButton;
+    @FXML public Button logoutButton;
     @FXML private AnchorPane homePane;
     @FXML private ChoiceBox<String> rangeChoiceBox;
     @FXML private TextField destinationField;
-    @FXML private Button checkRiderButton;
-    @FXML private Button logoutButton;
-    @FXML private Button myAccountButton;
-    @FXML private Button myWalletButton;
     @FXML private Label welcomeLabel;
     @FXML private WebView mapWebView;
 
@@ -85,7 +86,7 @@ public class HomeGUIController implements Initializable {
             if (rangeChoiceBox.getItems().contains(radiusStr)) {
                 rangeChoiceBox.setValue(radiusStr);
             }
-            // Se vuoi puoi anche aggiornare currentLocation in base a bean.getOrigin()
+
             if (bean.getOrigin() != null) {
                 currentLocation = bean.getOrigin();
             }
@@ -145,7 +146,7 @@ public class HomeGUIController implements Initializable {
             showAlert("Inserisci una destinazione valida.");
             return;
         } else {
-            destinationField.setStyle(""); // Rimuovi il bordo rosso se corretto
+            destinationField.setStyle(""); // Rimuovo il bordo rosso se corretto
         }
 
         int radiusKm = convertRangeToInt(rangeChoiceBox.getValue());
@@ -227,17 +228,17 @@ public class HomeGUIController implements Initializable {
     }
 
     @FXML
-    private void onMyWallet() {
+    private void onMyWallet() throws FXMLLoadException {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyWallet.fxml", "Wallet");
     }
 
     @FXML
-    private void onMyAccount() {
+    private void onMyAccount() throws FXMLLoadException {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyAccount.fxml", "Account");
     }
 
     @FXML
-    private void onLogout() {
+    private void onLogout() throws FXMLLoadException {
         SessionManager.getInstance().clearSession();
         TemporaryMemory.getInstance().clear();
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");

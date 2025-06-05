@@ -27,9 +27,6 @@ public class ClientBean extends UserBean {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
 
     public static ClientBean fromModel(Client client) {
         if (client == null) return null;

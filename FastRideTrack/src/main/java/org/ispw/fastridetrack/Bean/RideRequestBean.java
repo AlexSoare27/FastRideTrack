@@ -81,9 +81,6 @@ public class RideRequestBean {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
 
     public Driver getDriver() {
         return driver;

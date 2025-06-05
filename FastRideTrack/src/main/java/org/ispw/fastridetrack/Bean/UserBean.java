@@ -14,12 +14,6 @@ public class UserBean {
     private double latitude;
     private double longitude;
 
-    // Costruttore senza posizione
-    public UserBean(String username, String password, UserType userType, Integer userID,
-                    String name, String email, String phoneNumber) {
-        this(username, password, userType, userID, name, email, phoneNumber, 0.0, 0.0);
-    }
-
     // Costruttore completo
     public UserBean(String username, String password, UserType userType, Integer userID,
                     String name, String email, String phoneNumber, double latitude, double longitude) {
@@ -58,11 +52,9 @@ public class UserBean {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public double getLatitude() { return latitude; }
-    public void setLatitude(double latitude) { this.latitude = latitude; }
 
     public double getLongitude() { return longitude; }
 
-    public void setLongitude(double longitude) { this.longitude = longitude; }
 
     // Metodo helper per ottenere coordinate come oggetto
     public CoordinateBean getCoordinate() {

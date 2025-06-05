@@ -1,9 +1,6 @@
 package org.ispw.fastridetrack.Controller.ApplicationController;
 
-import org.ispw.fastridetrack.Bean.AvailableDriverBean;
-import org.ispw.fastridetrack.Bean.CoordinateBean;
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Bean.RideRequestBean;
+import org.ispw.fastridetrack.Bean.*;
 import org.ispw.fastridetrack.DAO.DriverDAO;
 import org.ispw.fastridetrack.DAO.RideRequestDAO;
 import org.ispw.fastridetrack.Model.Driver;
@@ -22,18 +19,23 @@ public class DriverMatchingApplicationController {
         this.driverDAO = SessionManager.getInstance().getDriverDAO();
     }
 
+    public void assignDriverToRequest(DriverAssignmentBean assignmentBean) {
+        Objects.requireNonNull(assignmentBean, "DriverAssignmentBean non può essere nullo");
+        assignDriverToRequest(assignmentBean.getRequestID(), assignmentBean.getDriver().getUserID());
+    }
+
     /**
      * Assegna un driver alla richiesta di corsa e aggiorna la persistenza.
      *
-     * @param rideID   id della richiesta di corsa
+     * @param requestID   id della richiesta di corsa
      * @param driverID id del driver da assegnare
      * @throws IllegalArgumentException se rideID o driverID non validi
      */
-    public void assignDriverToRide(int rideID, int driverID) {
-        RideRequestBean rideRequest = rideRequestDAO.findById(rideID);
+    public void assignDriverToRequest(int requestID, int driverID) {
+        RideRequestBean rideRequest = rideRequestDAO.findById(requestID);
         Driver driver = driverDAO.findById(driverID);
 
-        Objects.requireNonNull(rideRequest, "RideRequest con ID " + rideID + " non trovato");
+        Objects.requireNonNull(rideRequest, "RideRequest con ID " + requestID + " non trovato");
         Objects.requireNonNull(driver, "Driver con ID " + driverID + " non trovato");
 
         rideRequest.setDriver(driver);
@@ -74,18 +76,6 @@ public class DriverMatchingApplicationController {
         return savedRideRequest;
     }
 
-    /**
-     * Recupera una richiesta di corsa per ID.
-     *
-     * @param rideID id della richiesta di corsa
-     * @return RideRequestBean corrispondente
-     * @throws IllegalArgumentException se la richiesta non viene trovata
-     */
-    public RideRequestBean viewRideRequest(int rideID) {
-        RideRequestBean rideRequest = rideRequestDAO.findById(rideID);
-        Objects.requireNonNull(rideRequest, "RideRequest con ID " + rideID + " non trovata");
-        return rideRequest;
-    }
 }
 
 

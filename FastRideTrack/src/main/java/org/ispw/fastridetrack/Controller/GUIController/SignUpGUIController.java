@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import org.ispw.fastridetrack.Exception.FXMLLoadException;
 import org.ispw.fastridetrack.Util.SceneNavigator;
 
 import java.net.URL;
@@ -34,14 +35,14 @@ public class SignUpGUIController implements Initializable {
     }
 
     @FXML
-    private void onHomepage() {
+    private void onHomepage() throws FXMLLoadException {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
     }
 
     @FXML
-    private void onSignUp() {
+    private void onSignUp() throws FXMLLoadException {
         // Qui posso anche validare i campi e poi procedere con la schermata iniziale dell'app!!
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Home");
     }
 }
 

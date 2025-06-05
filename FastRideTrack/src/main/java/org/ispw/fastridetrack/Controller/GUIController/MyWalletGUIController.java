@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import org.ispw.fastridetrack.Exception.FXMLLoadException;
 import org.ispw.fastridetrack.Util.SceneNavigator;
 
 public class MyWalletGUIController {
@@ -38,12 +39,12 @@ public class MyWalletGUIController {
     }
 
     @FXML
-    void onBackPressed(ActionEvent event) {
+    void onBackPressed(ActionEvent event) throws FXMLLoadException {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
     }
 
     @FXML
-    void onConfirmPressed(ActionEvent event) {
+    void onConfirmPressed(ActionEvent event) throws FXMLLoadException {
         if (checkBoxCard.isSelected()) {
             showAddCardDialog();
         } else if (checkBoxCash.isSelected()) {
@@ -102,7 +103,11 @@ public class MyWalletGUIController {
                 System.out.println("Scadenza: " + expiryDate.getText());
                 System.out.println("CVV: " + cvv.getText());
 
-                SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+                try {
+                    SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+                } catch (FXMLLoadException e) {
+                    throw new RuntimeException(e);
+                }
             }
             return null;
         });

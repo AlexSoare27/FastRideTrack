@@ -53,12 +53,12 @@ public class DriverDAOInMemory implements DriverDAO {
                     "Giulia Verdi",
                     "giulia@example.com",
                     "1122334455",
-                    42.0000,
-                    12.6000,
+                    41.89,
+                    12.465,
                     "Renault Clio",
                     "CC789DD",
                     "Radiotaxi",
-                    false
+                    true
             );
 
             save(d1);

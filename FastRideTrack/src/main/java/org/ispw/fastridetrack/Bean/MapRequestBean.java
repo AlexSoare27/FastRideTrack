@@ -22,8 +22,6 @@ public class MapRequestBean {
 
     public int getRadiusKm() { return radiusKm; }
 
-    public double getEstimatedTimeMinutes() { return estimatedTimeMinutes; }
-
     public void setOrigin(CoordinateBean origin) {
         this.origin = origin;
     }

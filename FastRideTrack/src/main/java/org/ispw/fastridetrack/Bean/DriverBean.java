@@ -40,32 +40,19 @@ public class DriverBean extends UserBean {
         return vehicleInfo;
     }
 
-    public void setVehicleInfo(String vehicleInfo) {
-        this.vehicleInfo = vehicleInfo;
-    }
 
     public String getVehiclePlate() {
         return vehiclePlate;
     }
 
-    public void setVehiclePlate(String vehiclePlate) {
-        this.vehiclePlate = vehiclePlate;
-    }
 
     public String getAffiliation() {
         return affiliation;
     }
 
-    public void setAffiliation(String affiliation) {
-        this.affiliation = affiliation;
-    }
 
     public boolean isAvailable() {
         return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
 

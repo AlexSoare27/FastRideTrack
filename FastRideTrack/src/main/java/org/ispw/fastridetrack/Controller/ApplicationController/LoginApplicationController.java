@@ -15,10 +15,10 @@ public class LoginApplicationController {
     private final DriverDAO driverDAO;
 
     public LoginApplicationController() {
-        // Inizializza il SessionManager (solo se non già inizializzato)
+        // Inizializzo il SessionManager (solo se non già inizializzato)
         SessionManager.init();
 
-        // Ottiene i DAO dalla SessionFactory corretta (persistente o in-memory)
+        // Ottengo i DAO dalla SessionFactory corretta (persistente o in-memory)
         SessionManager sessionManager = SessionManager.getInstance();
         this.clientDAO = sessionManager.getClientDAO();
         this.driverDAO = sessionManager.getDriverDAO();
@@ -64,8 +64,4 @@ public class LoginApplicationController {
         return true;
     }
 
-    // Logout
-    public void closeLoggedSession() {
-        SessionManager.getInstance().clearSession();
-    }
 }

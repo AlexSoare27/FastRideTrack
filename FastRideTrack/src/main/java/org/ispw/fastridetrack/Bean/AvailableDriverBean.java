@@ -32,17 +32,10 @@ public class AvailableDriverBean extends DriverBean {
         return estimatedTime;
     }
 
-    public void setEstimatedTime(float estimatedTime) {
-        this.estimatedTime = estimatedTime;
-    }
-
     public double getEstimatedPrice() {
         return estimatedPrice;
     }
 
-    public void setEstimatedPrice(float estimatedPrice) {
-        this.estimatedPrice = estimatedPrice;
-    }
 }
 
 

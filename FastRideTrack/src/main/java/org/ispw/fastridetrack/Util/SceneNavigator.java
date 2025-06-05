@@ -3,6 +3,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.ispw.fastridetrack.Exception.FXMLLoadException;
 
 public class SceneNavigator {
     private static Stage mainStage;
@@ -10,20 +11,23 @@ public class SceneNavigator {
     public static void setStage(Stage stage) {
         mainStage = stage;
     }
-
-    public static void switchTo(String fxmlPath, String title) {
+    /**
+     * Cambio scena caricando il file FXML indicato.
+     * @param fxmlPath percorso relativo del file FXML
+     * @param title titolo della finestra
+     * @throws FXMLLoadException se il file FXML non può essere caricato
+     */
+    public static void switchTo(String fxmlPath, String title) throws FXMLLoadException {
         try {
-            // Usa il getClass().getResource per il caricamento del file FXML
             FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath));
-            Parent root = loader.load();  // Carica il file FXML
-            mainStage.setTitle(title);  // Imposta il titolo della finestra
-            mainStage.setScene(new Scene(root));  // Crea una nuova scena e la imposta
-            mainStage.show();  // Mostra la finestra
+            Parent root = loader.load();
+            mainStage.setTitle(title);
+            mainStage.setScene(new Scene(root));
+            mainStage.show();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Errore nel caricamento del file FXML: " + fxmlPath);
+            throw new FXMLLoadException("Errore nel caricamento del file FXML: " + fxmlPath, e);
         }
     }
-
 }
+
 

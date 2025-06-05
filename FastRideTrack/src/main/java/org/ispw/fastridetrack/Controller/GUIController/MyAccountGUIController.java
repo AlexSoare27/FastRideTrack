@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import org.ispw.fastridetrack.Bean.ClientBean;
+import org.ispw.fastridetrack.Exception.FXMLLoadException;
 import org.ispw.fastridetrack.Model.Client;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
 import org.ispw.fastridetrack.Util.SceneNavigator;
@@ -15,9 +16,7 @@ public class MyAccountGUIController {
     @FXML private TextField userIdField;
     @FXML private TextField userTypeField;
     @FXML private TextField phoneNumberField;
-    @FXML private Button btnBack;
-
-    private ClientBean clientBean;
+    @FXML public Button btnBack;
 
     @FXML
     public void initialize() {
@@ -29,7 +28,7 @@ public class MyAccountGUIController {
         }
 
         // Usa il metodo fromModel per popolare il bean
-        clientBean = ClientBean.fromModel(client);
+        ClientBean clientBean = ClientBean.fromModel(client);
 
         // Imposta i campi (UserType lo forziamo a CLIENT come da tua richiesta)
         nameField.setText(clientBean.getName());
@@ -47,7 +46,7 @@ public class MyAccountGUIController {
     }
 
     @FXML
-    private void onBackPressed() {
+    private void onBackPressed() throws FXMLLoadException {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
     }
 }

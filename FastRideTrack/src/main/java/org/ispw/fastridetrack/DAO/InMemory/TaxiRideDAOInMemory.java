@@ -21,12 +21,14 @@ public class TaxiRideDAOInMemory implements TaxiRideDAO {
     }
 
     @Override
-    public void update(int rideID, TaxiRideConfirmationBean updatedRide) {
+    public void update(TaxiRideConfirmationBean updatedRide) {
+        int rideID = updatedRide.getRideID();
         if (!rides.containsKey(rideID)) {
             throw new RuntimeException("Nessuna corsa trovata con rideID " + rideID);
         }
         rides.put(rideID, updatedRide);
     }
+
 
     @Override
     public boolean exists(int rideID) {

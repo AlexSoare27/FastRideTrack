@@ -1,5 +1,7 @@
 package org.ispw.fastridetrack.DAO.Adapter;
 
+import jakarta.mail.MessagingException;
+
 public interface EmailService {
-    boolean sendEmail(String recipient, String subject, String body);
+    void sendEmail(String recipient, String subject, String body) throws MessagingException;
 }

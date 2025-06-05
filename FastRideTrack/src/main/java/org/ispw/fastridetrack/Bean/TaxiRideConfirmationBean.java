@@ -17,7 +17,6 @@ public class TaxiRideConfirmationBean {
     private String paymentStatus;
     private LocalDateTime confirmationTime;
 
-    public TaxiRideConfirmationBean() {}
 
     // Costruttore completo
     public TaxiRideConfirmationBean(Integer rideID, Driver driver, Client client, CoordinateBean userLocation,
@@ -41,9 +40,6 @@ public class TaxiRideConfirmationBean {
         return rideID;
     }
 
-    public void setRideID(Integer rideID) {
-        this.rideID = rideID;
-    }
 
     public Driver getDriver() {
         return driver;
@@ -73,9 +69,6 @@ public class TaxiRideConfirmationBean {
         return destination;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
 
     public String getStatus() {
         return status;
@@ -105,10 +98,6 @@ public class TaxiRideConfirmationBean {
         return paymentStatus;
     }
 
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
     public LocalDateTime getConfirmationTime() {
         return confirmationTime;
     }
@@ -125,7 +114,7 @@ public class TaxiRideConfirmationBean {
         if (rideRequest != null) {
             this.rideID = rideRequest.getRequestID();
             this.client = rideRequest.getClient();
-            this.userLocation = rideRequest.getOriginAsCoordinateBean();  // Metodo da implementare in RideRequestBean
+            this.userLocation = rideRequest.getOriginAsCoordinateBean();
             this.destination = rideRequest.getDestination();
             this.paymentStatus = "Pending";
             this.confirmationTime = LocalDateTime.now();

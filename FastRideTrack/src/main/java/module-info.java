@@ -7,6 +7,7 @@ module org.ispw.fastridetrack {
     requires jakarta.mail;
     requires org.json;
     requires com.google.gson;
+    requires java.net.http;
 
 
     opens org.ispw.fastridetrack to javafx.fxml;

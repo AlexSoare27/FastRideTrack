@@ -4,48 +4,44 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.PasswordAuthentication;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
 
 import java.util.Properties;
 
 public class GmailAdapter implements EmailService {
 
+    private final String username;
+    private final String appPassword;
+
+    public GmailAdapter() {
+        this.username = System.getenv("GMAIL_EMAIL");
+        this.appPassword = System.getenv("GMAIL_APP_PASSWORD");
+
+        if (username == null || appPassword == null) {
+            throw new IllegalStateException("Variabili d'ambiente GMAIL_EMAIL o GMAIL_APP_PASSWORD mancanti.");
+        }
+    }
+
     @Override
-    public boolean sendEmail(String recipient, String subject, String body) {
-        boolean isMock = !SessionManager.getInstance().isPersistenceEnabled();
+    public void sendEmail(String to, String subject, String body) throws MessagingException {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
 
-        if (isMock) {
-            System.out.println("[MOCK] Email inviata a: " + recipient + " | Oggetto: " + subject + " | Contenuto: " + body);
-            return true;
-        }
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, appPassword);
+            }
+        });
 
-        try {
-            Properties props = new Properties();
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com");
-            props.put("mail.smtp.port", "587");
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(username));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+        message.setSubject(subject);
+        message.setText(body);
 
-            Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("tuoindirizzo@gmail.com", "tuapassword");
-                }
-            });
-
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("tuoindirizzo@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
-            message.setSubject(subject);
-            message.setText(body);
-
-            Transport.send(message);
-            return true;
-
-        } catch (Exception e) {
-            System.err.println("[ERROR] Invio email fallito: " + e.getMessage());
-            return false;
-        }
+        Transport.send(message);
     }
 }
 

@@ -21,41 +21,27 @@ import java.util.List;
 
 public class SelectTaxiGUIController {
 
-    @FXML
-    private AnchorPane selectTaxiPane;
+    @FXML private WebView mapView;
 
-    @FXML
-    private WebView mapView;
+    @FXML private TableView<AvailableDriverBean> taxiTable;
 
-    @FXML
-    private TableView<AvailableDriverBean> taxiTable;
+    @FXML private TableColumn<AvailableDriverBean, String> driverNameColumn;
 
-    @FXML
-    private TableColumn<AvailableDriverBean, String> driverNameColumn;
+    @FXML private TableColumn<AvailableDriverBean, String> carModelColumn;
 
-    @FXML
-    private TableColumn<AvailableDriverBean, String> carModelColumn;
+    @FXML private TableColumn<AvailableDriverBean, String> plateColumn;
 
-    @FXML
-    private TableColumn<AvailableDriverBean, String> plateColumn;
+    @FXML private TableColumn<AvailableDriverBean, Double> etaColumn;
 
-    @FXML
-    private TableColumn<AvailableDriverBean, Double> etaColumn;
+    @FXML private TableColumn<AvailableDriverBean, Double> priceColumn;
 
-    @FXML
-    private TableColumn<AvailableDriverBean, Double> priceColumn;
+    @FXML private ChoiceBox<String> paymentChoiceBox;
 
-    @FXML
-    private ChoiceBox<String> paymentChoiceBox;
+    @FXML private Button confirmRideButton;
 
-    @FXML
-    private Button confirmRideButton;
+    @FXML private Button goBackButton;
 
-    @FXML
-    private Button goBackButton;
-
-    @FXML
-    private TextField destinationField;
+    @FXML private TextField destinationField;
 
     private MapRequestBean mapRequestBean;
 
@@ -152,11 +138,20 @@ public class SelectTaxiGUIController {
             rideRequest.setDriver(selectedDriver.toModel());
             rideRequest.setClient(currentClient.toModel());
 
-            RideRequestBean savedRequest = driverMatchingController.saveRideRequest(rideRequest);
 
             // 2. Salvataggio in TemporaryMemory
             tempMemory.setSelectedDriver(selectedDriver);
             tempMemory.setSelectedPaymentMethod(paymentMethod);
+
+            RideRequestBean savedRequest = driverMatchingController.saveRideRequest(rideRequest);
+
+            // 2b. Assegnazione driver tramite DriverAssignmentBean
+            DriverAssignmentBean assignmentBean = new DriverAssignmentBean(
+                    savedRequest.getRequestID(),
+                    selectedDriver.toModel()
+            );
+            driverMatchingController.assignDriverToRequest(assignmentBean);
+
 
             // 3. Creazione TaxiRideConfirmationBean
             TaxiRideConfirmationBean confirmationBean = new TaxiRideConfirmationBean(
