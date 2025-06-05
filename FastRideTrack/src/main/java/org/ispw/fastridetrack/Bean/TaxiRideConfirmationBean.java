@@ -3,26 +3,26 @@ package org.ispw.fastridetrack.Bean;
 import org.ispw.fastridetrack.Model.Client;
 import org.ispw.fastridetrack.Model.Driver;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 public class TaxiRideConfirmationBean {
     private Integer rideID;
     private Driver driver;
     private Client client;
-    private List<Double> userLocation; // [latitude, longitude]
+    private CoordinateBean userLocation; // Ora CoordinateBean invece di String
     private String destination;
     private String status;
-    private Float estimatedFare;
-    private Float estimatedTime;
+    private Double estimatedFare;
+    private Double estimatedTime;
     private String paymentStatus;
+    private LocalDateTime confirmationTime;
 
-    public TaxiRideConfirmationBean() {
-        // Costruttore vuoto
-    }
+    public TaxiRideConfirmationBean() {}
 
-    public TaxiRideConfirmationBean(Integer rideID, Driver driver, Client client, List<Double> userLocation,
-                                String destination, String status, Float estimatedFare,
-                                Float estimatedTime, String paymentStatus) {
+    // Costruttore completo
+    public TaxiRideConfirmationBean(Integer rideID, Driver driver, Client client, CoordinateBean userLocation,
+                                    String destination, String status, double estimatedFare,
+                                    double estimatedTime, String paymentStatus, LocalDateTime confirmationTime) {
         this.rideID = rideID;
         this.driver = driver;
         this.client = client;
@@ -32,8 +32,11 @@ public class TaxiRideConfirmationBean {
         this.estimatedFare = estimatedFare;
         this.estimatedTime = estimatedTime;
         this.paymentStatus = paymentStatus;
+        this.confirmationTime = confirmationTime;
     }
 
+
+    // Getter e setter aggiornati
     public Integer getRideID() {
         return rideID;
     }
@@ -58,11 +61,11 @@ public class TaxiRideConfirmationBean {
         this.client = client;
     }
 
-    public List<Double> getUserLocation() {
+    public CoordinateBean getUserLocation() {
         return userLocation;
     }
 
-    public void setUserLocation(List<Double> userLocation) {
+    public void setUserLocation(CoordinateBean userLocation) {
         this.userLocation = userLocation;
     }
 
@@ -82,19 +85,19 @@ public class TaxiRideConfirmationBean {
         this.status = status;
     }
 
-    public Float getEstimatedFare() {
+    public Double getEstimatedFare() {
         return estimatedFare;
     }
 
-    public void setEstimatedFare(Float estimatedFare) {
+    public void setEstimatedFare(Double estimatedFare) {
         this.estimatedFare = estimatedFare;
     }
 
-    public Float getEstimatedTime() {
+    public Double getEstimatedTime() {
         return estimatedTime;
     }
 
-    public void setEstimatedTime(Float estimatedTime) {
+    public void setEstimatedTime(Double estimatedTime) {
         this.estimatedTime = estimatedTime;
     }
 
@@ -106,7 +109,36 @@ public class TaxiRideConfirmationBean {
         this.paymentStatus = paymentStatus;
     }
 
-    public void setRideRequest(RideRequestBean rideRequest) {
+    public LocalDateTime getConfirmationTime() {
+        return confirmationTime;
+    }
 
+    public void setConfirmationTime(LocalDateTime confirmationTime) {
+        this.confirmationTime = confirmationTime;
+    }
+
+    /**
+     * Inizializza la conferma con i dati di una RideRequestBean,
+     * imposta paymentStatus a "Pending" e conferma l’ora corrente.
+     */
+    public void setRideRequest(RideRequestBean rideRequest) {
+        if (rideRequest != null) {
+            this.rideID = rideRequest.getRequestID();
+            this.client = rideRequest.getClient();
+            this.userLocation = rideRequest.getOriginAsCoordinateBean();  // Metodo da implementare in RideRequestBean
+            this.destination = rideRequest.getDestination();
+            this.paymentStatus = "Pending";
+            this.confirmationTime = LocalDateTime.now();
+            this.status = "Pending";
+        }
+    }
+
+    /**
+     * Marca la corsa come confermata e aggiorna l’ora di conferma.
+     */
+    public void markConfirmed() {
+        this.status = "Confirmed";
+        this.confirmationTime = LocalDateTime.now();
     }
 }
+

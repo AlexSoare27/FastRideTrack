@@ -1,7 +1,6 @@
 package org.ispw.fastridetrack.Model.Session;
 
 import org.ispw.fastridetrack.DAO.*;
-import org.ispw.fastridetrack.DAO.Adapter.*;
 import org.ispw.fastridetrack.DAO.InMemory.*;
 
 public class InMemorySessionFactory implements SessionFactory {
@@ -24,26 +23,6 @@ public class InMemorySessionFactory implements SessionFactory {
     @Override
     public TaxiRideDAO createTaxiRideDAO() {
         return new TaxiRideDAOInMemory();
-    }
-
-    @Override
-    public EmailDAO createEmailDAO() {
-        return new EmailDAOInMemory();
-    }
-
-    @Override
-    public MapDAO createMapDAO() {
-        return new MapDAOInMemory() {
-            @Override
-            public double getCurrentLatitude() {
-                return 0;
-            }
-
-            @Override
-            public double getCurrentLongitude() {
-                return 0;
-            }
-        };
     }
 }
 

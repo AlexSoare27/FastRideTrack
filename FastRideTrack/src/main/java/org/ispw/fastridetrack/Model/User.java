@@ -41,7 +41,6 @@ public abstract class User {
         this.longitude = longitude;
     }
 
-
     public Integer getUserID() {
         return userID;
     }

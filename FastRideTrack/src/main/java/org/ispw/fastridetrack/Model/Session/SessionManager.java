@@ -1,24 +1,39 @@
 package org.ispw.fastridetrack.Model.Session;
 
-import org.ispw.fastridetrack.DAO.Adapter.EmailDAO;
-import org.ispw.fastridetrack.DAO.Adapter.MapDAO;
+import org.ispw.fastridetrack.DAO.Adapter.EmailService;
+import org.ispw.fastridetrack.DAO.Adapter.GmailAdapter;
+import org.ispw.fastridetrack.DAO.Adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.DAO.Adapter.MapService;
 import org.ispw.fastridetrack.DAO.ClientDAO;
 import org.ispw.fastridetrack.DAO.DriverDAO;
 import org.ispw.fastridetrack.DAO.RideRequestDAO;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
 import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.Model.Driver;
 
 public class SessionManager {
 
     private static SessionManager instance;
     private final boolean persistenceEnabled;
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
     private Client loggedClient;  // Client loggato
+    private Driver loggedDriver;  // Driver loggato
 
     private SessionManager() {
-        // Carica la configurazione dalla variabile d'ambiente
+        // Carico la configurazione dalla variabile d'ambiente
         String usePersistenceEnv = System.getenv("USE_PERSISTENCE");
         this.persistenceEnabled = "true".equalsIgnoreCase(usePersistenceEnv);
+
+        // Inizializzazione dinamica della session factory
+        if (this.persistenceEnabled) {
+            this.sessionFactory = new PersistenceSessionFactory();
+        } else {
+            this.sessionFactory = new InMemorySessionFactory();
+        }
+        // Adapter unificati per Gmail e GoogleMaps
+        this.mapService = new GoogleMapsAdapter();
+        this.emailService = new GmailAdapter();
+
     }
 
     public static void init() {
@@ -38,10 +53,6 @@ public class SessionManager {
         return persistenceEnabled;
     }
 
-    public void setSessionFactory(SessionFactory factory) {
-        this.sessionFactory = factory;
-    }
-
     public ClientDAO getClientDAO() {
         return sessionFactory.createClientDAO();
     }
@@ -58,28 +69,44 @@ public class SessionManager {
         return sessionFactory.createTaxiRideDAO();
     }
 
-    public EmailDAO getEmailDAO() {
-        return sessionFactory.createEmailDAO();
-    }
 
-    public MapDAO getMapDAO() {
-        return sessionFactory.createMapDAO();
-    }
-
-    // Ottieni il client loggato
+    // === CLIENT ===
     public Client getLoggedClient() {
         return loggedClient;
     }
 
-    // Setta il client loggato
     public void setLoggedClient(Client client) {
         this.loggedClient = client;
     }
 
-    // Pulisce la sessione (al logout)
+    // === DRIVER ===
+    public Driver getLoggedDriver() {
+        return loggedDriver;
+    }
+
+    public void setLoggedDriver(Driver driver) {
+        this.loggedDriver = driver;
+    }
+
+    // === CLEAR SESSION ===
     public void clearSession() {
-        this.sessionFactory = null;
+        System.out.println("Sessione utente terminata.");
         this.loggedClient = null;
+        this.loggedDriver = null;
+    }
+
+    // === SERVIZI ESTERNI ===
+    private final MapService mapService;
+    private final EmailService emailService;
+
+    public MapService getMapService() {
+        return mapService;
+    }
+
+    public EmailService getEmailService() {
+        return emailService;
     }
 }
+
+
 

@@ -1,7 +1,6 @@
 package org.ispw.fastridetrack.Model.Session;
 
 import org.ispw.fastridetrack.DAO.*;
-import org.ispw.fastridetrack.DAO.Adapter.*;
 import org.ispw.fastridetrack.DAO.MYSQL.*;
 
 public class PersistenceSessionFactory implements SessionFactory {
@@ -20,22 +19,14 @@ public class PersistenceSessionFactory implements SessionFactory {
 
     @Override
     public RideRequestDAO createRideRequestDAO() {
-        return new RideRequestDAOMYSQL(dbSession.getConnection());
+        ClientDAO clientDAO = createClientDAO();
+        return new RideRequestDAOMYSQL(dbSession.getConnection(), clientDAO);
     }
 
     @Override
     public TaxiRideDAO createTaxiRideDAO() {
         return new TaxiRideDAOMYSQL(dbSession.getConnection());
     }
-
-    @Override
-    public EmailDAO createEmailDAO() {
-        return new GmailAdapter();
-    }
-
-    @Override
-    public MapDAO createMapDAO() {
-        return new GoogleMapsAdapter();
-    }
 }
+
 

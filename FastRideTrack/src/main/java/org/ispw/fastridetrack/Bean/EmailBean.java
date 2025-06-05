@@ -1,7 +1,6 @@
 package org.ispw.fastridetrack.Bean;
 
 public class EmailBean {
-
     private String email;        // L'indirizzo email del destinatario
     private String subject;      // Oggetto dell'email
     private String body;         // Corpo dell'email

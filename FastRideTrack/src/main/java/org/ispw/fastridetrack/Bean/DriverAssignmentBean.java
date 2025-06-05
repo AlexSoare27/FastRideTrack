@@ -6,13 +6,27 @@ public class DriverAssignmentBean {
     private Integer requestID;
     private Driver driver;
 
-    // Costruttore vuoto
-    public DriverAssignmentBean() {
+    // Costruttore principale
+    public DriverAssignmentBean(RideRequestBean rideRequest, Driver driver) {
+        if (rideRequest == null) throw new IllegalArgumentException("RideRequest cannot be null");
+        if (driver == null) throw new IllegalArgumentException("Driver cannot be null");
+
+        this.requestID = rideRequest.getRequestID();
+        if (this.requestID == null) {
+            throw new IllegalArgumentException("RideRequest must have a valid requestID");
+        }
+        this.driver = driver;
     }
 
-    // Costruttore con tutti i parametri
-    public DriverAssignmentBean(RideRequestBean requestID, Driver driver) {
-        this.requestID = requestID.getRequestID();
+    // Costruttore vuoto
+    public DriverAssignmentBean() {}
+
+    // Costruttore alternativo con requestID diretto
+    public DriverAssignmentBean(Integer requestID, Driver driver) {
+        if (requestID == null) throw new IllegalArgumentException("requestID cannot be null");
+        if (driver == null) throw new IllegalArgumentException("Driver cannot be null");
+
+        this.requestID = requestID;
         this.driver = driver;
     }
 
@@ -32,4 +46,14 @@ public class DriverAssignmentBean {
     public void setDriver(Driver driver) {
         this.driver = driver;
     }
+
+    @Override
+    public String toString() {
+        return "DriverAssignmentBean{" +
+                "requestID=" + requestID +
+                ", driver=" + (driver != null ? driver.getName() : "null") +
+                '}';
+    }
 }
+
+

@@ -24,10 +24,35 @@ public class ClientDAOMYSQL implements ClientDAO {
     }
 
     @Override
-    public Client findByUsername(String username) {
-        // già esistente
-        return null;
+    public Client findById(Integer id_client) {
+        String sql = "SELECT * FROM client WHERE userID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id_client);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Integer userID = rs.getInt("userID");
+                    String username = rs.getString("username");
+                    String password = rs.getString("password");
+                    String name = rs.getString("name");
+                    String email = rs.getString("email");
+                    String phone = rs.getString("phoneNumber");
+                    String paymentMethod = rs.getString("paymentMethod");
+                    double latitude = rs.getDouble("latitude");
+                    double longitude = rs.getDouble("longitude");
+
+                    Client client = new Client(userID, username, password, name, email, phone, paymentMethod);
+                    client.setLatitude(latitude);
+                    client.setLongitude(longitude);
+
+                    return client;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante il recupero del client con ID " + id_client, e);
+        }
+        return null;  // client non trovato
     }
+
 
     @Override
     public ClientBean retrieveClientByUsernameAndPassword(String username, String password) {

@@ -33,8 +33,8 @@ public class ClientDAOInMemory implements ClientDAO {
     }
 
     @Override
-    public Client findByUsername(String username) {
-        return clients.get(username);
+    public Client findById(Integer id_client) {
+        return clients.get(id_client);
     }
 
     @Override

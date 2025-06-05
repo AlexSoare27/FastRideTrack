@@ -1,49 +1,38 @@
 package org.ispw.fastridetrack.Model;
 
 public class Map {
-    private String startLocation;
-    private String endLocation;
-    private double distance;
-    private String estimatedTime;
 
-    public Map(String startLocation, String endLocation, double distance, String estimatedTime) {
-        this.startLocation = startLocation;
-        this.endLocation = endLocation;
-        this.distance = distance;
-        this.estimatedTime = estimatedTime;
+    private final String htmlContent;
+    private final String origin;
+    private final String destination;
+    private final double distanceKm;
+    private final double estimatedTimeMinutes;
+
+    public Map(String htmlContent, String origin, String destination, double distanceKm, double estimatedTimeMinutes) {
+        this.htmlContent = htmlContent;
+        this.origin = origin;
+        this.destination = destination;
+        this.distanceKm = distanceKm;
+        this.estimatedTimeMinutes = estimatedTimeMinutes;
     }
 
-    // Getters and Setters
-    public String getStartLocation() {
-        return startLocation;
+    public String getHtmlContent() {
+        return htmlContent;
     }
 
-    public void setStartLocation(String startLocation) {
-        this.startLocation = startLocation;
+    public String getOrigin() {
+        return origin;
     }
 
-    public String getEndLocation() {
-        return endLocation;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setEndLocation(String endLocation) {
-        this.endLocation = endLocation;
+    public double getDistanceKm() {
+        return distanceKm;
     }
 
-    public double getDistance() {
-        return distance;
-    }
-
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public String getEstimatedTime() {
-        return estimatedTime;
-    }
-
-    public void setEstimatedTime(String estimatedTime) {
-        this.estimatedTime = estimatedTime;
+    public double getEstimatedTimeMinutes() {
+        return estimatedTimeMinutes;
     }
 }
-

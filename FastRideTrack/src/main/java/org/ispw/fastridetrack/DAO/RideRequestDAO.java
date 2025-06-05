@@ -1,17 +1,15 @@
 package org.ispw.fastridetrack.DAO;
 
 import org.ispw.fastridetrack.Bean.RideRequestBean;
-import org.ispw.fastridetrack.Model.RideRequest;
+import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
 
 public interface RideRequestDAO {
-    void saveRideRequest(RideRequest request);
-    RideRequest getRideRequestById(int id);
 
-    RideRequestBean findById(int rideID);
+    // Cambiato in RideRequestBean per restituire bean aggiornato con ID (utile dopo inserimento DB)
+    RideRequestBean save(RideRequestBean rideRequestBean);
 
-    void update(RideRequestBean rideRequest);
+    RideRequestBean findById(int requestID);
 
-    void save(RideRequestBean rideRequestBean);
-
-
+    void update(RideRequestBean rideRequestBean);
 }
+

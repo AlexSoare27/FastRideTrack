@@ -1,26 +1,49 @@
 package org.ispw.fastridetrack.Controller.GUIController;
 
-import javafx.event.ActionEvent;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.Bean.*;
+import org.ispw.fastridetrack.Controller.ApplicationController.DriverMatchingApplicationController;
+import org.ispw.fastridetrack.Model.Map;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
+import org.ispw.fastridetrack.Util.TemporaryMemory;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class SelectTaxiGUIController {
+
+    @FXML
+    private AnchorPane selectTaxiPane;
+
+    @FXML
+    private WebView mapView;
+
+    @FXML
+    private TableView<AvailableDriverBean> taxiTable;
+
+    @FXML
+    private TableColumn<AvailableDriverBean, String> driverNameColumn;
+
+    @FXML
+    private TableColumn<AvailableDriverBean, String> carModelColumn;
+
+    @FXML
+    private TableColumn<AvailableDriverBean, String> plateColumn;
+
+    @FXML
+    private TableColumn<AvailableDriverBean, Double> etaColumn;
+
+    @FXML
+    private TableColumn<AvailableDriverBean, Double> priceColumn;
 
     @FXML
     private ChoiceBox<String> paymentChoiceBox;
@@ -29,132 +52,169 @@ public class SelectTaxiGUIController {
     private Button confirmRideButton;
 
     @FXML
-    private GridPane driverGridPane;
+    private Button goBackButton;
 
-    private List<Button> driverButtons = new ArrayList<>();
-    private Driver selectedDriver;
-    private List<Driver> availableDrivers;
-    private MapRequestBean mapRequestBean; // Viene settato da chi carica questa schermata
+    @FXML
+    private TextField destinationField;
+
+    private MapRequestBean mapRequestBean;
+
+    private final DriverMatchingApplicationController driverMatchingController = new DriverMatchingApplicationController();
+
+    private final TemporaryMemory tempMemory = TemporaryMemory.getInstance();
 
     @FXML
     public void initialize() {
-        // Inizializza metodi di pagamento
-        paymentChoiceBox.getItems().addAll("Cash", "Debit Card");
+        initializeTable();
+        initializePaymentChoices();
+        destinationField.setEditable(false);
 
-        // Recupera driver disponibili (mock o reale)
-        availableDrivers = fetchAvailableDrivers();
-
-        if (availableDrivers.isEmpty()) {
-            showAlert("No drivers available at the moment.");
-        } else {
-            createDriverButtons();
+        // Se TemporaryMemory ha già dati, caricali (utile se torni da altre schermate)
+        if (tempMemory.getMapRequestBean() != null) {
+            this.mapRequestBean = tempMemory.getMapRequestBean();
+            destinationField.setText(this.mapRequestBean.getDestination());
+            if (tempMemory.getAvailableDrivers() != null) {
+                taxiTable.getItems().setAll(tempMemory.getAvailableDrivers());
+            }
         }
     }
 
-    private void createDriverButtons() {
-        driverGridPane.getChildren().clear();
-        driverButtons.clear();
+    private void initializeTable() {
+        driverNameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getName()));
+        carModelColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getVehicleInfo()));
+        plateColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getVehiclePlate()));
+        etaColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getEstimatedTime()));
+        priceColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getEstimatedPrice()));
+    }
 
-        for (int i = 0; i < availableDrivers.size(); i++) {
-            Driver driver = availableDrivers.get(i);
-            Button button = new Button("Driver " + (i + 1) + ": " + driver.getName());
-            button.setPrefSize(325, 25);
-            button.setStyle("-fx-background-color: transparent;");
+    private void initializePaymentChoices() {
+        paymentChoiceBox.getItems().addAll("Cash", "Card");
+        paymentChoiceBox.getSelectionModel().selectFirst();
 
-            final int index = i;
-            button.setOnAction(event -> {
-                selectedDriver = availableDrivers.get(index);
-                highlightSelectedDriverButton(index);
-            });
-
-            driverButtons.add(button);
-            driverGridPane.add(button, 0, i);
+        // Se TemporaryMemory ha un metodo di pagamento selezionato, impostalo
+        if (tempMemory.getSelectedPaymentMethod() != null) {
+            paymentChoiceBox.getSelectionModel().select(tempMemory.getSelectedPaymentMethod());
         }
     }
 
-    private void highlightSelectedDriverButton(int driverIndex) {
-        resetButtonStyles();
-        if (driverIndex >= 0 && driverIndex < driverButtons.size()) {
-            driverButtons.get(driverIndex).setStyle("-fx-background-color: #add8e6;");
+    public void setMapAndRequest(MapRequestBean bean, Map map) {
+        if (bean == null || map == null || map.getHtmlContent() == null) {
+            showAlert("Dati mappa o richiesta non validi.");
+            return;
         }
-    }
+        this.mapRequestBean = bean;
+        destinationField.setText(bean.getDestination());
 
-    private void resetButtonStyles() {
-        driverButtons.forEach(button -> button.setStyle("-fx-background-color: transparent;"));
+        try {
+            List<AvailableDriverBean> drivers = driverMatchingController.findAvailableDrivers(bean);
+            taxiTable.getItems().setAll(drivers);
+
+            // Salva su TemporaryMemory
+            tempMemory.setMapRequestBean(bean);
+            tempMemory.setAvailableDrivers(drivers);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Errore nel caricamento dei driver disponibili.");
+        }
+
+        mapView.getEngine().loadContent(map.getHtmlContent());
     }
 
     @FXML
-    private void onConfirmRide(ActionEvent event) throws IOException {
-        if (selectedDriver == null || paymentChoiceBox.getValue() == null) {
-            showAlert("Please select a driver and a payment method.");
+    private void onConfirmRide() {
+        AvailableDriverBean selectedDriver = taxiTable.getSelectionModel().getSelectedItem();
+        if (selectedDriver == null) {
+            showAlert("Seleziona un driver dalla tabella.");
             return;
         }
 
-        Client client = SessionManager.getInstance().getLoggedClient();
-        if (client == null) {
-            showAlert("No client logged in.");
+        String paymentMethod = paymentChoiceBox.getSelectionModel().getSelectedItem();
+        if (paymentMethod == null || paymentMethod.isEmpty()) {
+            showAlert("Seleziona un metodo di pagamento.");
             return;
         }
 
-        TaxiRideConfirmationBean rideBean = new TaxiRideConfirmationBean();
-        rideBean.setRideID(generateRideID());
-        rideBean.setDriver(selectedDriver);
-        rideBean.setClient(client);
-
-        // Usa dati da mapRequestBean se presenti, altrimenti fallback statico
-        if (mapRequestBean != null) {
-            rideBean.setUserLocation(mapRequestBean.getUserLocation());
-            rideBean.setDestination(mapRequestBean.getDestination());
-        } else {
-            rideBean.setUserLocation(List.of(41.9028, 12.4964)); // Roma centro
-            rideBean.setDestination("Piazza Venezia");
+        ClientBean currentClient = ClientBean.fromModel(SessionManager.getInstance().getLoggedClient());
+        if (currentClient == null) {
+            showAlert("Utente non loggato o client non trovato.");
+            return;
         }
 
-        rideBean.setStatus("Pending");
-        rideBean.setEstimatedFare(15.0f);  // placeholder, calcola reale se vuoi
-        rideBean.setEstimatedTime(12.0f);  // placeholder
-        rideBean.setPaymentStatus(paymentChoiceBox.getValue());
+        try {
+            // 1. Creazione richiesta corsa
+            RideRequestBean rideRequest = new RideRequestBean(
+                    mapRequestBean.getOrigin(),
+                    mapRequestBean.getDestination(),
+                    mapRequestBean.getRadiusKm(),
+                    paymentMethod
+            );
+            rideRequest.setDriver(selectedDriver.toModel());
+            rideRequest.setClient(currentClient.toModel());
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectDriver.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
+            RideRequestBean savedRequest = driverMatchingController.saveRideRequest(rideRequest);
 
-        // Passa dati al controller successivo
-        SelectDriverGUIController controller = loader.getController();
-        controller.initData(rideBean);
+            // 2. Salvataggio in TemporaryMemory
+            tempMemory.setSelectedDriver(selectedDriver);
+            tempMemory.setSelectedPaymentMethod(paymentMethod);
+
+            // 3. Creazione TaxiRideConfirmationBean
+            TaxiRideConfirmationBean confirmationBean = new TaxiRideConfirmationBean(
+                    savedRequest.getRequestID(),
+                    selectedDriver.toModel(),                      // Driver
+                    currentClient.toModel(),                        // Client
+                    savedRequest.getOriginAsCoordinateBean(),      // CoordinateBean (origine)
+                    savedRequest.getDestination(),                  // String (destinazione)
+                    "Pending",                                      // status iniziale
+                    selectedDriver.getEstimatedPrice(),             // double estimatedFare
+                    selectedDriver.getEstimatedTime(),              // double estimatedTime
+                    savedRequest.getPaymentMethod(),                 // paymentStatus? o "Pending" se non hai ancora stato
+                    LocalDateTime.now()                              // confirmationTime
+            );
+
+
+            tempMemory.setRideConfirmation(confirmationBean);
+
+            // 4. Vai a SelectDriver.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectDriver.fxml"));
+            AnchorPane pane = loader.load();
+
+            Stage stage = (Stage) confirmRideButton.getScene().getWindow();
+            stage.setTitle("Conferma Driver");
+            stage.setScene(new Scene(pane));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Errore nella conferma della corsa.");
+        }
     }
 
-    private int generateRideID() {
-        return (int) (Math.random() * 100000);
+    @FXML
+    private void onGoBackHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/Home.fxml"));
+            AnchorPane pane = loader.load();
+
+            Stage stage = (Stage) goBackButton.getScene().getWindow();
+            stage.setTitle("Home");
+            stage.setScene(new Scene(pane));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Errore nel ritorno alla schermata Home.");
+        }
     }
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Attention");
+        alert.setTitle("Attenzione");
+        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    private List<Driver> fetchAvailableDrivers() {
-        List<Driver> list = new ArrayList<>();
-
-        // Driver con costruttore corretto (aggiunti campi mancanti)
-        list.add(new Driver(1, "mario", "pass", "Mario Rossi", "mario@example.com", "1234567890", "ibanMario", "AB123CD", "TaxiRoma"));
-        list.add(new Driver(2, "luigi", "pass", "Luigi Verdi", "luigi@example.com", "0987654321", "ibanLuigi", "CD456EF", "TaxiRoma"));
-        list.add(new Driver(3, "anna", "pass", "Anna Bianchi", "anna@example.com", "1122334455", "ibanAnna", "EF789GH", "TaxiRoma"));
-        list.add(new Driver(4, "carlo", "pass", "Carlo Neri", "carlo@example.com", "6677889900", "ibanCarlo", "GH012IJ", "TaxiRoma"));
-        list.add(new Driver(5, "elena", "pass", "Elena Gialli", "elena@example.com", "2233445566", "ibanElena", "IJ345KL", "TaxiRoma"));
-        list.add(new Driver(6, "francesco", "pass", "Francesco Blu", "francesco@example.com", "9988776655", "ibanFrancesco", "KL678MN", "TaxiRoma"));
-        list.add(new Driver(7, "giulia", "pass", "Giulia Rossi", "giulia@example.com", "5566778899", "ibanGiulia", "MN901OP", "TaxiRoma"));
-
-        return list;
-    }
-
-    // Setter per ricevere dati da altri controller
-    public void setMapRequestBean(MapRequestBean bean) {
-        this.mapRequestBean = bean;
-    }
 }
+
 
 
 

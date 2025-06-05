@@ -1,20 +1,26 @@
 package org.ispw.fastridetrack.Bean;
 
-import org.ispw.fastridetrack.Model.UserType;
 import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.Model.Coordinate;
+import org.ispw.fastridetrack.Model.UserType;
 
 public class ClientBean extends UserBean {
     private String paymentMethod;
 
-    public ClientBean(String username, String password, UserType userType, Integer userID, String name, String email, String phoneNumber, String paymentMethod) {
-        super(username, password, userType, userID, name, email, phoneNumber,0,0);
+
+    public ClientBean(String username, String password, Integer userID, String name,
+                      String email, String phoneNumber, double latitude, double longitude, String paymentMethod) {
+        super(username, password, UserType.CLIENT, userID, name, email, phoneNumber, latitude, longitude);
         this.paymentMethod = paymentMethod;
     }
 
-    public ClientBean(String username, String password, UserType userType, Integer userID, String name,
-                      String email, String phoneNumber, double latitude, double longitude, String paymentMethod) {
-        super(username, password, userType, userID, name, email, phoneNumber, latitude, longitude);
-        this.paymentMethod = paymentMethod;
+    public ClientBean(String username, String password, int userID, String name,
+                      String email, String phoneNumber,
+                      CoordinateBean coordinate,
+                      String paymentMethod) {
+        this(username, password, userID, name, email, phoneNumber,
+                coordinate.getLatitude(), coordinate.getLongitude(),
+                paymentMethod);
     }
 
     public String getPaymentMethod() {
@@ -31,17 +37,29 @@ public class ClientBean extends UserBean {
         return new ClientBean(
                 client.getUsername(),
                 client.getPassword(),
-                client.getUserType(),
                 client.getUserID(),
                 client.getName(),
                 client.getEmail(),
                 client.getPhoneNumber(),
-                client.getLatitude(),
-                client.getLongitude(),
+                new CoordinateBean(client.getCoordinate()),
                 client.getPaymentMethod()
         );
     }
 
+    public Client toModel() {
+        Coordinate coordinate = getCoordinate() != null ? getCoordinate().toModel() : null;
+        return new Client(
+                getUserID(),
+                getUsername(),
+                getPassword(),
+                getName(),
+                getEmail(),
+                getPhoneNumber(),
+                coordinate,
+                getPaymentMethod()
+        );
+
+    }
 }
 
 

@@ -11,6 +11,13 @@ public class CoordinateBean {
         this.longitude = longitude;
     }
 
+    public CoordinateBean(Coordinate coordinate) {
+        if (coordinate != null) {
+            this.latitude = coordinate.getLatitude();
+            this.longitude = coordinate.getLongitude();
+        }
+    }
+
     public double getLatitude() {
         return latitude;
     }
@@ -27,8 +34,8 @@ public class CoordinateBean {
         this.longitude = longitude;
     }
 
-    public CoordinateBean toModel() {
-        return new CoordinateBean(latitude, longitude);
+    public Coordinate toModel() {
+        return new Coordinate(latitude, longitude);
     }
-
 }
+

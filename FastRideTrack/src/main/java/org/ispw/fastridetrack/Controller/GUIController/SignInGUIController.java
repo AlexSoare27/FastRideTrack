@@ -23,20 +23,16 @@ public class SignInGUIController {
         String password = passwordField.getText();
 
         try {
-            // Crea il controller senza il parametro booleano per la persistenza
             LoginApplicationController loginController = new LoginApplicationController();
-            // Verifico le credenziali
             boolean isValid = loginController.validateClientCredentials(username, password, UserType.CLIENT);
 
             if (isValid) {
-                // Crea la sessione dell'utente loggato
-                loginController.createLoggedSession();
                 SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
             } else {
                 showErrorAlert("Login Fallito", "Credenziali errate. Riprova.");
             }
         } catch (Exception e) {
-            e.printStackTrace(); // 👈 Stampa stack trace completo
+            e.printStackTrace();
             showErrorAlert("Errore di connessione", "Impossibile connettersi al database:\n" + e.getMessage());
         }
     }

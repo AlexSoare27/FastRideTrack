@@ -5,23 +5,34 @@ public class Driver extends User {
     private String vehicleInfo;
     private String vehiclePlate;
     private String affiliation;
+    private boolean available;
 
-    public Driver(Integer userID, String name, String username, String password, String email,
-                  String phoneNumber, String vehicleInfo, String vehiclePlate, String affiliation) {
+
+    public Driver(Integer userID, String username, String password, String name, String email,
+                  String phoneNumber, Coordinate coordinate, String vehicleInfo, String vehiclePlate, String affiliation, boolean available) {
         super(userID, username, password, name, email, phoneNumber, UserType.DRIVER);
         this.vehicleInfo = vehicleInfo;
         this.vehiclePlate = vehiclePlate;
         this.affiliation = affiliation;
-    }
-
-    public Driver(Integer userID, String name, String username, String password, String email,
-                  String phoneNumber, Coordinate coordinate, String vehicleInfo, String vehiclePlate, String affiliation) {
-        this(userID, name, username, password, email, phoneNumber, vehicleInfo, vehiclePlate, affiliation);
+        this.available = available;
         if (coordinate != null) {
             setLatitude(coordinate.getLatitude());
             setLongitude(coordinate.getLongitude());
         }
     }
+
+    public Driver(int userID, String username, String password, String name, String email, String phoneNumber,
+                  double latitude, double longitude, String vehicleInfo, String vehiclePlate, String affiliation, boolean available) {
+        super(userID, username, password, name, email, phoneNumber, UserType.DRIVER);
+        setLatitude(latitude);
+        setLongitude(longitude);
+        this.vehicleInfo = vehicleInfo;
+        this.vehiclePlate = vehiclePlate;
+        this.affiliation = affiliation;
+        this.available = available;
+    }
+
+
 
     public String getVehicleInfo() {
         return vehicleInfo;
@@ -47,15 +58,12 @@ public class Driver extends User {
         this.affiliation = affiliation;
     }
 
-    public Coordinate getCoordinate() {
-        return new Coordinate(getLatitude(), getLongitude());
+    public boolean isAvailable() {
+        return available;
     }
 
-    public void setCoordinate(Coordinate coordinate) {
-        if (coordinate != null) {
-            setLatitude(coordinate.getLatitude());
-            setLongitude(coordinate.getLongitude());
-        }
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
 

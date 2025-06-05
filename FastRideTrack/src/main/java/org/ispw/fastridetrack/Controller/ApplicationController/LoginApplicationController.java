@@ -1,78 +1,71 @@
 package org.ispw.fastridetrack.Controller.ApplicationController;
 
 import org.ispw.fastridetrack.Bean.ClientBean;
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.MYSQL.ClientDAOMYSQL;
-import org.ispw.fastridetrack.DAO.InMemory.ClientDAOInMemory;
+import org.ispw.fastridetrack.Bean.DriverBean;
 import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.UserType;
+import org.ispw.fastridetrack.Model.Driver;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.DAO.MYSQL.SingletonDBSession;
-import org.ispw.fastridetrack.Model.Session.InMemorySessionFactory;
-import org.ispw.fastridetrack.Model.Session.PersistenceSessionFactory;
-
-import java.sql.Connection;
+import org.ispw.fastridetrack.Model.UserType;
+import org.ispw.fastridetrack.DAO.ClientDAO;
+import org.ispw.fastridetrack.DAO.DriverDAO;
 
 public class LoginApplicationController {
 
     private final ClientDAO clientDAO;
+    private final DriverDAO driverDAO;
 
     public LoginApplicationController() {
-        // Inizializzo il SessionManager (configurazione automatica della persistenza)
+        // Inizializza il SessionManager (solo se non già inizializzato)
         SessionManager.init();
 
-        // Ottiengo il flag di persistenza da SessionManager
-        boolean persistence = SessionManager.getInstance().isPersistenceEnabled();
-
-        // Inizializzo il DAO corretto in base alla modalità di persistenza
-        if (persistence) {
-            Connection connection = SingletonDBSession.getInstance().getConnection();
-            if (connection != null) {
-                this.clientDAO = new ClientDAOMYSQL(connection); // Passo la connessione al DAO
-            } else {
-                throw new RuntimeException("Connessione al database non riuscita");
-            }
-        } else {
-            this.clientDAO = new ClientDAOInMemory(); // Uso il DAO in memoria
-        }
-    }
-
-    // Metodo per validare le credenziali di login
-    public boolean validateClientCredentials(String username, String password, UserType userType) {
-        ClientBean clientBean = clientDAO.retrieveClientByUsernameAndPassword(username, password);
-
-        // Converti ClientBean in Client
-        Client client = Client.fromBean(clientBean);
-
-        if (client != null) {
-            if (client.getUserType() == userType) {
-                SessionManager.getInstance().setLoggedClient(client);  // Imposta il Client nella sessione
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    // Metodo per creare una sessione per l'utente loggato
-    public void createLoggedSession() {
+        // Ottiene i DAO dalla SessionFactory corretta (persistente o in-memory)
         SessionManager sessionManager = SessionManager.getInstance();
-        if (sessionManager.isPersistenceEnabled()) {
-            // Se la persistenza è abilitata, imposto la session factory per il DB
-            sessionManager.setSessionFactory(new PersistenceSessionFactory());
-        } else {
-            // Altrimenti, uso la session factory in memoria
-            sessionManager.setSessionFactory(new InMemorySessionFactory());
-        }
+        this.clientDAO = sessionManager.getClientDAO();
+        this.driverDAO = sessionManager.getDriverDAO();
     }
 
-    // Metodo per chiudere la sessione dell'utente
+    // Validazione credenziali per il client
+    public boolean validateClientCredentials(String username, String password, UserType userType) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return false;
+        }
+
+        ClientBean clientBean = clientDAO.retrieveClientByUsernameAndPassword(username, password);
+        if (clientBean == null) {
+            return false;
+        }
+
+        Client client = clientBean.toModel();
+        if (client == null || client.getUserType() != userType) {
+            return false;
+        }
+
+        SessionManager.getInstance().setLoggedClient(client);
+        return true;
+    }
+
+    // Validazione credenziali per il driver
+    public boolean validateDriverCredentials(String username, String password, UserType userType) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return false;
+        }
+
+        DriverBean driverBean = driverDAO.retrieveDriverByUsernameAndPassword(username, password);
+        if (driverBean == null) {
+            return false;
+        }
+
+        Driver driver = driverBean.toModel();
+        if (driver == null || driver.getUserType() != userType) {
+            return false;
+        }
+
+        SessionManager.getInstance().setLoggedDriver(driver);
+        return true;
+    }
+
+    // Logout
     public void closeLoggedSession() {
-        // Chiudo la sessione dell'utente loggato
         SessionManager.getInstance().clearSession();
     }
 }
-
-
-

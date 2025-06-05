@@ -3,6 +3,10 @@ module org.ispw.fastridetrack {
     requires javafx.fxml;
     requires java.sql;
     requires javafx.web;
+    requires mysql.connector.j;
+    requires jakarta.mail;
+    requires org.json;
+    requires com.google.gson;
 
 
     opens org.ispw.fastridetrack to javafx.fxml;

@@ -14,10 +14,7 @@ public class UserBean {
     private double latitude;
     private double longitude;
 
-    // Costruttore vuoto
-    public UserBean() {}
-
-    // Costruttore intermedio (senza posizione)
+    // Costruttore senza posizione
     public UserBean(String username, String password, UserType userType, Integer userID,
                     String name, String email, String phoneNumber) {
         this(username, password, userType, userID, name, email, phoneNumber, 0.0, 0.0);

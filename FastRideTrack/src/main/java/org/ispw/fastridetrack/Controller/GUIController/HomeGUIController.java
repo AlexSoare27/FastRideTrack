@@ -1,67 +1,63 @@
 package org.ispw.fastridetrack.Controller.GUIController;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Polygon;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.DAO.Adapter.MapDAO;
+import org.ispw.fastridetrack.Bean.RideRequestBean;
+import org.ispw.fastridetrack.Bean.CoordinateBean;
+import org.ispw.fastridetrack.Controller.ApplicationController.DriverMatchingApplicationController;
+import org.ispw.fastridetrack.Controller.ApplicationController.MapApplicationController;
 import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.Model.Map;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
-import javafx.scene.web.WebView;
+import org.ispw.fastridetrack.Util.*;
+import org.ispw.fastridetrack.Util.TemporaryMemory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class HomeGUIController implements Initializable {
 
-    @FXML
-    private AnchorPane homePane;
-    @FXML
-    private Polygon triangle;
-    @FXML
-    private Pane mapPane;
-    @FXML
-    private ChoiceBox<String> rangeChoiceBox;
-    @FXML
-    private TextField destinationField;
-    @FXML
-    private Button checkRiderButton;
-    @FXML
-    private Button logoutButton;
-    @FXML
-    private Button homepageButton;
-    @FXML
-    private Button myAccountButton;
-    @FXML
-    private Button myWalletButton;
-    @FXML
-    private Label welcomeLabel;
-    @FXML
-    private WebView mapWebView;
+    @FXML private AnchorPane homePane;
+    @FXML private ChoiceBox<String> rangeChoiceBox;
+    @FXML private TextField destinationField;
+    @FXML private Button checkRiderButton;
+    @FXML private Button logoutButton;
+    @FXML private Button myAccountButton;
+    @FXML private Button myWalletButton;
+    @FXML private Label welcomeLabel;
+    @FXML private WebView mapWebView;
 
-    private MapDAO mapDAO;
-    private final String currentLocation = "Via Roma 10, Napoli"; // Mock posizione attuale
+    private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
+    private MapApplicationController mapAppController;
+    private DriverMatchingApplicationController rideRequestController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        mapDAO = SessionManager.getInstance().getMapDAO();
+        mapAppController = new MapApplicationController();
+        rideRequestController = new DriverMatchingApplicationController();
+
         showGPSAlert();
         initializeChoiceBox();
-        displayUserLocationOnMap();
         displayUserName();
+        restoreTemporaryData();
+        loadCurrentLocationMap();
     }
 
     private void displayUserName() {
-        Client client = SessionManager.getInstance().getLoggedClient();  // Ottengo l'utente loggato
+        Client client = SessionManager.getInstance().getLoggedClient();
         if (client != null) {
-            welcomeLabel.setText("Benvenuto, " + client.getName());  // Visualizzo il nome
+            welcomeLabel.setText("Benvenuto, " + client.getName());
         }
     }
 
@@ -74,83 +70,144 @@ public class HomeGUIController implements Initializable {
     }
 
     private void initializeChoiceBox() {
-        rangeChoiceBox.getItems().addAll("1 km", "3 km", "5 km", "10 km");
-        rangeChoiceBox.setValue("1 km"); // default
+        List<Integer> ranges = List.of(1, 2, 3, 5);
+        rangeChoiceBox.getItems().addAll(ranges.stream().map(km -> km + " km").toList());
+        rangeChoiceBox.setValue("1 km");
     }
 
-    private void displayUserLocationOnMap() {
-        triangle.setLayoutX(mapPane.getPrefWidth() / 2);
-        triangle.setLayoutY(mapPane.getPrefHeight() / 2);
+    private void restoreTemporaryData() {
+        MapRequestBean bean = TemporaryMemory.getInstance().getMapRequestBean();
+        if (bean != null) {
+            if (bean.getDestination() != null && !bean.getDestination().isBlank()) {
+                destinationField.setText(bean.getDestination());
+            }
+            String radiusStr = bean.getRadiusKm() + " km";
+            if (rangeChoiceBox.getItems().contains(radiusStr)) {
+                rangeChoiceBox.setValue(radiusStr);
+            }
+            // Se vuoi puoi anche aggiornare currentLocation in base a bean.getOrigin()
+            if (bean.getOrigin() != null) {
+                currentLocation = bean.getOrigin();
+            }
+        }
+    }
+
+    private void loadCurrentLocationMap() {
+        new Thread(() -> {
+            try {
+                String ip = IPFetcher.getPublicIP();
+                System.out.println("IP pubblico: " + ip);
+
+                var coordModel = IPLocationService.getCoordinateFromIP(ip);
+                currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
+
+                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
+
+                Platform.runLater(() -> {
+                    try {
+                        String html = MapHTMLGenerator.generateMapHtmlString(coordModel);
+                        WebEngine engine = mapWebView.getEngine();
+                        engine.setJavaScriptEnabled(true);
+                        engine.loadContent(html);
+                    } catch (IOException e) {
+                        showAlert("Errore nella generazione della mappa dinamica.");
+                    }
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    showAlert("Impossibile recuperare la posizione. Verrà caricata la mappa di default.");
+                    loadMapWithDefaultLocation();
+                });
+            }
+        }).start();
+    }
+
+    private void loadMapWithDefaultLocation() {
+        Platform.runLater(() -> {
+            WebEngine engine = mapWebView.getEngine();
+            engine.setJavaScriptEnabled(true);
+            URL url = getClass().getResource("/org/ispw/fastridetrack/html/map.html");
+            if (url != null) {
+                engine.load(url.toExternalForm());
+            } else {
+                showAlert("File map.html non trovato nelle risorse.");
+            }
+        });
     }
 
     @FXML
     private void onCheckRider() {
         String destination = destinationField.getText();
-        String range = rangeChoiceBox.getValue();
 
-        if (destination == null || destination.isBlank()) {
+        if (destination == null || destination.trim().isEmpty()) {
+            destinationField.setStyle("-fx-border-color: red;");
             showAlert("Inserisci una destinazione valida.");
             return;
+        } else {
+            destinationField.setStyle(""); // Rimuovi il bordo rosso se corretto
         }
 
-        int radiusKm = convertRangeToInt(range);
+        int radiusKm = convertRangeToInt(rangeChoiceBox.getValue());
         if (radiusKm == -1) {
-            showAlert("Raggio non valido.");
+            showAlert("Raggio selezionato non valido.");
             return;
         }
 
-        // Simula mappa
-        String routeHtml = mapDAO.showRoute(currentLocation, destination);
-        mapWebView.getEngine().loadContent(routeHtml);  // Visualizza mappa nel WebView
+        Client loggedClient = SessionManager.getInstance().getLoggedClient();
 
-        // Crea e passa la bean
-        MapRequestBean requestBean = new MapRequestBean(currentLocation, destination, radiusKm);
-        goToSelectTaxi(requestBean);
-    }
+        String pickupLocationStr = CoordinateUtils.coordinateToString(currentLocation);
 
+        String paymentMethod = "Cash"; // default
 
-    private void goToSelectTaxi(MapRequestBean bean) {
+        RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, paymentMethod);
+        rideRequestBean.setRequestID(null);
+        rideRequestBean.setClient(loggedClient);
+        rideRequestBean.setPickupLocation(pickupLocationStr);
+        rideRequestBean.setDestination(destination.trim());
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
-            AnchorPane pane = loader.load();
+            rideRequestController.saveRideRequest(rideRequestBean);
+            System.out.println("Ride request creata con successo");
 
-            // Ottieni il controller dopo il caricamento
-            SelectTaxiGUIController controller = loader.getController();
-            controller.setMapRequestBean(bean);
+            MapRequestBean mapRequestBean = new MapRequestBean(currentLocation, destination.trim(), radiusKm);
 
-            Stage stage = (Stage) homePane.getScene().getWindow();
-            Scene scene = new Scene(pane);
-            stage.setScene(scene);
-        } catch (IOException e) {
+            // Salvo i dati temporanei
+            TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
+
+            Map map = mapAppController.showMap(mapRequestBean);
+            System.out.println("Mappa generata con successo");
+
+            if (map == null || map.getHtmlContent() == null || map.getHtmlContent().isBlank()) {
+                showAlert("Errore nel calcolo o visualizzazione del percorso.");
+                return;
+            }
+
+            mapWebView.getEngine().loadContent(map.getHtmlContent());
+            goToSelectTaxi(mapRequestBean, map);
+
+        } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Errore nel caricamento della schermata SelectTaxi.");
+            showAlert("Errore durante l'elaborazione della richiesta.");
         }
     }
 
-
-    @FXML
-    private void onMyWallet() {
-        loadFXML("/org/ispw/fastridetrack/views/MyWallet.fxml");
-    }
-
-    @FXML
-    private void onMyAccount() {
-        loadFXML("/org/ispw/fastridetrack/views/MyAccount.fxml");
-    }
-
-    @FXML
-    private void onLogout() {
-        loadFXML("/org/ispw/fastridetrack/views/Homepage.fxml");
-    }
-
-    private void loadFXML(String fxmlPath) {
+    private void goToSelectTaxi(MapRequestBean bean, Map map) {
         try {
-            AnchorPane pane = FXMLLoader.load(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
+            AnchorPane pane = loader.load();
+
+            SelectTaxiGUIController controller = loader.getController();
+            controller.setMapAndRequest(bean, map);
+
             Stage stage = (Stage) homePane.getScene().getWindow();
+            stage.setTitle("Selezione Taxi");
             stage.setScene(new Scene(pane));
+            stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Errore nel caricamento della schermata.");
+            showAlert("Errore nel caricamento della schermata di selezione taxi.");
         }
     }
 
@@ -162,15 +219,30 @@ public class HomeGUIController implements Initializable {
     }
 
     private int convertRangeToInt(String range) {
-        // Rimuovi " km" e convertilo in int
         try {
             return Integer.parseInt(range.split(" ")[0]);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return -1;
         }
     }
-}
 
+    @FXML
+    private void onMyWallet() {
+        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyWallet.fxml", "Wallet");
+    }
+
+    @FXML
+    private void onMyAccount() {
+        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyAccount.fxml", "Account");
+    }
+
+    @FXML
+    private void onLogout() {
+        SessionManager.getInstance().clearSession();
+        TemporaryMemory.getInstance().clear();
+        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+    }
+}
 
 
 

@@ -20,10 +20,10 @@ public class TaxiRide {
     }
 
     // Costruttore da RideRequest
-    public TaxiRide(RideRequest request, double fare) {
+    public TaxiRide(RideRequest request, String driverUsername, Double fare) {
         this.requestId = request.getRequestId();
         this.clientUsername = request.getClient().getUsername();
-        this.driverUsername = request.getDriverUsername();
+        this.driverUsername = driverUsername;
         this.fare = fare;
         this.completed = false; // default
     }

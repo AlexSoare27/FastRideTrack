@@ -1,11 +1,14 @@
 package org.ispw.fastridetrack.DAO.MYSQL;
 
 import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.DAO.ClientDAO;
+import org.ispw.fastridetrack.DAO.DriverDAO;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
+import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.Model.Driver;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Optional;
 
 public class TaxiRideDAOMYSQL implements TaxiRideDAO {
 
@@ -17,20 +20,18 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
 
     @Override
     public void save(TaxiRideConfirmationBean ride) {
-        String sql = "INSERT INTO taxi_rides (rideID, driverID, clientID, latitude, longitude, destination, status, estimatedFare, estimatedTime, paymentStatus) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO taxi_rides (rideID, driverID, clientID, status, estimatedFare, estimatedTime, paymentStatus, confirmationTime) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, ride.getRideID());
             stmt.setInt(2, ride.getDriver().getUserID());
             stmt.setInt(3, ride.getClient().getUserID());
-            stmt.setDouble(4, ride.getUserLocation().get(0));
-            stmt.setDouble(5, ride.getUserLocation().get(1));
-            stmt.setString(6, ride.getDestination());
-            stmt.setString(7, ride.getStatus());
-            stmt.setFloat(8, ride.getEstimatedFare());
-            stmt.setFloat(9, ride.getEstimatedTime());
-            stmt.setString(10, ride.getPaymentStatus());
+            stmt.setString(4, ride.getStatus());
+            stmt.setDouble(5, ride.getEstimatedFare());
+            stmt.setDouble(6, ride.getEstimatedTime());
+            stmt.setString(7, ride.getPaymentStatus());
+            stmt.setTimestamp(8, Timestamp.valueOf(ride.getConfirmationTime()));
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore salvataggio corsa confermata", e);
@@ -38,8 +39,83 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
     }
 
     @Override
-    public TaxiRideConfirmationBean findById(int rideID) {
-        // Simile al save: esegui una SELECT e costruisci un TaxiRideConfirmationBean
-        return null; // puoi implementare la lettura se ti serve
+    public Optional<TaxiRideConfirmationBean> findById(int rideID) {
+        String sql = "SELECT * FROM taxi_rides WHERE rideID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, rideID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int driverID = rs.getInt("driverID");
+                    int clientID = rs.getInt("clientID");
+                    String status = rs.getString("status");
+                    float estimatedFare = rs.getFloat("estimatedFare");
+                    float estimatedTime = rs.getFloat("estimatedTime");
+                    String paymentStatus = rs.getString("paymentStatus");
+                    Timestamp confirmationTimestamp = rs.getTimestamp("confirmationTime");
+
+                    DriverDAO driverDAO = new DriverDAOMYSQL(connection);
+                    Driver driver = driverDAO.findById(driverID);
+
+                    ClientDAO clientDAO = new ClientDAOMYSQL(connection);
+                    Client client = clientDAO.findById(clientID);
+
+                    TaxiRideConfirmationBean bean = new TaxiRideConfirmationBean(
+                            rideID,
+                            driver,
+                            client,
+                            null,
+                            null,
+                            status,
+                            estimatedFare,
+                            estimatedTime,
+                            paymentStatus,
+                            confirmationTimestamp.toLocalDateTime()
+                    );
+                    return Optional.of(bean);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nel recupero di TaxiRide con rideID " + rideID, e);
+        }
+    }
+
+    @Override
+    public void update(int rideID, TaxiRideConfirmationBean bean) {
+        String sql = "UPDATE taxi_rides SET driverID = ?, clientID = ?, status = ?, estimatedFare = ?, estimatedTime = ?, paymentStatus = ?, confirmationTime = ? WHERE rideID = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, bean.getDriver().getUserID());
+            stmt.setInt(2, bean.getClient().getUserID());
+            stmt.setString(3, bean.getStatus());
+            stmt.setDouble(4, bean.getEstimatedFare());
+            stmt.setDouble(5, bean.getEstimatedTime());
+            stmt.setString(6, bean.getPaymentStatus());
+            stmt.setTimestamp(7, Timestamp.valueOf(bean.getConfirmationTime()));
+            stmt.setInt(8, rideID);
+
+            int rows = stmt.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Nessuna corsa trovata con rideID " + rideID);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornamento corsa in taxi_rides con rideID " + rideID, e);
+        }
+    }
+
+    @Override
+    public boolean exists(int rideID) {
+        String sql = "SELECT 1 FROM taxi_rides WHERE rideID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, rideID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante il controllo esistenza della corsa con rideID " + rideID, e);
+        }
     }
 }
+
+
