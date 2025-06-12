@@ -6,7 +6,7 @@ import org.ispw.fastridetrack.Model.Client;
 public interface ClientDAO {
     void save(Client client);
     Client findById(Integer id_client);
-    ClientBean retrieveClientByUsernameAndPassword(String username, String password);
+    Client retrieveClientByUsernameAndPassword(String username, String password);
 }
 
 

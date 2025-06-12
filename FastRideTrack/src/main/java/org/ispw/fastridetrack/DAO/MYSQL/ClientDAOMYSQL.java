@@ -1,6 +1,5 @@
 package org.ispw.fastridetrack.DAO.MYSQL;
 
-import org.ispw.fastridetrack.Bean.ClientBean;
 import org.ispw.fastridetrack.DAO.ClientDAO;
 import org.ispw.fastridetrack.Model.Client;
 
@@ -13,14 +12,33 @@ public class ClientDAOMYSQL implements ClientDAO {
 
     private final Connection connection;
 
-    // Costruttore che inizializza la connessione al database
     public ClientDAOMYSQL(Connection connection) {
         this.connection = connection;
     }
 
     @Override
     public void save(Client client) {
-        // già esistente
+        String sql = "INSERT INTO client (userId, username, password, name, email, phonenumber, paymentMethod, latitude, longitude) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, client.getUserID());
+            stmt.setString(2, client.getUsername());
+            stmt.setString(3, client.getPassword());
+            stmt.setString(4, client.getName());
+            stmt.setString(5, client.getEmail());
+            stmt.setString(6, client.getPhoneNumber());
+            stmt.setString(7, client.getPaymentMethod());
+            stmt.setDouble(8, client.getLatitude());
+            stmt.setDouble(9, client.getLongitude());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                System.err.println("Save client failed: no rows affected.");
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL error during save client:");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -30,54 +48,24 @@ public class ClientDAOMYSQL implements ClientDAO {
             stmt.setInt(1, id_client);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    Integer userID = rs.getInt("userID");
-                    String username = rs.getString("username");
-                    String password = rs.getString("password");
-                    String name = rs.getString("name");
-                    String email = rs.getString("email");
-                    String phone = rs.getString("phoneNumber");
-                    String paymentMethod = rs.getString("paymentMethod");
-                    double latitude = rs.getDouble("latitude");
-                    double longitude = rs.getDouble("longitude");
-
-                    Client client = new Client(userID, username, password, name, email, phone, paymentMethod);
-                    client.setLatitude(latitude);
-                    client.setLongitude(longitude);
-
-                    return client;
+                    return extractClientFromResultSet(rs);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante il recupero del client con ID " + id_client, e);
         }
-        return null;  // client non trovato
+        return null;
     }
 
-
     @Override
-    public ClientBean retrieveClientByUsernameAndPassword(String username, String password) {
+    public Client retrieveClientByUsernameAndPassword(String username, String password) {
         String sql = "SELECT * FROM client WHERE username = ? AND password = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                Integer userID = rs.getInt("userID");
-                String uname = rs.getString("username");
-                String pwd = rs.getString("password");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
-                String phone = rs.getString("phoneNumber");
-                String paymentMethod = rs.getString("paymentMethod");
-                double latitude = rs.getDouble("latitude");
-                double longitude = rs.getDouble("longitude");
-
-                Client client = new Client(userID, uname, pwd, name, email, phone, paymentMethod);
-                client.setLatitude(latitude);
-                client.setLongitude(longitude);
-
-                // Uso il metodo statico da ClientBean
-                return ClientBean.fromModel(client);
+                return extractClientFromResultSet(rs);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante il login del client", e);
@@ -85,6 +73,23 @@ public class ClientDAOMYSQL implements ClientDAO {
         return null;
     }
 
+    // Metodo privato di supporto per evitare duplicazione codice
+    private Client extractClientFromResultSet(ResultSet rs) throws SQLException {
+        Integer userID = rs.getInt("userID");
+        String uname = rs.getString("username");
+        String pwd = rs.getString("password");
+        String name = rs.getString("name");
+        String email = rs.getString("email");
+        String phone = rs.getString("phoneNumber");
+        String paymentMethod = rs.getString("paymentMethod");
+        double latitude = rs.getDouble("latitude");
+        double longitude = rs.getDouble("longitude");
 
+        Client client = new Client(userID, uname, pwd, name, email, phone, paymentMethod);
+        client.setLatitude(latitude);
+        client.setLongitude(longitude);
+        return client;
+    }
 }
+
 

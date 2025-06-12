@@ -1,17 +1,18 @@
 package org.ispw.fastridetrack.DAO;
 
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
 
 import java.util.Optional;
 
 public interface TaxiRideDAO {
 
-    void save(TaxiRideConfirmationBean ride);
+    void save(TaxiRideConfirmation ride);
 
-    Optional<TaxiRideConfirmationBean> findById(int rideID);
+    Optional<TaxiRideConfirmation> findById(int rideID);
 
-    void update(TaxiRideConfirmationBean bean);
+    void update(TaxiRideConfirmation ride);
 
     boolean exists(int rideID);
 }
+
 

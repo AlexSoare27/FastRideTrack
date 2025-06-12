@@ -2,7 +2,6 @@ package org.ispw.fastridetrack.Util;
 
 import org.ispw.fastridetrack.Bean.AvailableDriverBean;
 import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Bean.RideRequestBean;
 import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
 
 import java.util.List;
@@ -41,21 +40,8 @@ public class TemporaryMemory {
     public TaxiRideConfirmationBean getRideConfirmation() { return rideConfirmation; }
     public void setRideConfirmation(TaxiRideConfirmationBean confirmation) { this.rideConfirmation = confirmation; }
 
-    public RideRequestBean getRideRequest() {
-        if (mapRequestBean == null || selectedPaymentMethod == null) {
-            return null;  // o lancia eccezione, dipende dal caso
-        }
-        return new RideRequestBean(
-                mapRequestBean.getOrigin(),
-                mapRequestBean.getDestination(),
-                mapRequestBean.getRadiusKm(),
-                selectedPaymentMethod
-        );
-    }
 
-    /**
-     * Resetta tutti i dati memorizzati a null.
-     */
+    //Resetto tutti i dati memorizzati a null
     public void clear() {
         this.mapRequestBean = null;
         this.availableDrivers = null;

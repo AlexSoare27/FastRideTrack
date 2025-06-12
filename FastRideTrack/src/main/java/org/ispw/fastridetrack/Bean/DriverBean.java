@@ -70,7 +70,7 @@ public class DriverBean extends UserBean {
                 driver.getVehicleInfo(),
                 driver.getVehiclePlate(),
                 driver.getAffiliation(),
-                driver.isAvailable()  // <-- aggiunto qui
+                driver.isAvailable()
         );
     }
 
@@ -86,29 +86,9 @@ public class DriverBean extends UserBean {
                 getVehicleInfo(),
                 getVehiclePlate(),
                 getAffiliation(),
-                this.available  // <-- aggiunto qui
+                this.available
         );
     }
-
-
-    public static DriverBean fromAvailableDriver(AvailableDriverBean aDriver) {
-        if (aDriver == null) return null;
-        return new DriverBean(
-                aDriver.getUsername(),
-                aDriver.getPassword(),
-                aDriver.getUserID(),
-                aDriver.getName(),
-                aDriver.getEmail(),
-                aDriver.getPhoneNumber(),
-                aDriver.getLatitude(),
-                aDriver.getLongitude(),
-                aDriver.getVehicleInfo(),
-                aDriver.getVehiclePlate(),
-                aDriver.getAffiliation(),
-                aDriver.isAvailable()
-        );
-    }
-
 
 }
 

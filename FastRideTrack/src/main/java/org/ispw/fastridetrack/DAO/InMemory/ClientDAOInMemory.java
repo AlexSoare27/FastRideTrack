@@ -1,6 +1,5 @@
 package org.ispw.fastridetrack.DAO.InMemory;
 
-import org.ispw.fastridetrack.Bean.ClientBean;
 import org.ispw.fastridetrack.DAO.ClientDAO;
 import org.ispw.fastridetrack.Model.Client;
 
@@ -34,22 +33,24 @@ public class ClientDAOInMemory implements ClientDAO {
 
     @Override
     public Client findById(Integer id_client) {
-        return clients.get(id_client);
+        // Map indexed by username → bisogna scorrere tutti
+        for (Client c : clients.values()) {
+            if (c.getUserID().equals(id_client)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     @Override
-    public ClientBean retrieveClientByUsernameAndPassword(String username, String password) {
+    public Client retrieveClientByUsernameAndPassword(String username, String password) {
         Client client = clients.get(username);
         if (client != null && client.getPassword().equals(password)) {
-            return ClientBean.fromModel(client);// Utilizzo di un ClientBean per separare i dati sensibili
+            return client;
         }
-        return null; // Se non trovato o la password non corrisponde
-    }
-
-    // Metodo per eliminare un cliente
-    public void delete(String username) {
-        clients.remove(username);
+        return null;
     }
 }
+
 
 

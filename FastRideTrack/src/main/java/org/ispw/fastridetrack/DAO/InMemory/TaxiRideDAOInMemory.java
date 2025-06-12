@@ -1,27 +1,27 @@
 package org.ispw.fastridetrack.DAO.InMemory;
 
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
+import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class TaxiRideDAOInMemory implements TaxiRideDAO {
-    private final Map<Integer, TaxiRideConfirmationBean> rides = new HashMap<>();
+    private final Map<Integer, TaxiRideConfirmation> rides = new HashMap<>();
 
     @Override
-    public void save(TaxiRideConfirmationBean ride) {
+    public void save(TaxiRideConfirmation ride) {
         rides.put(ride.getRideID(), ride);
     }
 
     @Override
-    public Optional<TaxiRideConfirmationBean> findById(int rideID) {
+    public Optional<TaxiRideConfirmation> findById(int rideID) {
         return Optional.ofNullable(rides.get(rideID));
     }
 
     @Override
-    public void update(TaxiRideConfirmationBean updatedRide) {
+    public void update(TaxiRideConfirmation updatedRide) {
         int rideID = updatedRide.getRideID();
         if (!rides.containsKey(rideID)) {
             throw new RuntimeException("Nessuna corsa trovata con rideID " + rideID);
@@ -29,10 +29,10 @@ public class TaxiRideDAOInMemory implements TaxiRideDAO {
         rides.put(rideID, updatedRide);
     }
 
-
     @Override
     public boolean exists(int rideID) {
         return rides.containsKey(rideID);
     }
 }
+
 

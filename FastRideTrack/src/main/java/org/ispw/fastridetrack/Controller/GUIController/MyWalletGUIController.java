@@ -11,10 +11,10 @@ import org.ispw.fastridetrack.Util.SceneNavigator;
 public class MyWalletGUIController {
 
     @FXML
-    private Button btnBack;
+    public Button btnBack;
 
     @FXML
-    private Button btnConfirm;
+    public Button btnConfirm;
 
     @FXML
     private CheckBox checkBoxCash;

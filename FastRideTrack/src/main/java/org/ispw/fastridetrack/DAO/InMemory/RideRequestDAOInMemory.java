@@ -1,35 +1,32 @@
 package org.ispw.fastridetrack.DAO.InMemory;
 
-import org.ispw.fastridetrack.Bean.RideRequestBean;
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.Model.RideRequest;
 import org.ispw.fastridetrack.DAO.RideRequestDAO;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RideRequestDAOInMemory implements RideRequestDAO {
-    private final Map<Integer, RideRequestBean> storage = new HashMap<>();
+    private final Map<Integer, RideRequest> storage = new HashMap<>();
 
     @Override
-    public RideRequestBean save(RideRequestBean bean) {
-        if (bean.getRequestID() == null || bean.getRequestID() == 0) {
-            // Genera un nuovo ID progressivo
-            bean.setRequestID(storage.size() + 1); // attenzione, non thread-safe ma va bene per demo
+    public RideRequest save(RideRequest rideRequest) {
+        if (rideRequest.getRequestId() == null || rideRequest.getRequestId() == 0) {
+            // Genera un nuovo ID progressivo (non thread-safe, ma sufficiente per demo)
+            rideRequest.setRequestId(storage.size() + 1);
         }
-        storage.put(bean.getRequestID(), bean);
-        return bean;
+        storage.put(rideRequest.getRequestId(), rideRequest);
+        return rideRequest;
     }
 
-
     @Override
-    public RideRequestBean findById(int requestID) {
+    public RideRequest findById(int requestID) {
         return storage.get(requestID);
     }
 
     @Override
-    public void update(RideRequestBean rideRequest) {
-        storage.put(rideRequest.getRequestID(), rideRequest);
+    public void update(RideRequest rideRequest) {
+        storage.put(rideRequest.getRequestId(), rideRequest);
     }
-
 }
 

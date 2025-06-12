@@ -5,6 +5,7 @@ import org.ispw.fastridetrack.Bean.EmailBean;
 import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
 import org.ispw.fastridetrack.Exception.RideNotFoundException;
+import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
 import org.ispw.fastridetrack.DAO.Adapter.EmailService;
 import org.ispw.fastridetrack.DAO.Adapter.GmailAdapter;
@@ -27,8 +28,9 @@ public class ClientRideManagementApplicationController {
      * @throws RideNotFoundException se la corsa non esiste
      */
     public TaxiRideConfirmationBean viewRideConfirmation(int rideID) {
-        return taxiRideDAO.findById(rideID)
+        TaxiRideConfirmation model = taxiRideDAO.findById(rideID)
                 .orElseThrow(() -> new RideNotFoundException(rideID));
+        return TaxiRideConfirmationBean.fromModel(model);
     }
 
     /**
@@ -38,19 +40,20 @@ public class ClientRideManagementApplicationController {
      * @throws MessagingException se si verifica un errore nell'invio della mail
      */
     public void confirmRideAndNotify(TaxiRideConfirmationBean bean, EmailBean email) throws MessagingException {
-        bean.markConfirmed();
+        bean.markPending();
 
-        // Salvataggio della corsa confermata
-        if (!taxiRideDAO.exists(bean.getRideID())) {
-            taxiRideDAO.save(bean); // Prima volta: salvataggio iniziale
+        TaxiRideConfirmation model = bean.toModel();
+
+        // Salvataggio della corsa
+        if (!taxiRideDAO.exists(model.getRideID())) {
+            taxiRideDAO.save(model);
         } else {
-            taxiRideDAO.update(bean); // Corsa già esistente: aggiornamento
+            taxiRideDAO.update(model);
         }
 
         // Invio notifica al driver
         emailService.sendEmail(email.getRecipient(), email.getSubject(), email.getBody());
     }
-
 }
 
 

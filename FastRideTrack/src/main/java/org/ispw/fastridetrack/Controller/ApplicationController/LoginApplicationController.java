@@ -1,7 +1,5 @@
 package org.ispw.fastridetrack.Controller.ApplicationController;
 
-import org.ispw.fastridetrack.Bean.ClientBean;
-import org.ispw.fastridetrack.Bean.DriverBean;
 import org.ispw.fastridetrack.Model.Client;
 import org.ispw.fastridetrack.Model.Driver;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
@@ -30,12 +28,7 @@ public class LoginApplicationController {
             return false;
         }
 
-        ClientBean clientBean = clientDAO.retrieveClientByUsernameAndPassword(username, password);
-        if (clientBean == null) {
-            return false;
-        }
-
-        Client client = clientBean.toModel();
+        Client client = clientDAO.retrieveClientByUsernameAndPassword(username, password);
         if (client == null || client.getUserType() != userType) {
             return false;
         }
@@ -44,18 +37,14 @@ public class LoginApplicationController {
         return true;
     }
 
+
     // Validazione credenziali per il driver
     public boolean validateDriverCredentials(String username, String password, UserType userType) {
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             return false;
         }
 
-        DriverBean driverBean = driverDAO.retrieveDriverByUsernameAndPassword(username, password);
-        if (driverBean == null) {
-            return false;
-        }
-
-        Driver driver = driverBean.toModel();
+        Driver driver = driverDAO.retrieveDriverByUsernameAndPassword(username, password);
         if (driver == null || driver.getUserType() != userType) {
             return false;
         }

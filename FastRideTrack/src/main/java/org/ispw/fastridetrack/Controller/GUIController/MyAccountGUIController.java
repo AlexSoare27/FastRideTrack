@@ -27,17 +27,17 @@ public class MyAccountGUIController {
             return;
         }
 
-        // Usa il metodo fromModel per popolare il bean
+        // Uso il metodo fromModel per popolare il bean
         ClientBean clientBean = ClientBean.fromModel(client);
 
-        // Imposta i campi (UserType lo forziamo a CLIENT come da tua richiesta)
+        // Imposto i campi (UserType lo forzo a CLIENT)
         nameField.setText(clientBean.getName());
         emailField.setText(clientBean.getEmail());
         userIdField.setText(String.valueOf(clientBean.getUserID()));
         userTypeField.setText("CLIENT");
         phoneNumberField.setText(clientBean.getPhoneNumber());
 
-        // Rendi i campi non editabili
+        // Rendo i campi non editabili
         nameField.setEditable(false);
         emailField.setEditable(false);
         userIdField.setEditable(false);

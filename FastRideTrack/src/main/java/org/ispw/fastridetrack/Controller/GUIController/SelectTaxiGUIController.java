@@ -55,10 +55,11 @@ public class SelectTaxiGUIController {
         initializePaymentChoices();
         destinationField.setEditable(false);
 
-        // Se TemporaryMemory ha già dati, caricali (utile se torni da altre schermate)
+        // Carica dati temporanei se presenti
         if (tempMemory.getMapRequestBean() != null) {
             this.mapRequestBean = tempMemory.getMapRequestBean();
             destinationField.setText(this.mapRequestBean.getDestination());
+
             if (tempMemory.getAvailableDrivers() != null) {
                 taxiTable.getItems().setAll(tempMemory.getAvailableDrivers());
             }
@@ -77,12 +78,16 @@ public class SelectTaxiGUIController {
         paymentChoiceBox.getItems().addAll("Cash", "Card");
         paymentChoiceBox.getSelectionModel().selectFirst();
 
-        // Se TemporaryMemory ha un metodo di pagamento selezionato, impostalo
         if (tempMemory.getSelectedPaymentMethod() != null) {
             paymentChoiceBox.getSelectionModel().select(tempMemory.getSelectedPaymentMethod());
         }
     }
 
+    /**
+     * Metodo per impostare la mappa e la richiesta di corsa.
+     * @param bean MapRequestBean con i dati della richiesta (solo Bean)
+     * @param map Model Map contenente html della mappa
+     */
     public void setMapAndRequest(MapRequestBean bean, Map map) {
         if (bean == null || map == null || map.getHtmlContent() == null) {
             showAlert("Dati mappa o richiesta non validi.");
@@ -92,10 +97,11 @@ public class SelectTaxiGUIController {
         destinationField.setText(bean.getDestination());
 
         try {
+            // Ottengo lista driver disponibili come Bean, passandogli solo il bean della richiesta
             List<AvailableDriverBean> drivers = driverMatchingController.findAvailableDrivers(bean);
             taxiTable.getItems().setAll(drivers);
 
-            // Salva su TemporaryMemory
+            // Salvo dati temporanei
             tempMemory.setMapRequestBean(bean);
             tempMemory.setAvailableDrivers(drivers);
 
@@ -128,49 +134,49 @@ public class SelectTaxiGUIController {
         }
 
         try {
-            // 1. Creazione richiesta corsa
+            // Creo RideRequestBean con i dati dalla richiesta mappa + metodo di pagamento
             RideRequestBean rideRequest = new RideRequestBean(
                     mapRequestBean.getOrigin(),
                     mapRequestBean.getDestination(),
                     mapRequestBean.getRadiusKm(),
                     paymentMethod
             );
-            rideRequest.setDriver(selectedDriver.toModel());
-            rideRequest.setClient(currentClient.toModel());
+            // Imposto driver e client come Model convertiti dai rispettivi Bean
+            rideRequest.setDriver(selectedDriver);  // selectedDriver è AvailableDriverBean, ma devi convertire a DriverBean se non è già
+            rideRequest.setClient(currentClient);    // currentClient è ClientBean
 
-
-            // 2. Salvataggio in TemporaryMemory
+            // Salvo in memoria temporanea scelta driver e metodo pagamento
             tempMemory.setSelectedDriver(selectedDriver);
             tempMemory.setSelectedPaymentMethod(paymentMethod);
 
+            // Salvo richiesta di corsa tramite application controller (che converte e salva)
             RideRequestBean savedRequest = driverMatchingController.saveRideRequest(rideRequest);
 
-            // 2b. Assegnazione driver tramite DriverAssignmentBean
+            // Assegno driver alla richiesta appena salvata tramite DriverAssignmentBean
             DriverAssignmentBean assignmentBean = new DriverAssignmentBean(
                     savedRequest.getRequestID(),
                     selectedDriver.toModel()
             );
             driverMatchingController.assignDriverToRequest(assignmentBean);
 
-
-            // 3. Creazione TaxiRideConfirmationBean
+            // Creo TaxiRideConfirmationBean per confermare corsa
             TaxiRideConfirmationBean confirmationBean = new TaxiRideConfirmationBean(
                     savedRequest.getRequestID(),
-                    selectedDriver.toModel(),                      // Driver
-                    currentClient.toModel(),                        // Client
-                    savedRequest.getOriginAsCoordinateBean(),      // CoordinateBean (origine)
-                    savedRequest.getDestination(),                  // String (destinazione)
-                    "Pending",                                      // status iniziale
-                    selectedDriver.getEstimatedPrice(),             // double estimatedFare
-                    selectedDriver.getEstimatedTime(),              // double estimatedTime
-                    savedRequest.getPaymentMethod(),                 // paymentStatus? o "Pending" se non hai ancora stato
-                    LocalDateTime.now()                              // confirmationTime
+                    DriverBean.fromModel(selectedDriver.toModel()),                  // DriverBean
+                    ClientBean.fromModel(currentClient.toModel()),                   // ClientBean
+                    savedRequest.getOriginAsCoordinateBean(),                        // CoordinateBean (assumendo sia già CoordinateBean)
+                    savedRequest.getDestination(),                                   // String (destinazione)
+                    "Pending",                                                      // stato iniziale
+                    selectedDriver.getEstimatedPrice(),                              // tariffa stimata (Double)
+                    selectedDriver.getEstimatedTime(),                               // tempo stimato (Double)
+                    savedRequest.getPaymentMethod(),                                 // metodo pagamento (String)
+                    LocalDateTime.now()                                              // ora conferma
             );
 
 
             tempMemory.setRideConfirmation(confirmationBean);
 
-            // 4. Vai a SelectDriver.fxml
+            // Passa a schermata SelectDriver.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectDriver.fxml"));
             AnchorPane pane = loader.load();
 
@@ -209,6 +215,7 @@ public class SelectTaxiGUIController {
         alert.showAndWait();
     }
 }
+
 
 
 

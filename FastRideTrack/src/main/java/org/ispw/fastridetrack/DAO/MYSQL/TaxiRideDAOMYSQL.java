@@ -1,11 +1,11 @@
 package org.ispw.fastridetrack.DAO.MYSQL;
 
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.DAO.ClientDAO;
 import org.ispw.fastridetrack.DAO.DriverDAO;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
 import org.ispw.fastridetrack.Model.Client;
 import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
 
 import java.sql.*;
 import java.util.Optional;
@@ -19,9 +19,9 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
     }
 
     @Override
-    public void save(TaxiRideConfirmationBean ride) {
-        String sql = "INSERT INTO taxi_rides (rideID, driverID, clientID, status, estimatedFare, estimatedTime, paymentStatus, confirmationTime) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public void save(TaxiRideConfirmation ride) {
+        String sql = "INSERT INTO taxi_rides (rideID, driverID, clientID, rideConfirmationStatus, estimatedFare, estimatedTime, paymentMethod, confirmationTime, destination) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, ride.getRideID());
@@ -30,8 +30,12 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
             stmt.setString(4, ride.getStatus());
             stmt.setDouble(5, ride.getEstimatedFare());
             stmt.setDouble(6, ride.getEstimatedTime());
-            stmt.setString(7, ride.getPaymentStatus());
+            stmt.setString(7, ride.getPaymentMethod());
             stmt.setTimestamp(8, Timestamp.valueOf(ride.getConfirmationTime()));
+
+            // Campo destination (string)
+            stmt.setString(9, ride.getDestination());
+
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore salvataggio corsa confermata", e);
@@ -39,7 +43,7 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
     }
 
     @Override
-    public Optional<TaxiRideConfirmationBean> findById(int rideID) {
+    public Optional<TaxiRideConfirmation> findById(int rideID) {
         String sql = "SELECT * FROM taxi_rides WHERE rideID = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, rideID);
@@ -47,11 +51,12 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                 if (rs.next()) {
                     int driverID = rs.getInt("driverID");
                     int clientID = rs.getInt("clientID");
-                    String status = rs.getString("status");
-                    float estimatedFare = rs.getFloat("estimatedFare");
-                    float estimatedTime = rs.getFloat("estimatedTime");
-                    String paymentStatus = rs.getString("paymentStatus");
+                    String status = rs.getString("rideConfirmationStatus");
+                    double estimatedFare = rs.getDouble("estimatedFare");
+                    double estimatedTime = rs.getDouble("estimatedTime");
+                    String paymentMethod = rs.getString("paymentMethod");
                     Timestamp confirmationTimestamp = rs.getTimestamp("confirmationTime");
+                    String destination = rs.getString("destination");
 
                     DriverDAO driverDAO = new DriverDAOMYSQL(connection);
                     Driver driver = driverDAO.findById(driverID);
@@ -59,19 +64,18 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                     ClientDAO clientDAO = new ClientDAOMYSQL(connection);
                     Client client = clientDAO.findById(clientID);
 
-                    TaxiRideConfirmationBean bean = new TaxiRideConfirmationBean(
-                            rideID,
-                            driver,
-                            client,
-                            null,
-                            null,
-                            status,
-                            estimatedFare,
-                            estimatedTime,
-                            paymentStatus,
-                            confirmationTimestamp.toLocalDateTime()
-                    );
-                    return Optional.of(bean);
+                    TaxiRideConfirmation model = new TaxiRideConfirmation();
+                    model.setRideID(rideID);
+                    model.setDriver(driver);
+                    model.setClient(client);
+                    model.setStatus(status);
+                    model.setEstimatedFare(estimatedFare);
+                    model.setEstimatedTime(estimatedTime);
+                    model.setPaymentMethod(paymentMethod);
+                    model.setConfirmationTime(confirmationTimestamp.toLocalDateTime());
+                    model.setDestination(destination);
+
+                    return Optional.of(model);
                 } else {
                     return Optional.empty();
                 }
@@ -82,25 +86,27 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
     }
 
     @Override
-    public void update(TaxiRideConfirmationBean bean) {
-        String sql = "UPDATE taxi_rides SET driverID = ?, clientID = ?, status = ?, estimatedFare = ?, estimatedTime = ?, paymentStatus = ?, confirmationTime = ? WHERE rideID = ?";
+    public void update(TaxiRideConfirmation ride) {
+        String sql = "UPDATE taxi_rides SET driverID = ?, clientID = ?, rideConfirmationStatus = ?, estimatedFare = ?, estimatedTime = ?, paymentMethod = ?, confirmationTime = ?, destination = ? WHERE rideID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, bean.getDriver().getUserID());
-            stmt.setInt(2, bean.getClient().getUserID());
-            stmt.setString(3, bean.getStatus());
-            stmt.setDouble(4, bean.getEstimatedFare());
-            stmt.setDouble(5, bean.getEstimatedTime());
-            stmt.setString(6, bean.getPaymentStatus());
-            stmt.setTimestamp(7, Timestamp.valueOf(bean.getConfirmationTime()));
-            stmt.setInt(8, bean.getRideID()); // ← recuperato dal bean
+            stmt.setInt(1, ride.getDriver().getUserID());
+            stmt.setInt(2, ride.getClient().getUserID());
+            stmt.setString(3, ride.getStatus());
+            stmt.setDouble(4, ride.getEstimatedFare());
+            stmt.setDouble(5, ride.getEstimatedTime());
+            stmt.setString(6, ride.getPaymentMethod());
+            stmt.setTimestamp(7, Timestamp.valueOf(ride.getConfirmationTime()));
+            stmt.setString(8, ride.getDestination());
+
+            stmt.setInt(9, ride.getRideID());
 
             int rows = stmt.executeUpdate();
             if (rows == 0) {
-                throw new RuntimeException("Nessuna corsa trovata con rideID " + bean.getRideID());
+                throw new RuntimeException("Nessuna corsa trovata con rideID " + ride.getRideID());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento corsa in taxi_rides con rideID " + bean.getRideID(), e);
+            throw new RuntimeException("Errore aggiornamento corsa con rideID " + ride.getRideID(), e);
         }
     }
 
@@ -118,5 +124,6 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
         }
     }
 }
+
 
 

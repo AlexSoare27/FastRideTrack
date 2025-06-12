@@ -5,21 +5,30 @@ public class RideRequest {
     private Client client;
     private String pickupLocation;
     private String destination;
+    private Integer radiusKm;
+    private String paymentMethod;
+    private Driver driver;
 
 
-    public RideRequest(int requestId, Client client, String pickupLocation, String destination, String driverUsername, String paymentMethod) {
+    // Costruttore completo
+    public RideRequest(Integer requestId, Client client, String pickupLocation, String destination,
+                       Integer radiusKm, String paymentMethod, Driver driver) {
         this.requestId = requestId;
         this.client = client;
         this.pickupLocation = pickupLocation;
         this.destination = destination;
+        this.radiusKm = radiusKm;
+        this.paymentMethod = paymentMethod;
+        this.driver = driver;
+
     }
 
-    // Getters and Setters
-    public int getRequestId() {
+    // Getters e setters
+    public Integer getRequestId() {
         return requestId;
     }
 
-    public void setRequestId(int requestId) {
+    public void setRequestId(Integer requestId) {
         this.requestId = requestId;
     }
 
@@ -47,4 +56,29 @@ public class RideRequest {
         this.destination = destination;
     }
 
+    public Integer getRadiusKm() {
+        return radiusKm;
+    }
+
+    public void setRadiusKm(Integer radiusKm) {
+        this.radiusKm = radiusKm;
+    }
+
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
 }
+

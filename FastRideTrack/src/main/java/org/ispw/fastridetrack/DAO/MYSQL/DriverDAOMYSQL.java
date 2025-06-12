@@ -22,21 +22,22 @@ public class DriverDAOMYSQL implements DriverDAO {
 
     @Override
     public void save(Driver driver) {
-        String sql = "INSERT INTO driver (username, password, name, email, phonenumber, latitude, longitude, vehicleInfo, vehiclePlate, affiliation, available) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO driver (userId, username, password, name, email, phonenumber, latitude, longitude, vehicleInfo, vehiclePlate, affiliation, available) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, driver.getUsername());
-            stmt.setString(2, driver.getPassword());
-            stmt.setString(3, driver.getName());
-            stmt.setString(4, driver.getEmail());
-            stmt.setString(5, driver.getPhoneNumber());
-            stmt.setDouble(6, driver.getLatitude());
-            stmt.setDouble(7, driver.getLongitude());
-            stmt.setString(8, driver.getVehicleInfo());
-            stmt.setString(9, driver.getVehiclePlate());
-            stmt.setString(10, driver.getAffiliation());
+            stmt.setInt(1,driver.getUserID());
+            stmt.setString(2, driver.getUsername());
+            stmt.setString(3, driver.getPassword());
+            stmt.setString(4, driver.getName());
+            stmt.setString(5, driver.getEmail());
+            stmt.setString(6, driver.getPhoneNumber());
+            stmt.setDouble(7, driver.getLatitude());
+            stmt.setDouble(8, driver.getLongitude());
+            stmt.setString(9, driver.getVehicleInfo());
+            stmt.setString(10, driver.getVehiclePlate());
+            stmt.setString(11, driver.getAffiliation());
             // available stored as tinyint (0 or 1)
-            stmt.setInt(11, driver.isAvailable() ? 1 : 0);
+            stmt.setInt(12, driver.isAvailable() ? 1 : 0);
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -49,7 +50,7 @@ public class DriverDAOMYSQL implements DriverDAO {
     }
 
     @Override
-    public DriverBean retrieveDriverByUsernameAndPassword(String username, String password) {
+    public Driver retrieveDriverByUsernameAndPassword(String username, String password) {
         String sql = "SELECT * FROM driver WHERE username = ? AND password = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -57,7 +58,7 @@ public class DriverDAOMYSQL implements DriverDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Driver driver = extractDriverFromResultSet(rs);
-                    return DriverBean.fromModel(driver);
+                    return driver; // ✅ corretto
                 }
             }
         } catch (SQLException e) {
@@ -66,6 +67,7 @@ public class DriverDAOMYSQL implements DriverDAO {
         }
         return null;
     }
+
 
     @Override
     public Driver findById(int id_driver) {

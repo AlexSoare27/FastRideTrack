@@ -10,6 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import org.ispw.fastridetrack.Bean.ClientBean;
 import org.ispw.fastridetrack.Bean.MapRequestBean;
 import org.ispw.fastridetrack.Bean.RideRequestBean;
 import org.ispw.fastridetrack.Bean.CoordinateBean;
@@ -17,7 +18,6 @@ import org.ispw.fastridetrack.Controller.ApplicationController.DriverMatchingApp
 import org.ispw.fastridetrack.Controller.ApplicationController.MapApplicationController;
 import org.ispw.fastridetrack.Exception.FXMLLoadException;
 import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Map;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
 import org.ispw.fastridetrack.Util.*;
 import org.ispw.fastridetrack.Util.TemporaryMemory;
@@ -40,6 +40,7 @@ public class HomeGUIController implements Initializable {
     @FXML private WebView mapWebView;
 
     private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
+
     private MapApplicationController mapAppController;
     private DriverMatchingApplicationController rideRequestController;
 
@@ -86,7 +87,6 @@ public class HomeGUIController implements Initializable {
             if (rangeChoiceBox.getItems().contains(radiusStr)) {
                 rangeChoiceBox.setValue(radiusStr);
             }
-
             if (bean.getOrigin() != null) {
                 currentLocation = bean.getOrigin();
             }
@@ -157,17 +157,20 @@ public class HomeGUIController implements Initializable {
 
         Client loggedClient = SessionManager.getInstance().getLoggedClient();
 
-        String pickupLocationStr = CoordinateUtils.coordinateToString(currentLocation);
+        String pickupLocationStr = currentLocation != null
+                ? currentLocation.getLatitude() + "," + currentLocation.getLongitude()
+                : "";
 
-        String paymentMethod = "Cash"; // default
-
-        RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, paymentMethod);
+        // Creo solo i Bean nel controller GUI
+        RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, "Cash");
         rideRequestBean.setRequestID(null);
-        rideRequestBean.setClient(loggedClient);
+        rideRequestBean.setClient(ClientBean.fromModel(loggedClient)); // usa conversione da Model a Bean
+
         rideRequestBean.setPickupLocation(pickupLocationStr);
         rideRequestBean.setDestination(destination.trim());
 
         try {
+            // Passo il bean all'applicazione, che farà la conversione in Model e la persistenza
             rideRequestController.saveRideRequest(rideRequestBean);
             System.out.println("Ride request creata con successo");
 
@@ -176,7 +179,8 @@ public class HomeGUIController implements Initializable {
             // Salvo i dati temporanei
             TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
 
-            Map map = mapAppController.showMap(mapRequestBean);
+            var map = mapAppController.showMap(mapRequestBean); // restituisce Model Map
+
             System.out.println("Mappa generata con successo");
 
             if (map == null || map.getHtmlContent() == null || map.getHtmlContent().isBlank()) {
@@ -193,9 +197,9 @@ public class HomeGUIController implements Initializable {
         }
     }
 
-    private void goToSelectTaxi(MapRequestBean bean, Map map) {
+    private void goToSelectTaxi(MapRequestBean bean, org.ispw.fastridetrack.Model.Map map) {
         try {
-            FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
             AnchorPane pane = loader.load();
 
             SelectTaxiGUIController controller = loader.getController();
@@ -244,6 +248,7 @@ public class HomeGUIController implements Initializable {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
     }
 }
+
 
 
 

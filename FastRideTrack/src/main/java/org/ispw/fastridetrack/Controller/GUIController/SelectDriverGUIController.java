@@ -16,7 +16,6 @@ import org.ispw.fastridetrack.DAO.RideRequestDAO;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
 import org.ispw.fastridetrack.DAO.Adapter.GoogleMapsAdapter;
 import org.ispw.fastridetrack.Model.Map;
-import org.ispw.fastridetrack.Model.Driver;
 import org.ispw.fastridetrack.Model.Session.SessionManager;
 import org.ispw.fastridetrack.Util.TemporaryMemory;
 
@@ -59,7 +58,8 @@ public class SelectDriverGUIController {
             return;
         }
 
-        Driver driver = taxiRideBean.getDriver();
+        // **Qui cambia: driver è DriverBean, non Model**
+        DriverBean driver = taxiRideBean.getDriver();
         driverNameLabel.setText("Driver: " + driver.getName());
         vehicleInfoLabel.setText("Vehicle Model: " + driver.getVehicleInfo());
         vehiclePlateLabel.setText("Vehicle Plate: " + driver.getVehiclePlate());
@@ -96,6 +96,7 @@ public class SelectDriverGUIController {
     private void onConfirmRide() {
         try {
             EmailBean email = buildEmailBean();
+            // **Qui il taxiRideBean viene passato direttamente**
             rideManagementController.confirmRideAndNotify(taxiRideBean, email);
             showInfo("Corsa confermata", "Il driver è stato notificato via email.");
             confirmButton.setDisable(true);
@@ -106,7 +107,7 @@ public class SelectDriverGUIController {
     }
 
     private EmailBean buildEmailBean() {
-        Driver driver = taxiRideBean.getDriver();
+        DriverBean driver = taxiRideBean.getDriver();  // DriverBean, non Model
         GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
 
         // Ottengo l'indirizzo leggibile dalle coordinate del cliente
@@ -167,6 +168,7 @@ public class SelectDriverGUIController {
         alert.showAndWait();
     }
 }
+
 
 
 

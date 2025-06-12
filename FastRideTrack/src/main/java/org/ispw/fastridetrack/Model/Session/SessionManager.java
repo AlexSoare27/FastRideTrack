@@ -6,6 +6,7 @@ import org.ispw.fastridetrack.DAO.Adapter.GoogleMapsAdapter;
 import org.ispw.fastridetrack.DAO.Adapter.MapService;
 import org.ispw.fastridetrack.DAO.ClientDAO;
 import org.ispw.fastridetrack.DAO.DriverDAO;
+import org.ispw.fastridetrack.DAO.MYSQL.SingletonDBSession;
 import org.ispw.fastridetrack.DAO.RideRequestDAO;
 import org.ispw.fastridetrack.DAO.TaxiRideDAO;
 import org.ispw.fastridetrack.Model.Client;
@@ -16,8 +17,8 @@ public class SessionManager {
     private static SessionManager instance;
     private final boolean persistenceEnabled;
     private final SessionFactory sessionFactory;
-    private Client loggedClient;  // Client loggato
-    private Driver loggedDriver;  // Driver loggato
+    private Client loggedClient;
+    private Driver loggedDriver;
 
     private SessionManager() {
         // Carico la configurazione dalla variabile d'ambiente
@@ -49,17 +50,9 @@ public class SessionManager {
         return instance;
     }
 
-    public boolean isPersistenceEnabled() {
-        return persistenceEnabled;
-    }
+    public ClientDAO getClientDAO() { return sessionFactory.createClientDAO(); }
 
-    public ClientDAO getClientDAO() {
-        return sessionFactory.createClientDAO();
-    }
-
-    public DriverDAO getDriverDAO() {
-        return sessionFactory.createDriverDAO();
-    }
+    public DriverDAO getDriverDAO() { return sessionFactory.createDriverDAO(); }
 
     public RideRequestDAO getRideRequestDAO() {
         return sessionFactory.createRideRequestDAO();
@@ -106,6 +99,15 @@ public class SessionManager {
     public EmailService getEmailService() {
         return emailService;
     }
+
+    // === CHIUSURA PULITA DEL DB ===
+    public void shutdown() {
+        if (persistenceEnabled) {
+            SingletonDBSession.reset();
+            System.out.println("Connessione DB chiusa e singleton resettato.");
+        }
+    }
+
 }
 
 

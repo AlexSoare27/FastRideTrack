@@ -9,14 +9,23 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Inizializzazione globale della persistenza in SessionManager
         SessionManager.init();
         SceneNavigator.setStage(primaryStage);
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+
+        // Aggiunta dell'handler che chiude DB e termina la GUI quando si chiude la finestra
+        primaryStage.setOnCloseRequest(event -> SessionManager.getInstance().shutdown());
+    }
+
+    @Override
+    public void stop() throws Exception {
+        SessionManager.getInstance().shutdown();
+        super.stop();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
 

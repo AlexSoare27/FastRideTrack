@@ -1,15 +1,14 @@
 package org.ispw.fastridetrack.Bean;
 
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
 
 import java.time.LocalDateTime;
 
 public class TaxiRideConfirmationBean {
     private Integer rideID;
-    private Driver driver;
-    private Client client;
-    private CoordinateBean userLocation; // Ora CoordinateBean invece di String
+    private DriverBean driver;
+    private ClientBean client;
+    private CoordinateBean userLocation;
     private String destination;
     private String status;
     private Double estimatedFare;
@@ -17,11 +16,11 @@ public class TaxiRideConfirmationBean {
     private String paymentStatus;
     private LocalDateTime confirmationTime;
 
-
     // Costruttore completo
-    public TaxiRideConfirmationBean(Integer rideID, Driver driver, Client client, CoordinateBean userLocation,
-                                    String destination, String status, double estimatedFare,
-                                    double estimatedTime, String paymentStatus, LocalDateTime confirmationTime) {
+    public TaxiRideConfirmationBean(Integer rideID, DriverBean driver, ClientBean client,
+                                    CoordinateBean userLocation, String destination, String status,
+                                    Double estimatedFare, Double estimatedTime, String paymentStatus,
+                                    LocalDateTime confirmationTime) {
         this.rideID = rideID;
         this.driver = driver;
         this.client = client;
@@ -34,26 +33,29 @@ public class TaxiRideConfirmationBean {
         this.confirmationTime = confirmationTime;
     }
 
+    // Getters e setters (omessi per brevità, ma da aggiungere)
 
-    // Getter e setter aggiornati
     public Integer getRideID() {
         return rideID;
     }
 
+    public void setRideID(Integer rideID) {
+        this.rideID = rideID;
+    }
 
-    public Driver getDriver() {
+    public DriverBean getDriver() {
         return driver;
     }
 
-    public void setDriver(Driver driver) {
+    public void setDriver(DriverBean driver) {
         this.driver = driver;
     }
 
-    public Client getClient() {
+    public ClientBean getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(ClientBean client) {
         this.client = client;
     }
 
@@ -69,6 +71,9 @@ public class TaxiRideConfirmationBean {
         return destination;
     }
 
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
 
     public String getStatus() {
         return status;
@@ -98,6 +103,10 @@ public class TaxiRideConfirmationBean {
         return paymentStatus;
     }
 
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public LocalDateTime getConfirmationTime() {
         return confirmationTime;
     }
@@ -106,28 +115,43 @@ public class TaxiRideConfirmationBean {
         this.confirmationTime = confirmationTime;
     }
 
-    /**
-     * Inizializza la conferma con i dati di una RideRequestBean,
-     * imposta paymentStatus a "Pending" e conferma l’ora corrente.
-     */
-    public void setRideRequest(RideRequestBean rideRequest) {
-        if (rideRequest != null) {
-            this.rideID = rideRequest.getRequestID();
-            this.client = rideRequest.getClient();
-            this.userLocation = rideRequest.getOriginAsCoordinateBean();
-            this.destination = rideRequest.getDestination();
-            this.paymentStatus = "Pending";
-            this.confirmationTime = LocalDateTime.now();
-            this.status = "Pending";
-        }
+    // Conversione da Model a Bean
+    public static TaxiRideConfirmationBean fromModel(TaxiRideConfirmation model) {
+        if (model == null) return null;
+
+        return new TaxiRideConfirmationBean(
+                model.getRideID(),
+                DriverBean.fromModel(model.getDriver()),
+                ClientBean.fromModel(model.getClient()),
+                model.getUserLocation() != null ? new CoordinateBean(model.getUserLocation()) : null,
+                model.getDestination(),
+                model.getStatus(),
+                model.getEstimatedFare(),
+                model.getEstimatedTime(),
+                model.getPaymentMethod(),
+                model.getConfirmationTime()
+        );
     }
 
-    /**
-     * Marca la corsa come confermata e aggiorna l’ora di conferma.
-     */
-    public void markConfirmed() {
-        this.status = "Confirmed";
-        this.confirmationTime = LocalDateTime.now();
+    // Conversione da Bean a Model
+    public TaxiRideConfirmation toModel() {
+        return new TaxiRideConfirmation(
+                rideID,
+                driver != null ? driver.toModel() : null,
+                client != null ? client.toModel() : null,
+                userLocation != null ? userLocation.toModel() : null,
+                destination,
+                status,
+                estimatedFare,
+                estimatedTime,
+                paymentStatus,
+                confirmationTime
+        );
+    }
+
+    // Imposta lo stato su "PENDING"
+    public void markPending() {
+        this.status = "PENDING";
     }
 }
 

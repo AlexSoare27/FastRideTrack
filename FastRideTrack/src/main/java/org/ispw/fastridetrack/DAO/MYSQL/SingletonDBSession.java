@@ -55,10 +55,15 @@ public class SingletonDBSession {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
-                System.err.println("[ERRORE] Impossibile chiudere la connessione:");
-                e.printStackTrace();
-            }
+            } catch (SQLException e) { /* log */ }
+        }
+    }
+
+    public static synchronized void reset() {
+        if (instance != null) {
+            instance.closeConnection();
+            instance = null;
+            connection = null;
         }
     }
 }

@@ -6,7 +6,6 @@ public class DriverAssignmentBean {
     private Integer requestID;
     private Driver driver;
 
-    // Costruttore alternativo con requestID diretto
     public DriverAssignmentBean(Integer requestID, Driver driver) {
         if (requestID == null) throw new IllegalArgumentException("requestID cannot be null");
         if (driver == null) throw new IllegalArgumentException("Driver cannot be null");

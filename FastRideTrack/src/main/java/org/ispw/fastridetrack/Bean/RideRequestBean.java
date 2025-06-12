@@ -1,16 +1,18 @@
 package org.ispw.fastridetrack.Bean;
 
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.Model.RideRequest;
 
 public class RideRequestBean {
     private Integer requestID;
-    private Client client;
+    private ClientBean client;
     private String pickupLocation;  // es. "lat,lng"
     private String destination;
-    private int radiusKm;
+    private Integer radiusKm;
     private String paymentMethod;
-    private Driver driver;  // driver assegnato, inizialmente null
+    private DriverBean driver;  // driver assegnato, inizialmente null
+
+    // Costruttore vuoto (necessario per fromModel)
+    public RideRequestBean() {}
 
     // Costruttore principale con CoordinateBean e conversione lat,long
     public RideRequestBean(CoordinateBean origin, String destination, int radiusKm, String paymentMethod) {
@@ -25,8 +27,9 @@ public class RideRequestBean {
         this.driver = null;  // nessun driver assegnato all’inizio
     }
 
-    // Costruttore completo (es. ricostruzione da DB)
-    public RideRequestBean(Integer requestID, Client client, String pickupLocation, String destination, int radiusKm, String paymentMethod, Driver driver) {
+    // Costruttore completo (es. ricostruzione da DB) con Bean come parametri
+    public RideRequestBean(Integer requestID, ClientBean client, String pickupLocation, String destination,
+                           Integer radiusKm, String paymentMethod, DriverBean driver) {
         this.requestID = requestID;
         this.client = client;
         this.pickupLocation = pickupLocation;
@@ -45,11 +48,11 @@ public class RideRequestBean {
         this.requestID = requestID;
     }
 
-    public Client getClient() {
+    public ClientBean getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(ClientBean client) {
         this.client = client;
     }
 
@@ -69,11 +72,11 @@ public class RideRequestBean {
         this.destination = destination;
     }
 
-    public int getRadiusKm() {
+    public Integer getRadiusKm() {
         return radiusKm;
     }
 
-    public void setRadiusKm(int radiusKm) {
+    public void setRadiusKm(Integer radiusKm) {
         this.radiusKm = radiusKm;
     }
 
@@ -81,18 +84,52 @@ public class RideRequestBean {
         return paymentMethod;
     }
 
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
 
-    public Driver getDriver() {
+    public DriverBean getDriver() {
         return driver;
     }
 
-    public void setDriver(Driver driver) {
+    public void setDriver(DriverBean driver) {
         this.driver = driver;
     }
 
-    /**
-     * Restituisce l'origine come CoordinateBean, parsing da pickupLocation string.
-     */
+    // Static factory method: da Model a Bean
+    public static RideRequestBean fromModel(RideRequest model) {
+        if (model == null) return null;
+
+        ClientBean clientBean = ClientBean.fromModel(model.getClient());
+        DriverBean driverBean = DriverBean.fromModel(model.getDriver());
+
+        RideRequestBean bean = new RideRequestBean();
+        bean.setRequestID(model.getRequestId());
+        bean.setClient(clientBean);
+        bean.setPickupLocation(model.getPickupLocation());
+        bean.setDestination(model.getDestination());
+        bean.setRadiusKm(model.getRadiusKm());
+        bean.setPaymentMethod(model.getPaymentMethod());
+        bean.setDriver(driverBean);
+        return bean;
+    }
+
+
+    // Metodo di istanza: da Bean a Model
+    public RideRequest toModel() {
+        return new RideRequest(
+                requestID != null ? requestID : 0,
+                client != null ? client.toModel() : null,
+                pickupLocation,
+                destination,
+                radiusKm,
+                paymentMethod,
+                driver != null ? driver.toModel() : null
+        );
+    }
+
+    //Restituisce l'origine come CoordinateBean, parsing da pickupLocation string.
+
     public CoordinateBean getOriginAsCoordinateBean() {
         if (pickupLocation == null || !pickupLocation.contains(",")) return null;
         String[] parts = pickupLocation.split(",");
@@ -118,6 +155,7 @@ public class RideRequestBean {
                 '}';
     }
 }
+
 
 
 

@@ -21,13 +21,13 @@ public class DriverDAOInMemory implements DriverDAO {
                     "marco92",
                     "pass1",
                     "Marco Rossi",
-                    "marco@example.com",
+                    "gianmarco.manni02@gmail.com",
                     "1234567890",
-                    45.456,
-                    9.2964,
+                    41.867,
+                    12.499,
                     "Fiat Panda",
                     "AA123BB",
-                    "CoopTaxi",
+                    "FastRide",
                     true
             );
 
@@ -42,7 +42,7 @@ public class DriverDAOInMemory implements DriverDAO {
                     9.19,
                     "Toyota Yaris",
                     "BB456CC",
-                    "TaxiRoma",
+                    "FastRide",
                     true
             );
 
@@ -53,11 +53,11 @@ public class DriverDAOInMemory implements DriverDAO {
                     "Giulia Verdi",
                     "giulia@example.com",
                     "1122334455",
-                    41.89,
-                    12.465,
+                    41.893,
+                    12.495,
                     "Renault Clio",
                     "CC789DD",
-                    "Radiotaxi",
+                    "FastRide",
                     true
             );
 
@@ -73,13 +73,14 @@ public class DriverDAOInMemory implements DriverDAO {
     }
 
     @Override
-    public DriverBean retrieveDriverByUsernameAndPassword(String username, String password) {
+    public Driver retrieveDriverByUsernameAndPassword(String username, String password) {
         Driver driver = driverMap.get(username);
         if (driver != null && driver.getPassword().equals(password)) {
-            return DriverBean.fromModel(driver);
+            return driver;
         }
         return null;
     }
+
 
     @Override
     public Driver findById(int id_driver) {

@@ -11,12 +11,7 @@ public class SceneNavigator {
     public static void setStage(Stage stage) {
         mainStage = stage;
     }
-    /**
-     * Cambio scena caricando il file FXML indicato.
-     * @param fxmlPath percorso relativo del file FXML
-     * @param title titolo della finestra
-     * @throws FXMLLoadException se il file FXML non può essere caricato
-     */
+    //Cambio scena caricando il file FXML indicato
     public static void switchTo(String fxmlPath, String title) throws FXMLLoadException {
         try {
             FXMLLoader loader = new FXMLLoader(SceneNavigator.class.getResource(fxmlPath));

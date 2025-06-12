@@ -7,8 +7,7 @@ public class MapRequestBean {
     private double estimatedTimeMinutes;
 
     // Costruttore vuoto
-    public MapRequestBean() {
-    }
+    public MapRequestBean() {}
 
     public MapRequestBean(CoordinateBean origin, String destination, int radiusKm) {
         this.origin = origin;

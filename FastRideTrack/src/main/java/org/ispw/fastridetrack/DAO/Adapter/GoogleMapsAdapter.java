@@ -2,7 +2,6 @@ package org.ispw.fastridetrack.DAO.Adapter;
 
 import org.ispw.fastridetrack.Bean.MapRequestBean;
 import org.ispw.fastridetrack.Model.Map;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +14,7 @@ import java.net.http.HttpResponse;
 import com.google.gson.*;
 
 public class GoogleMapsAdapter implements MapService {
-
-    private static final String API_KEY = System.getenv("GOOGLE_MAPS_API_KEY"); // Variabile d’ambiente
+    private static final String API_KEY = System.getenv("GOOGLE_MAPS_API_KEY");
 
     @Override
     public Map calculateRoute(MapRequestBean requestBean) {
@@ -27,50 +25,38 @@ public class GoogleMapsAdapter implements MapService {
         String from = requestBean.getOriginAsString();
         String to = requestBean.getDestination();
 
-        boolean persistenceEnabled = SessionManager.getInstance().isPersistenceEnabled();
-        boolean apiKeyAvailable = API_KEY != null && !API_KEY.isBlank();
+        String html = generateRouteHtml(from, to);
 
-        String html;
-        double estimatedTimeMinutes;
-        double distanceKm;
-
-        if (persistenceEnabled && apiKeyAvailable) {
-            // Modalità reale con API key
-            html = generateRouteHtml(from, to);
-            // Tempo e distanza placeholder, in futuro puoi calcolarli con API reali
-            estimatedTimeMinutes = 15.0;
-            distanceKm = 7.0;
-        } else {
-            // Modalità mock o senza API key
-            html = generateMockHtml(from, to);
-            estimatedTimeMinutes = 10.0;
-            distanceKm = 5.0;
-        }
+        double estimatedTimeMinutes = -1.0;
+        double distanceKm = -1.0;
+        // Se serve, aggiungi chiamata separata a Directions or Distance Matrix API
 
         return new Map(html, from, to, distanceKm, estimatedTimeMinutes);
     }
 
-    // Metodo helper privato, non fa parte dell’interfaccia
-    private String generateMockHtml(String origin, String destination) {
-        return "<html><body><h3>[MOCK MAP] Da " + origin + " a " + destination + "</h3></body></html>";
-    }
 
-    // Metodo helper privato, genera l’iframe Google Maps reale
     private String generateRouteHtml(String origin, String destination) {
-        if (!SessionManager.getInstance().isPersistenceEnabled() || API_KEY == null || API_KEY.isBlank()) {
-            return generateMockHtml(origin, destination);
-        }
-
-        // Codifica URL per sicurezza
         String encodedOrigin = URLEncoder.encode(origin, StandardCharsets.UTF_8);
         String encodedDestination = URLEncoder.encode(destination, StandardCharsets.UTF_8);
 
-        return "<iframe width=\"100%\" height=\"400\" frameborder=\"0\" style=\"border:0\" " +
-                "src=\"https://www.google.com/maps/embed/v1/directions?key=" + API_KEY +
-                "&origin=" + encodedOrigin +
-                "&destination=" + encodedDestination +
-                "\" allowfullscreen></iframe>";
+        if (API_KEY == null || API_KEY.isBlank()) {
+            throw new IllegalStateException("Google Maps API key non configurata");
+        }
+
+        StringBuilder src = new StringBuilder();
+        src.append("https://www.google.com/maps/embed/v1/directions")
+                .append("?key=").append(API_KEY)
+                .append("&origin=").append(encodedOrigin)
+                .append("&destination=").append(encodedDestination)
+                .append("&mode=driving")            // modalità di trasporto: driving, walking, bicycling, transit :contentReference[oaicite:1]{index=1}
+                .append("&language=it")             // interfaccia in italiano :contentReference[oaicite:2]{index=2}
+                .append("&region=IT");              // formato regionale e confini adatti all’Italia :contentReference[oaicite:3]{index=3}
+
+        return "<iframe width=\"100%\" height=\"400\" frameborder=\"0\" style=\"border:0\" "
+                + "src=\"" + src.toString() + "\" allowfullscreen></iframe>";
     }
+
+
 
     /**
      * Metodo pubblico per ottenere l'indirizzo (reverse geocoding) a partire da latitudine e longitudine.
