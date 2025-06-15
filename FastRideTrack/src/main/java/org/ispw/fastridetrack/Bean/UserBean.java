@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.UserType;
+import org.ispw.fastridetrack.model.UserType;
 
 public class UserBean {
 

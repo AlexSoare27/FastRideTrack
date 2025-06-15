@@ -1,11 +1,11 @@
-package org.ispw.fastridetrack.Controller.ApplicationController;
+package org.ispw.fastridetrack.controller.ApplicationController;
 
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.Model.UserType;
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.DriverDAO;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.Driver;
+import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.UserType;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.dao.DriverDAO;
 
 public class LoginApplicationController {
 

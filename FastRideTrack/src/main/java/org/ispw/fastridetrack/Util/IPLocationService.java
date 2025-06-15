@@ -1,8 +1,8 @@
-package org.ispw.fastridetrack.Util;
+package org.ispw.fastridetrack.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ispw.fastridetrack.Model.Coordinate;
+import org.ispw.fastridetrack.model.Coordinate;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;

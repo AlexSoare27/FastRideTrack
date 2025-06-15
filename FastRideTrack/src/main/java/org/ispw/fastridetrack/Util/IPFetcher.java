@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Util;
+package org.ispw.fastridetrack.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

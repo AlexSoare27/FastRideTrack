@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Model;
+package org.ispw.fastridetrack.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -9,18 +9,18 @@ public class TaxiRideConfirmation {
     private Client client;
     private Coordinate userLocation;
     private String destination;
-    private String status;
+    private RideConfirmationStatus status;
     private Double estimatedFare;
     private Double estimatedTime;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private LocalDateTime confirmationTime;
 
     public TaxiRideConfirmation() {}
 
     // Costruttore completo
     public TaxiRideConfirmation(Integer rideID, Driver driver, Client client, Coordinate userLocation,
-                                String destination, String status, Double estimatedFare,
-                                Double estimatedTime, String paymentMethod, LocalDateTime confirmationTime) {
+                                String destination, RideConfirmationStatus status, Double estimatedFare,
+                                Double estimatedTime, PaymentMethod paymentMethod, LocalDateTime confirmationTime) {
         this.rideID = rideID;
         this.driver = driver;
         this.client = client;
@@ -74,11 +74,11 @@ public class TaxiRideConfirmation {
         this.destination = destination;
     }
 
-    public String getStatus() {
+    public RideConfirmationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RideConfirmationStatus status) {
         this.status = status;
     }
 
@@ -98,11 +98,11 @@ public class TaxiRideConfirmation {
         this.estimatedTime = estimatedTime;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 

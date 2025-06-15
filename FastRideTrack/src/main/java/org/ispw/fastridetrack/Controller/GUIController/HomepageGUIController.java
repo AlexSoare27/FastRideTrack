@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 
 import javafx.fxml.FXML;
@@ -6,8 +6,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.ispw.fastridetrack.Exception.FXMLLoadException;
-import org.ispw.fastridetrack.Util.SceneNavigator;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.controller.SceneNavigator;
 
 
 import java.net.URL;
@@ -19,6 +20,14 @@ public class HomepageGUIController implements Initializable {
     @FXML public Button signInButton;
     @FXML public Button signUpButton;
     @FXML private ImageView imageView;
+
+    // Facade iniettata da SceneNavigator
+    private ApplicationFacade facade;
+
+    // Setter usato da SceneNavigator per iniettare il facade
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

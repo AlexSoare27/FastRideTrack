@@ -1,7 +1,7 @@
-package org.ispw.fastridetrack.Model.Session;
+package org.ispw.fastridetrack.model.Session;
 
-import org.ispw.fastridetrack.DAO.*;
-import org.ispw.fastridetrack.DAO.InMemory.*;
+import org.ispw.fastridetrack.dao.*;
+import org.ispw.fastridetrack.dao.InMemory.*;
 
 public class InMemorySessionFactory implements SessionFactory {
 

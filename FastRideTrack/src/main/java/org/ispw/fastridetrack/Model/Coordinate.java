@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Model;
+package org.ispw.fastridetrack.model;
 
 public class Coordinate {
     private double latitude;

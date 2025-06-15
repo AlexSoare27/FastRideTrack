@@ -1,10 +1,10 @@
-package org.ispw.fastridetrack.DAO.InMemory;
+package org.ispw.fastridetrack.dao.InMemory;
 
-import org.ispw.fastridetrack.Bean.AvailableDriverBean;
-import org.ispw.fastridetrack.Bean.CoordinateBean;
-import org.ispw.fastridetrack.Bean.DriverBean;
-import org.ispw.fastridetrack.DAO.DriverDAO;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.bean.AvailableDriverBean;
+import org.ispw.fastridetrack.bean.DriverBean;
+import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.model.Coordinate;
+import org.ispw.fastridetrack.model.Driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,19 +32,19 @@ public class DriverDAOInMemory implements DriverDAO {
             );
 
             Driver d2 = new Driver(
-                    2,
-                    "luca88",
-                    "pass2",
-                    "Luca Bianchi",
-                    "luca@example.com",
-                    "0987654321",
-                    45.455,
-                    9.19,
-                    "Toyota Yaris",
-                    "BB456CC",
-                    "FastRide",
-                    true
-            );
+                2,
+                "luca88",
+                "pass2",
+                "Luca Bianchi",
+                "luca@example.com",
+                "0987654321",
+                45.6382,      // ~1 km nord
+                8.8320,       // ~1 km est
+                "Toyota Yaris",
+                "BB456CC",
+                "FastRide",
+                true
+             );
 
             Driver d3 = new Driver(
                     3,
@@ -61,9 +61,25 @@ public class DriverDAOInMemory implements DriverDAO {
                     true
             );
 
+             Driver d4 = new Driver(
+                4,
+                "giulia78",
+                "pass4",
+                "Giulia Rossi",
+                "giulia.rossi@example.com",
+                "1122334455",
+                45.6435,
+                8.8485,
+                "Renault Clio",
+                "CC699DE",
+                "FastRide",
+                true
+             );
+
             save(d1);
             save(d2);
             save(d3);
+            save(d4);
 
     }
 
@@ -81,7 +97,6 @@ public class DriverDAOInMemory implements DriverDAO {
         return null;
     }
 
-
     @Override
     public Driver findById(int id_driver) {
         for (Driver driver : driverMap.values()) {
@@ -93,7 +108,7 @@ public class DriverDAOInMemory implements DriverDAO {
     }
 
     @Override
-    public List<AvailableDriverBean> findDriversAvailableWithinRadius(CoordinateBean origin, int radiusKm) {
+    public List<AvailableDriverBean> findDriversAvailableWithinRadius(Coordinate origin, int radiusKm) {
         List<AvailableDriverBean> result = new ArrayList<>();
 
         for (Driver driver : driverMap.values()) {

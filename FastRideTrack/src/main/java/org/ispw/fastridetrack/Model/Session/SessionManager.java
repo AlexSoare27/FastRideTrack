@@ -1,16 +1,16 @@
-package org.ispw.fastridetrack.Model.Session;
+package org.ispw.fastridetrack.model.Session;
 
-import org.ispw.fastridetrack.DAO.Adapter.EmailService;
-import org.ispw.fastridetrack.DAO.Adapter.GmailAdapter;
-import org.ispw.fastridetrack.DAO.Adapter.GoogleMapsAdapter;
-import org.ispw.fastridetrack.DAO.Adapter.MapService;
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.DriverDAO;
-import org.ispw.fastridetrack.DAO.MYSQL.SingletonDBSession;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
-import org.ispw.fastridetrack.DAO.TaxiRideDAO;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.dao.Adapter.EmailService;
+import org.ispw.fastridetrack.dao.Adapter.GmailAdapter;
+import org.ispw.fastridetrack.dao.Adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.dao.Adapter.MapService;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.dao.MYSQL.SingletonDBSession;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.Driver;
 
 public class SessionManager {
 
@@ -23,19 +23,24 @@ public class SessionManager {
     private SessionManager() {
         // Carico la configurazione dalla variabile d'ambiente
         String usePersistenceEnv = System.getenv("USE_PERSISTENCE");
-        this.persistenceEnabled = "true".equalsIgnoreCase(usePersistenceEnv);
 
-        // Inizializzazione dinamica della session factory
-        if (this.persistenceEnabled) {
+        // Determino la session factory in base al valore della variabile
+        if ("true".equalsIgnoreCase(usePersistenceEnv)) {
+            this.persistenceEnabled = true;
             this.sessionFactory = new PersistenceSessionFactory();
+        } else if ("file".equalsIgnoreCase(usePersistenceEnv)) {
+            this.persistenceEnabled = true;
+            this.sessionFactory = new FileSystemSessionFactory();
         } else {
+            this.persistenceEnabled = false;
             this.sessionFactory = new InMemorySessionFactory();
         }
+
         // Adapter unificati per Gmail e GoogleMaps
         this.mapService = new GoogleMapsAdapter();
         this.emailService = new GmailAdapter();
-
     }
+
 
     public static void init() {
         if (instance == null) {

@@ -1,9 +1,9 @@
-package org.ispw.fastridetrack.Controller.ApplicationController;
+package org.ispw.fastridetrack.controller.ApplicationController;
 
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.DAO.Adapter.MapService;
-import org.ispw.fastridetrack.Model.Map;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
+import org.ispw.fastridetrack.bean.MapRequestBean;
+import org.ispw.fastridetrack.dao.Adapter.MapService;
+import org.ispw.fastridetrack.model.Map;
+import org.ispw.fastridetrack.model.Session.SessionManager;
 
 public class MapApplicationController {
 
@@ -13,23 +13,24 @@ public class MapApplicationController {
         this.mapService = SessionManager.getInstance().getMapService();
     }
 
-    /**
-     * Calcola il percorso e aggiorna il MapRequestBean con il tempo stimato.
-     * @param mapRequestBean richiesta con origine, destinazione e raggio
-     * @return oggetto Map contenente dati della mappa, distanza e tempo stimato
-     */
+    // Calcolo il percorso e aggiorno il MapRequestBean con il tempo stimato.
     public Map showMap(MapRequestBean mapRequestBean) {
         if (mapRequestBean == null) {
             throw new IllegalArgumentException("MapRequestBean non può essere nullo");
         }
 
+        //System.out.println("Richiesta mappa con: " + mapRequestBean);
+        if (mapRequestBean.getOrigin() == null || mapRequestBean.getDestination() == null) {
+            throw new IllegalArgumentException("Origin o destination nulli!");
+        }
+
         Map map = mapService.calculateRoute(mapRequestBean);
 
-        // Aggiorna tempo stimato nel bean
         mapRequestBean.setEstimatedTimeMinutes(map.getEstimatedTimeMinutes());
 
         return map;
     }
+
 }
 
 

@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.DAO.MYSQL;
+package org.ispw.fastridetrack.dao.MYSQL;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

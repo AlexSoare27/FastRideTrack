@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.Coordinate;
+import org.ispw.fastridetrack.model.Coordinate;
 
 public class CoordinateBean {
     private double latitude;

@@ -1,15 +1,16 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Coordinate;
-import org.ispw.fastridetrack.Model.UserType;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.Coordinate;
+import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.UserType;
 
 public class ClientBean extends UserBean {
-    private String paymentMethod;
+    private final PaymentMethod paymentMethod;
 
 
     public ClientBean(String username, String password, Integer userID, String name,
-                      String email, String phoneNumber, double latitude, double longitude, String paymentMethod) {
+                      String email, String phoneNumber, double latitude, double longitude, PaymentMethod paymentMethod) {
         super(username, password, UserType.CLIENT, userID, name, email, phoneNumber, latitude, longitude);
         this.paymentMethod = paymentMethod;
     }
@@ -17,13 +18,13 @@ public class ClientBean extends UserBean {
     public ClientBean(String username, String password, int userID, String name,
                       String email, String phoneNumber,
                       CoordinateBean coordinate,
-                      String paymentMethod) {
+                      PaymentMethod paymentMethod) {
         this(username, password, userID, name, email, phoneNumber,
                 coordinate.getLatitude(), coordinate.getLongitude(),
                 paymentMethod);
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 

@@ -1,13 +1,13 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.ispw.fastridetrack.Controller.ApplicationController.LoginApplicationController;
-import org.ispw.fastridetrack.Exception.FXMLLoadException;
-import org.ispw.fastridetrack.Model.UserType;
-import org.ispw.fastridetrack.Util.SceneNavigator;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.controller.SceneNavigator;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.UserType;
 
 public class SignInGUIController {
 
@@ -17,28 +17,42 @@ public class SignInGUIController {
     @FXML
     private PasswordField passwordField;
 
-    // Metodo che gestisce l'evento di click sul pulsante "Next"
+    private ApplicationFacade facade;
+
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
+
     @FXML
     private void onNextClick() {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        try {
-            LoginApplicationController loginController = new LoginApplicationController();
-            boolean isValid = loginController.validateClientCredentials(username, password, UserType.CLIENT);
-            boolean isValidDriver = loginController.validateDriverCredentials(username, password, UserType.DRIVER);
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            showErrorAlert("Dati mancanti", "Inserisci username e password.");
+            return;
+        }
 
-            if (isValid) {
+        try {
+            boolean isValidClient = facade.getLoginAC().validateClientCredentials(username, password, UserType.CLIENT);
+            boolean isValidDriver = facade.getLoginAC().validateDriverCredentials(username, password, UserType.DRIVER);
+
+            if (isValidClient) {
                 SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
-            }else if(isValidDriver){
-                SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home_driver.fxml", "Login");
-            }else {
+            } else if (isValidDriver) {
+                SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home_driver.fxml", "Home Driver");
+            } else {
                 showErrorAlert("Login Fallito", "Credenziali errate. Riprova.");
             }
         } catch (Exception e) {
             e.printStackTrace();
             showErrorAlert("Errore di connessione", "Impossibile connettersi al database:\n" + e.getMessage());
         }
+    }
+
+    @FXML
+    private void onHomepageClick() throws FXMLLoadException {
+        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
     }
 
     private void showErrorAlert(String title, String content) {
@@ -48,12 +62,7 @@ public class SignInGUIController {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
-    // Metodo che gestisce l'evento di click sul pulsante "Homepage"
-    @FXML
-    private void onHomepageClick() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
-    }
 }
+
 
 

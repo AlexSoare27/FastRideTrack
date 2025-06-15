@@ -1,13 +1,14 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import org.ispw.fastridetrack.Bean.ClientBean;
-import org.ispw.fastridetrack.Exception.FXMLLoadException;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.Util.SceneNavigator;
+import org.ispw.fastridetrack.bean.ClientBean;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.controller.SceneNavigator;
 
 public class MyAccountGUIController {
 
@@ -17,6 +18,14 @@ public class MyAccountGUIController {
     @FXML private TextField userTypeField;
     @FXML private TextField phoneNumberField;
     @FXML public Button btnBack;
+
+    // Facade iniettata da SceneNavigator
+    private ApplicationFacade facade;
+
+    // Setter usato da SceneNavigator per iniettare il facade
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
 
     @FXML
     public void initialize() {

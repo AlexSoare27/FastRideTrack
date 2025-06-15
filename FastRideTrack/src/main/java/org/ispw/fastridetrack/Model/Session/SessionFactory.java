@@ -1,9 +1,9 @@
-package org.ispw.fastridetrack.Model.Session;
+package org.ispw.fastridetrack.model.Session;
 
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.DriverDAO;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
-import org.ispw.fastridetrack.DAO.TaxiRideDAO;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.dao.TaxiRideDAO;
 
 public interface SessionFactory {
     ClientDAO createClientDAO();

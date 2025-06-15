@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Model;
+package org.ispw.fastridetrack.model;
 
 public abstract class User {
     private Integer userID;

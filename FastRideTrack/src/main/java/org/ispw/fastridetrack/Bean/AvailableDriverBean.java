@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
 public class AvailableDriverBean extends DriverBean {
 
@@ -32,6 +32,25 @@ public class AvailableDriverBean extends DriverBean {
         return estimatedPrice;
     }
 
+    public void setEstimatedTime(double estimatedTime) {
+        this.estimatedTime = estimatedTime;
+    }
+
+    public void setEstimatedPrice(double estimatedPrice) {
+        this.estimatedPrice = estimatedPrice;
+    }
+
+    // Metodo aggiuntivo per formattare il tempo in "Xh YYmin"
+    public String getEstimatedTimeFormatted() {
+        int hrs = (int) (estimatedTime / 60);
+        int mins = (int) Math.round(estimatedTime % 60);
+        return hrs > 0 ? String.format("%dh %02dmin", hrs, mins) : String.format("%dmin", mins);
+    }
+
+    // (Opzionale) Metodo per formattare anche il prezzo
+    public String getEstimatedPriceFormatted() {
+        return String.format("€%.2f", estimatedPrice);
+    }
 }
 
 

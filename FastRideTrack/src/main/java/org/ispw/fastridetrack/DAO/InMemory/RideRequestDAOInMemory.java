@@ -1,7 +1,7 @@
-package org.ispw.fastridetrack.DAO.InMemory;
+package org.ispw.fastridetrack.dao.InMemory;
 
-import org.ispw.fastridetrack.Model.RideRequest;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
+import org.ispw.fastridetrack.model.RideRequest;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
 
 import java.util.HashMap;
 import java.util.Map;

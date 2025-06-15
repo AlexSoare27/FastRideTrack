@@ -1,11 +1,10 @@
-package org.ispw.fastridetrack.DAO.MYSQL;
+package org.ispw.fastridetrack.dao.MYSQL;
 
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.DriverDAO;
-import org.ispw.fastridetrack.DAO.TaxiRideDAO;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Driver;
-import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.model.*;
+import org.ispw.fastridetrack.model.Driver;
 
 import java.sql.*;
 import java.util.Optional;
@@ -27,10 +26,10 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
             stmt.setInt(1, ride.getRideID());
             stmt.setInt(2, ride.getDriver().getUserID());
             stmt.setInt(3, ride.getClient().getUserID());
-            stmt.setString(4, ride.getStatus());
+            stmt.setString(4, String.valueOf(ride.getStatus()));
             stmt.setDouble(5, ride.getEstimatedFare());
             stmt.setDouble(6, ride.getEstimatedTime());
-            stmt.setString(7, ride.getPaymentMethod());
+            stmt.setString(7, String.valueOf(ride.getPaymentMethod()));
             stmt.setTimestamp(8, Timestamp.valueOf(ride.getConfirmationTime()));
 
             // Campo destination (string)
@@ -68,10 +67,10 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                     model.setRideID(rideID);
                     model.setDriver(driver);
                     model.setClient(client);
-                    model.setStatus(status);
+                    model.setStatus(RideConfirmationStatus.valueOf(status));
                     model.setEstimatedFare(estimatedFare);
                     model.setEstimatedTime(estimatedTime);
-                    model.setPaymentMethod(paymentMethod);
+                    model.setPaymentMethod(PaymentMethod.valueOf(paymentMethod));
                     model.setConfirmationTime(confirmationTimestamp.toLocalDateTime());
                     model.setDestination(destination);
 
@@ -92,10 +91,10 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, ride.getDriver().getUserID());
             stmt.setInt(2, ride.getClient().getUserID());
-            stmt.setString(3, ride.getStatus());
+            stmt.setString(3, String.valueOf(ride.getStatus()));
             stmt.setDouble(4, ride.getEstimatedFare());
             stmt.setDouble(5, ride.getEstimatedTime());
-            stmt.setString(6, ride.getPaymentMethod());
+            stmt.setString(6, String.valueOf(ride.getPaymentMethod()));
             stmt.setTimestamp(7, Timestamp.valueOf(ride.getConfirmationTime()));
             stmt.setString(8, ride.getDestination());
 

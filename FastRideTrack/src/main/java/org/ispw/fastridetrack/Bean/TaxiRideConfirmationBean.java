@@ -1,6 +1,8 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.RideConfirmationStatus;
+import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 
 import java.time.LocalDateTime;
 
@@ -10,16 +12,16 @@ public class TaxiRideConfirmationBean {
     private ClientBean client;
     private CoordinateBean userLocation;
     private String destination;
-    private String status;
+    private RideConfirmationStatus status;
     private Double estimatedFare;
     private Double estimatedTime;
-    private String paymentStatus;
+    private PaymentMethod paymentMethod;
     private LocalDateTime confirmationTime;
 
     // Costruttore completo
     public TaxiRideConfirmationBean(Integer rideID, DriverBean driver, ClientBean client,
-                                    CoordinateBean userLocation, String destination, String status,
-                                    Double estimatedFare, Double estimatedTime, String paymentStatus,
+                                    CoordinateBean userLocation, String destination, RideConfirmationStatus status,
+                                    Double estimatedFare, Double estimatedTime, PaymentMethod paymentMethod,
                                     LocalDateTime confirmationTime) {
         this.rideID = rideID;
         this.driver = driver;
@@ -29,7 +31,7 @@ public class TaxiRideConfirmationBean {
         this.status = status;
         this.estimatedFare = estimatedFare;
         this.estimatedTime = estimatedTime;
-        this.paymentStatus = paymentStatus;
+        this.paymentMethod = paymentMethod;
         this.confirmationTime = confirmationTime;
     }
 
@@ -75,11 +77,11 @@ public class TaxiRideConfirmationBean {
         this.destination = destination;
     }
 
-    public String getStatus() {
+    public RideConfirmationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RideConfirmationStatus status) {
         this.status = status;
     }
 
@@ -99,12 +101,12 @@ public class TaxiRideConfirmationBean {
         this.estimatedTime = estimatedTime;
     }
 
-    public String getPaymentStatus() {
-        return paymentStatus;
+    public PaymentMethod getPaymentStatus() {
+        return paymentMethod;
     }
 
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
+    public void setPaymentStatus(PaymentMethod paymentStatus) {
+        this.paymentMethod = paymentStatus;
     }
 
     public LocalDateTime getConfirmationTime() {
@@ -144,14 +146,14 @@ public class TaxiRideConfirmationBean {
                 status,
                 estimatedFare,
                 estimatedTime,
-                paymentStatus,
+                paymentMethod,
                 confirmationTime
         );
     }
 
-    // Imposta lo stato su "PENDING"
+    // Imposto lo stato su "PENDING"
     public void markPending() {
-        this.status = "PENDING";
+        this.status = RideConfirmationStatus.valueOf("PENDING");
     }
 }
 

@@ -1,6 +1,7 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.RideRequest;
+import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.RideRequest;
 
 public class RideRequestBean {
     private Integer requestID;
@@ -8,14 +9,14 @@ public class RideRequestBean {
     private String pickupLocation;  // es. "lat,lng"
     private String destination;
     private Integer radiusKm;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private DriverBean driver;  // driver assegnato, inizialmente null
 
     // Costruttore vuoto (necessario per fromModel)
     public RideRequestBean() {}
 
-    // Costruttore principale con CoordinateBean e conversione lat,long
-    public RideRequestBean(CoordinateBean origin, String destination, int radiusKm, String paymentMethod) {
+    // Costruttore principale con CoordinateBean e conversione lat, long
+    public RideRequestBean(CoordinateBean origin, String destination, int radiusKm, PaymentMethod paymentMethod) {
         if (origin == null) throw new IllegalArgumentException("Origin cannot be null");
         if (destination == null || destination.isEmpty()) throw new IllegalArgumentException("Destination cannot be null or empty");
         if (radiusKm <= 0) throw new IllegalArgumentException("Radius must be positive");
@@ -27,17 +28,6 @@ public class RideRequestBean {
         this.driver = null;  // nessun driver assegnato all’inizio
     }
 
-    // Costruttore completo (es. ricostruzione da DB) con Bean come parametri
-    public RideRequestBean(Integer requestID, ClientBean client, String pickupLocation, String destination,
-                           Integer radiusKm, String paymentMethod, DriverBean driver) {
-        this.requestID = requestID;
-        this.client = client;
-        this.pickupLocation = pickupLocation;
-        this.destination = destination;
-        this.radiusKm = radiusKm;
-        this.paymentMethod = paymentMethod;
-        this.driver = driver;
-    }
 
     // Getter e setter
     public Integer getRequestID() {
@@ -80,11 +70,11 @@ public class RideRequestBean {
         this.radiusKm = radiusKm;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 

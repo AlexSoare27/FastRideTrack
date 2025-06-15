@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.DAO;
+package org.ispw.fastridetrack.dao;
 
-import org.ispw.fastridetrack.Model.RideRequest;
+import org.ispw.fastridetrack.model.RideRequest;
 
 public interface RideRequestDAO {
     RideRequest save(RideRequest rideRequest);

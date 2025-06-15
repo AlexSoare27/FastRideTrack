@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
 public class EmailBean {
     private String recipient;

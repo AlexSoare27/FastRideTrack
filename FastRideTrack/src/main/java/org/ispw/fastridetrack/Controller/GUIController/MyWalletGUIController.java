@@ -1,14 +1,23 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import org.ispw.fastridetrack.Exception.FXMLLoadException;
-import org.ispw.fastridetrack.Util.SceneNavigator;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.controller.SceneNavigator;
 
 public class MyWalletGUIController {
+
+    // Facade iniettata da SceneNavigator
+    private ApplicationFacade facade;
+
+    // Setter usato da SceneNavigator per iniettare il facade
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
 
     @FXML
     public Button btnBack;
@@ -95,8 +104,46 @@ public class MyWalletGUIController {
 
         dialog.getDialogPane().setContent(grid);
 
+        // Recupero il bottone Aggiungi per poterlo disabilitare se i dati non sono validi
+        Button addButton = (Button) dialog.getDialogPane().lookupButton(addButtonType);
+
+        // Validazione al volo: abilita/disabilita il bottone Aggiungi
+        Runnable validateInputs = () -> {
+            boolean valid = isCardNumberValid(cardNumber.getText())
+                    && !cardHolder.getText().trim().isEmpty()
+                    && isExpiryDateValid(expiryDate.getText())
+                    && isCvvValid(cvv.getText());
+            addButton.setDisable(!valid);
+        };
+
+        cardNumber.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
+        cardHolder.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
+        expiryDate.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
+        cvv.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
+
+        // Inizializzo il bottone disabilitato
+        addButton.setDisable(true);
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButtonType) {
+                // Controllo finale (può essere superfluo se validiamo prima)
+                if (!isCardNumberValid(cardNumber.getText())) {
+                    showError("Numero carta non valido. Deve contenere solo cifre (13-19)!");
+                    return null;
+                }
+                if (cardHolder.getText().trim().isEmpty()) {
+                    showError("Intestatario non può essere vuoto!");
+                    return null;
+                }
+                if (!isExpiryDateValid(expiryDate.getText())) {
+                    showError("Data di scadenza non valida o scaduta! Usa MM/YY.");
+                    return null;
+                }
+                if (!isCvvValid(cvv.getText())) {
+                    showError("CVV non valido! Deve essere di 3 o 4 cifre.");
+                    return null;
+                }
+
                 System.out.println("Carta aggiunta:");
                 System.out.println("Numero: " + cardNumber.getText());
                 System.out.println("Intestatario: " + cardHolder.getText());
@@ -114,6 +161,42 @@ public class MyWalletGUIController {
 
         dialog.showAndWait();
     }
+
+    // Funzione per validare numero carta (solo cifre, lunghezza 13-19)
+    private boolean isCardNumberValid(String number) {
+        return number != null && number.matches("\\d{13,19}");
+    }
+
+    // Funzione per validare formato e validità della scadenza MM/YY
+    private boolean isExpiryDateValid(String expiry) {
+        if (expiry == null) return false;
+        if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) return false;
+
+        // Controllo data non scaduta
+        String[] parts = expiry.split("/");
+        int month = Integer.parseInt(parts[0]);
+        int year = Integer.parseInt(parts[1]) + 2000; // es. "24" -> 2024
+
+        java.time.YearMonth now = java.time.YearMonth.now();
+        java.time.YearMonth cardDate = java.time.YearMonth.of(year, month);
+
+        return !cardDate.isBefore(now);
+    }
+
+    // Funzione per validare CVV (3 o 4 cifre)
+    private boolean isCvvValid(String cvv) {
+        return cvv != null && cvv.matches("\\d{3,4}");
+    }
+
+    // Metodo per mostrare alert di errore
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Errore di validazione");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }
 
 

@@ -1,4 +1,5 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
+
 
 public class MapRequestBean {
     private CoordinateBean origin;
@@ -15,11 +16,21 @@ public class MapRequestBean {
         this.radiusKm = radiusKm;
     }
 
-    public CoordinateBean getOrigin() { return origin; }
+    public CoordinateBean getOrigin() {
+        return origin;
+    }
 
-    public String getDestination() { return destination; }
+    public String getDestination() {
+        return destination;
+    }
 
-    public int getRadiusKm() { return radiusKm; }
+    public int getRadiusKm() {
+        return radiusKm;
+    }
+
+    public double getEstimatedTimeMinutes() {
+        return estimatedTimeMinutes;
+    }
 
     public void setOrigin(CoordinateBean origin) {
         this.origin = origin;
@@ -29,6 +40,10 @@ public class MapRequestBean {
         this.destination = destination;
     }
 
+    public void setRadiusKm(int radiusKm) {
+        this.radiusKm = radiusKm;
+    }
+
     public void setEstimatedTimeMinutes(double estimatedTimeMinutes) {
         this.estimatedTimeMinutes = estimatedTimeMinutes;
     }
@@ -36,7 +51,19 @@ public class MapRequestBean {
     public String getOriginAsString() {
         return origin.getLatitude() + "," + origin.getLongitude();
     }
+
+
+    @Override
+    public String toString() {
+        return "MapRequestBean{" +
+                "origin=" + origin +
+                ", destination='" + destination + '\'' +
+                ", radiusKm=" + radiusKm +
+                ", estimatedTimeMinutes=" + estimatedTimeMinutes +
+                '}';
+    }
 }
+
 
 
 

@@ -1,14 +1,13 @@
-package org.ispw.fastridetrack.Controller.ApplicationController;
+package org.ispw.fastridetrack.controller.ApplicationController;
 
 import jakarta.mail.MessagingException;
-import org.ispw.fastridetrack.Bean.EmailBean;
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.DAO.TaxiRideDAO;
-import org.ispw.fastridetrack.Exception.RideNotFoundException;
-import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.DAO.Adapter.EmailService;
-import org.ispw.fastridetrack.DAO.Adapter.GmailAdapter;
+import org.ispw.fastridetrack.bean.EmailBean;
+import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.dao.Adapter.EmailService;
+import org.ispw.fastridetrack.dao.Adapter.GmailAdapter;
 
 public class ClientRideManagementApplicationController {
 
@@ -21,24 +20,8 @@ public class ClientRideManagementApplicationController {
         this.emailService = new GmailAdapter();
     }
 
-    /**
-     * Recupera i dati di conferma corsa a partire dall'ID.
-     * @param rideID identificativo della corsa
-     * @return TaxiRideConfirmationBean
-     * @throws RideNotFoundException se la corsa non esiste
-     */
-    public TaxiRideConfirmationBean viewRideConfirmation(int rideID) {
-        TaxiRideConfirmation model = taxiRideDAO.findById(rideID)
-                .orElseThrow(() -> new RideNotFoundException(rideID));
-        return TaxiRideConfirmationBean.fromModel(model);
-    }
 
-    /**
-     * Conferma una corsa e invia una notifica al driver via email.
-     * @param bean Bean contenente i dati della corsa confermata
-     * @param email EmailBean con i dettagli della notifica
-     * @throws MessagingException se si verifica un errore nell'invio della mail
-     */
+    //Confermo una corsa e invio una notifica al driver via email.
     public void confirmRideAndNotify(TaxiRideConfirmationBean bean, EmailBean email) throws MessagingException {
         bean.markPending();
 

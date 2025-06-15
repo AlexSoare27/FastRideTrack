@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Exception;
+package org.ispw.fastridetrack.exception;
 
 public class RideNotFoundException extends RuntimeException {
     public RideNotFoundException(int rideID) {

@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.model.Driver;
 
 public class DriverAssignmentBean {
     private Integer requestID;

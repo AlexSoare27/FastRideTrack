@@ -1,7 +1,7 @@
-package org.ispw.fastridetrack.Model.Session;
+package org.ispw.fastridetrack.model.Session;
 
-import org.ispw.fastridetrack.DAO.*;
-import org.ispw.fastridetrack.DAO.MYSQL.*;
+import org.ispw.fastridetrack.dao.*;
+import org.ispw.fastridetrack.dao.MYSQL.*;
 
 public class PersistenceSessionFactory implements SessionFactory {
 

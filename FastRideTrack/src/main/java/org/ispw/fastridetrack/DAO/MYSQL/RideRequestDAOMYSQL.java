@@ -1,9 +1,9 @@
-package org.ispw.fastridetrack.DAO.MYSQL;
+package org.ispw.fastridetrack.dao.MYSQL;
 
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.RideRequest;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.RideRequest;
 
 import java.sql.*;
 

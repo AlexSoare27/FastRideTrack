@@ -12,7 +12,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
+        <sonar.projectKey>gianmarco-00_ProvaProgetto</sonar.projectKey>
+        <sonar.organization>gianmarco-00</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
+
 
     <dependencies>
         <!-- JavaFX -->
@@ -64,7 +68,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240303</version> <!-- Versione aggiornata -->
+            <version>20240303</version>
         </dependency>
 
         <!-- Apache HttpClient (opzionale) -->
@@ -77,7 +81,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version> <!-- o l'ultima versione disponibile -->
+            <version>2.10.1</version>
         </dependency>
 
     </dependencies>
@@ -127,6 +131,14 @@
                     <overwrite>true</overwrite>
                 </configuration>
             </plugin>
+
+            <!--  Plugin SonarCloud -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+            </plugin>
         </plugins>
+
     </build>
 </project>

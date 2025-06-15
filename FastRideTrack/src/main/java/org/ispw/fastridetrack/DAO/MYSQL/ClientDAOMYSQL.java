@@ -1,7 +1,8 @@
-package org.ispw.fastridetrack.DAO.MYSQL;
+package org.ispw.fastridetrack.dao.MYSQL;
 
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.PaymentMethod;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,7 @@ public class ClientDAOMYSQL implements ClientDAO {
             stmt.setString(4, client.getName());
             stmt.setString(5, client.getEmail());
             stmt.setString(6, client.getPhoneNumber());
-            stmt.setString(7, client.getPaymentMethod());
+            stmt.setString(7, String.valueOf(client.getPaymentMethod()));
             stmt.setDouble(8, client.getLatitude());
             stmt.setDouble(9, client.getLongitude());
 
@@ -81,7 +82,7 @@ public class ClientDAOMYSQL implements ClientDAO {
         String name = rs.getString("name");
         String email = rs.getString("email");
         String phone = rs.getString("phoneNumber");
-        String paymentMethod = rs.getString("paymentMethod");
+        PaymentMethod paymentMethod = PaymentMethod.valueOf(rs.getString("paymentMethod"));
         double latitude = rs.getDouble("latitude");
         double longitude = rs.getDouble("longitude");
 

@@ -1,8 +1,9 @@
-package org.ispw.fastridetrack.Util;
+package org.ispw.fastridetrack.util;
 
-import org.ispw.fastridetrack.Bean.AvailableDriverBean;
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.bean.AvailableDriverBean;
+import org.ispw.fastridetrack.bean.MapRequestBean;
+import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
+import org.ispw.fastridetrack.model.PaymentMethod;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class TemporaryMemory {
     private MapRequestBean mapRequestBean;
     private List<AvailableDriverBean> availableDrivers;
     private AvailableDriverBean selectedDriver;
-    private String selectedPaymentMethod;
+    private PaymentMethod selectedPaymentMethod;
     private TaxiRideConfirmationBean rideConfirmation;
 
     private TemporaryMemory() {}
@@ -34,8 +35,8 @@ public class TemporaryMemory {
     public AvailableDriverBean getSelectedDriver() { return selectedDriver; }
     public void setSelectedDriver(AvailableDriverBean driver) { this.selectedDriver = driver; }
 
-    public String getSelectedPaymentMethod() { return selectedPaymentMethod; }
-    public void setSelectedPaymentMethod(String method) { this.selectedPaymentMethod = method; }
+    public String getSelectedPaymentMethod() { return String.valueOf(selectedPaymentMethod); }
+    public void setSelectedPaymentMethod(String method) { this.selectedPaymentMethod = PaymentMethod.valueOf(method); }
 
     public TaxiRideConfirmationBean getRideConfirmation() { return rideConfirmation; }
     public void setRideConfirmation(TaxiRideConfirmationBean confirmation) { this.rideConfirmation = confirmation; }

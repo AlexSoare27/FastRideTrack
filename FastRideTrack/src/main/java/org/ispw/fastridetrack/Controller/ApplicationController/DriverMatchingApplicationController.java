@@ -1,11 +1,12 @@
-package org.ispw.fastridetrack.Controller.ApplicationController;
+package org.ispw.fastridetrack.controller.ApplicationController;
 
-import org.ispw.fastridetrack.Bean.*;
-import org.ispw.fastridetrack.DAO.DriverDAO;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
-import org.ispw.fastridetrack.Model.Driver;
-import org.ispw.fastridetrack.Model.RideRequest;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
+import org.ispw.fastridetrack.bean.*;
+import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.model.Coordinate;
+import org.ispw.fastridetrack.model.Driver;
+import org.ispw.fastridetrack.model.RideRequest;
+import org.ispw.fastridetrack.model.Session.SessionManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,20 +21,13 @@ public class DriverMatchingApplicationController {
         this.driverDAO = SessionManager.getInstance().getDriverDAO();
     }
 
-    /**
-     * Assegna un driver a una richiesta usando il bean DriverAssignmentBean.
-     */
+    // Assegno un driver a una richiesta usando il bean DriverAssignmentBean.
     public void assignDriverToRequest(DriverAssignmentBean assignmentBean) {
         Objects.requireNonNull(assignmentBean, "DriverAssignmentBean non può essere nullo");
         assignDriverToRequest(assignmentBean.getRequestID(), assignmentBean.getDriver().getUserID());
     }
 
-    /**
-     * Assegna un driver alla richiesta di corsa e aggiorna la persistenza.
-     *
-     * @param requestID ID della richiesta di corsa
-     * @param driverID  ID del driver da assegnare
-     */
+    // Assegno un driver alla richiesta di corsa e aggiorno la persistenza.
     public void assignDriverToRequest(int requestID, int driverID) {
         RideRequest model = rideRequestDAO.findById(requestID);
         Driver driver = driverDAO.findById(driverID);
@@ -45,28 +39,25 @@ public class DriverMatchingApplicationController {
         rideRequestDAO.update(model);
     }
 
-    /**
-     * Trova i driver disponibili entro il raggio fornito dal MapRequestBean.
-     *
-     * @param mapRequestBean contiene origine, destinazione e raggio
-     * @return lista di driver disponibili (bean)
-     */
+    // Trovo i driver disponibili entro il raggio fornito dal MapRequestBean.
     public List<AvailableDriverBean> findAvailableDrivers(MapRequestBean mapRequestBean) {
         Objects.requireNonNull(mapRequestBean, "MapRequestBean non può essere nullo");
+
 
         CoordinateBean originBean = mapRequestBean.getOrigin();
         int radiusKm = mapRequestBean.getRadiusKm();
 
-        // Conversione: CoordinateBean → Coordinate (model)
-        return driverDAO.findDriversAvailableWithinRadius(originBean, radiusKm);
+        Coordinate origin = originBean.toModel();
+        System.out.println("DEBUG - Coordinate partenza: " + origin.getLatitude() + ", " + origin.getLongitude());
+        System.out.println("DEBUG - Raggio km: " + radiusKm);
+
+
+        return driverDAO.findDriversAvailableWithinRadius(origin, radiusKm);
+
     }
 
-    /**
-     * Salva una nuova richiesta di corsa a partire dal bean.
-     *
-     * @param rideRequestBean la richiesta di corsa (bean)
-     * @return RideRequestBean salvato (con ID aggiornato)
-     */
+
+    // Salvo una nuova richiesta di corsa a partire dal bean.
     public RideRequestBean saveRideRequest(RideRequestBean rideRequestBean) {
         Objects.requireNonNull(rideRequestBean, "RideRequestBean non può essere nullo");
 

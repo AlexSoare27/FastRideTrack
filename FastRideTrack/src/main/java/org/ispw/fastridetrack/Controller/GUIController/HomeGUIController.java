@@ -1,28 +1,23 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
-import org.ispw.fastridetrack.Bean.ClientBean;
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Bean.RideRequestBean;
-import org.ispw.fastridetrack.Bean.CoordinateBean;
-import org.ispw.fastridetrack.Controller.ApplicationController.DriverMatchingApplicationController;
-import org.ispw.fastridetrack.Controller.ApplicationController.MapApplicationController;
-import org.ispw.fastridetrack.Exception.FXMLLoadException;
-import org.ispw.fastridetrack.Model.Client;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.Util.*;
-import org.ispw.fastridetrack.Util.TemporaryMemory;
+import org.ispw.fastridetrack.bean.ClientBean;
+import org.ispw.fastridetrack.bean.MapRequestBean;
+import org.ispw.fastridetrack.bean.RideRequestBean;
+import org.ispw.fastridetrack.bean.CoordinateBean;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.controller.SceneNavigator;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.util.*;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -33,7 +28,6 @@ public class HomeGUIController implements Initializable {
     @FXML public Button myAccountButton;
     @FXML public Button myWalletButton;
     @FXML public Button logoutButton;
-    @FXML private AnchorPane homePane;
     @FXML private ChoiceBox<String> rangeChoiceBox;
     @FXML private TextField destinationField;
     @FXML private Label welcomeLabel;
@@ -41,14 +35,21 @@ public class HomeGUIController implements Initializable {
 
     private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
 
-    private MapApplicationController mapAppController;
-    private DriverMatchingApplicationController rideRequestController;
+    // Facade iniettata da SceneNavigator
+    private ApplicationFacade facade;
+
+    // Setter usato da SceneNavigator per iniettare il facade
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        mapAppController = new MapApplicationController();
-        rideRequestController = new DriverMatchingApplicationController();
-
+        //System.out.println("[HomeGUIController] facade = " + facade);
+        if (facade == null) {
+            facade = SceneNavigator.getFacade();
+            //System.out.println("[HomeGUIController] facade dopo getFacade = " + facade);
+        }
         showGPSAlert();
         initializeChoiceBox();
         displayUserName();
@@ -97,12 +98,8 @@ public class HomeGUIController implements Initializable {
         new Thread(() -> {
             try {
                 String ip = IPFetcher.getPublicIP();
-                System.out.println("IP pubblico: " + ip);
-
                 var coordModel = IPLocationService.getCoordinateFromIP(ip);
                 currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
-
-                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
 
                 Platform.runLater(() -> {
                     try {
@@ -110,7 +107,7 @@ public class HomeGUIController implements Initializable {
                         WebEngine engine = mapWebView.getEngine();
                         engine.setJavaScriptEnabled(true);
                         engine.loadContent(html);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         showAlert("Errore nella generazione della mappa dinamica.");
                     }
                 });
@@ -138,7 +135,7 @@ public class HomeGUIController implements Initializable {
     }
 
     @FXML
-    private void onCheckRider() {
+    private void onCheckRider() throws FXMLLoadException {
         String destination = destinationField.getText();
 
         if (destination == null || destination.trim().isEmpty()) {
@@ -156,32 +153,30 @@ public class HomeGUIController implements Initializable {
         }
 
         Client loggedClient = SessionManager.getInstance().getLoggedClient();
+        if (loggedClient == null) {
+            showAlert("Sessione utente non valida. Effettua nuovamente il login.");
+            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+            return;
+        }
 
         String pickupLocationStr = currentLocation != null
                 ? currentLocation.getLatitude() + "," + currentLocation.getLongitude()
                 : "";
 
         // Creo solo i Bean nel controller GUI
-        RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, "Cash");
+        RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, PaymentMethod.CASH);
         rideRequestBean.setRequestID(null);
-        rideRequestBean.setClient(ClientBean.fromModel(loggedClient)); // usa conversione da Model a Bean
-
+        rideRequestBean.setClient(ClientBean.fromModel(loggedClient));
         rideRequestBean.setPickupLocation(pickupLocationStr);
         rideRequestBean.setDestination(destination.trim());
 
         try {
-            // Passo il bean all'applicazione, che farà la conversione in Model e la persistenza
-            rideRequestController.saveRideRequest(rideRequestBean);
-            System.out.println("Ride request creata con successo");
+            // Uso il facade per salvare la richiesta (con la conversione Model/Bean)
+            facade.getDriverMatchingAC().saveRideRequest(rideRequestBean);
 
             MapRequestBean mapRequestBean = new MapRequestBean(currentLocation, destination.trim(), radiusKm);
 
-            // Salvo i dati temporanei
-            TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
-
-            var map = mapAppController.showMap(mapRequestBean); // restituisce Model Map
-
-            System.out.println("Mappa generata con successo");
+            var map = facade.getMapAC().showMap(mapRequestBean);
 
             if (map == null || map.getHtmlContent() == null || map.getHtmlContent().isBlank()) {
                 showAlert("Errore nel calcolo o visualizzazione del percorso.");
@@ -189,30 +184,14 @@ public class HomeGUIController implements Initializable {
             }
 
             mapWebView.getEngine().loadContent(map.getHtmlContent());
-            goToSelectTaxi(mapRequestBean, map);
+
+            // Passo a SelectTaxi tramite SceneNavigator e salvo i dati temporanei
+            TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
+            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SelectTaxi.fxml", "Selezione Taxi");
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Errore durante l'elaborazione della richiesta.");
-        }
-    }
-
-    private void goToSelectTaxi(MapRequestBean bean, org.ispw.fastridetrack.Model.Map map) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
-            AnchorPane pane = loader.load();
-
-            SelectTaxiGUIController controller = loader.getController();
-            controller.setMapAndRequest(bean, map);
-
-            Stage stage = (Stage) homePane.getScene().getWindow();
-            stage.setTitle("Selezione Taxi");
-            stage.setScene(new Scene(pane));
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Errore nel caricamento della schermata di selezione taxi.");
         }
     }
 
@@ -248,8 +227,6 @@ public class HomeGUIController implements Initializable {
         SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
     }
 }
-
-
 
 
 

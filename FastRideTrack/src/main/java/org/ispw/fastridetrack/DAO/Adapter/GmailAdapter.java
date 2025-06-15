@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.DAO.Adapter;
+package org.ispw.fastridetrack.dao.Adapter;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

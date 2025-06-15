@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.DAO;
+package org.ispw.fastridetrack.dao;
 
-import org.ispw.fastridetrack.Model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 
 import java.util.Optional;
 

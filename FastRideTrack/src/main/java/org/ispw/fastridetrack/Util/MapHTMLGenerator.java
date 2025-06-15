@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.Util;
+package org.ispw.fastridetrack.util;
 
-import org.ispw.fastridetrack.Model.Coordinate;
+import org.ispw.fastridetrack.model.Coordinate;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -35,7 +35,8 @@ public class MapHTMLGenerator {
                             var pos = { lat: %f, lng: %f };
                             var map = new google.maps.Map(document.getElementById('map'), {
                                 zoom: 14,
-                                center: pos
+                                center: pos,
+                                mapTypeId: google.maps.MapTypeId.ROADMAP,
                             });
                             var marker = new google.maps.Marker({
                                 position: pos,
@@ -50,6 +51,7 @@ public class MapHTMLGenerator {
                 </body>
                 </html>
                 """, apiKey, coordinate.getLatitude(), coordinate.getLongitude());
+
     }
 }
 

@@ -1,25 +1,22 @@
-package org.ispw.fastridetrack.Controller.GUIController;
+package org.ispw.fastridetrack.controller.GUIController;
 
 import jakarta.mail.MessagingException;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.web.WebView;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
-import org.ispw.fastridetrack.Bean.*;
-import org.ispw.fastridetrack.Controller.ApplicationController.ClientRideManagementApplicationController;
-import org.ispw.fastridetrack.DAO.RideRequestDAO;
-import org.ispw.fastridetrack.DAO.TaxiRideDAO;
-import org.ispw.fastridetrack.DAO.Adapter.GoogleMapsAdapter;
-import org.ispw.fastridetrack.Model.Map;
-import org.ispw.fastridetrack.Model.Session.SessionManager;
-import org.ispw.fastridetrack.Util.TemporaryMemory;
 
-import java.io.IOException;
+import org.ispw.fastridetrack.bean.*;
+import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.controller.SceneNavigator;
+import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.dao.Adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.Map;
+import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.util.TemporaryMemory;
 
 public class SelectDriverGUIController {
 
@@ -29,22 +26,28 @@ public class SelectDriverGUIController {
     @FXML private Label estimatedFareLabel;
     @FXML private Label estimatedTimeLabel;
     @FXML private Button confirmButton;
-    @FXML private Button cancelButton;
+    @FXML public Button cancelButton;
     @FXML public Button goBackButton;
     @FXML private WebView mapView;
 
     private final RideRequestDAO rideRequestDAO;
     private final TaxiRideDAO taxiRideDAO;
-    private final ClientRideManagementApplicationController rideManagementController;
     private final TemporaryMemory tempMemory;
-
     private TaxiRideConfirmationBean taxiRideBean;
+
+    // Facade iniettata da SceneNavigator
+    private ApplicationFacade facade;
+
+    // Setter usato da SceneNavigator per iniettare il facade
+    public void setFacade(ApplicationFacade facade) {
+        this.facade = facade;
+    }
 
     public SelectDriverGUIController() {
         SessionManager session = SessionManager.getInstance();
         this.rideRequestDAO = session.getRideRequestDAO();
         this.taxiRideDAO = session.getTaxiRideDAO();
-        this.rideManagementController = new ClientRideManagementApplicationController();
+        this.facade = new ApplicationFacade();
         this.tempMemory = TemporaryMemory.getInstance();
     }
 
@@ -96,8 +99,8 @@ public class SelectDriverGUIController {
     private void onConfirmRide() {
         try {
             EmailBean email = buildEmailBean();
-            // **Qui il taxiRideBean viene passato direttamente**
-            rideManagementController.confirmRideAndNotify(taxiRideBean, email);
+            // Qui il taxiRideBean lo passo direttamente
+            facade.getClientRideManagementAC().confirmRideAndNotify(taxiRideBean, email);
             showInfo("Corsa confermata", "Il driver è stato notificato via email.");
             confirmButton.setDisable(true);
             goBackButton.setDisable(true);
@@ -107,7 +110,7 @@ public class SelectDriverGUIController {
     }
 
     private EmailBean buildEmailBean() {
-        DriverBean driver = taxiRideBean.getDriver();  // DriverBean, non Model
+        DriverBean driver = taxiRideBean.getDriver();
         GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
 
         // Ottengo l'indirizzo leggibile dalle coordinate del cliente
@@ -142,15 +145,13 @@ public class SelectDriverGUIController {
     @FXML
     private void onGoBack(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/ispw/fastridetrack/views/SelectTaxi.fxml"));
-            Scene scene = new Scene(loader.load());
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-        } catch (IOException e) {
+            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SelectTaxi.fxml", "Seleziona Taxi");
+        } catch (FXMLLoadException e) {
             e.printStackTrace();
             showError("Errore caricamento", "Errore nel tornare alla selezione del taxi.");
         }
     }
+
 
     private void showError(String title, String message) {
         showAlert(title, message, Alert.AlertType.ERROR);

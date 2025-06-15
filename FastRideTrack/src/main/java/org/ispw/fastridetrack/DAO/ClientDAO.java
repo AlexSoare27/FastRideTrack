@@ -1,7 +1,6 @@
-package org.ispw.fastridetrack.DAO;
+package org.ispw.fastridetrack.dao;
 
-import org.ispw.fastridetrack.Bean.ClientBean;
-import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.model.Client;
 
 public interface ClientDAO {
     void save(Client client);

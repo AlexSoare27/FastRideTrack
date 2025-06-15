@@ -1,15 +1,15 @@
-package org.ispw.fastridetrack.Bean;
+package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.Model.Driver;
-import org.ispw.fastridetrack.Model.UserType;
+import org.ispw.fastridetrack.model.Driver;
+import org.ispw.fastridetrack.model.UserType;
 
 
 public class DriverBean extends UserBean {
 
-    private String vehicleInfo;
-    private String vehiclePlate;
-    private String affiliation;
-    private boolean available;
+    private final String vehicleInfo;
+    private final String vehiclePlate;
+    private final String affiliation;
+    private final boolean available;
 
 
     public DriverBean(String username, String password, int userID, String name,

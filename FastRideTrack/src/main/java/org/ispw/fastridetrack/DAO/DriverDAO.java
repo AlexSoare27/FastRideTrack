@@ -1,16 +1,17 @@
-package org.ispw.fastridetrack.DAO;
+package org.ispw.fastridetrack.dao;
 
-import org.ispw.fastridetrack.Bean.AvailableDriverBean;
-import org.ispw.fastridetrack.Model.Driver;
+import org.ispw.fastridetrack.bean.AvailableDriverBean;
+import org.ispw.fastridetrack.model.Coordinate;
+import org.ispw.fastridetrack.model.Driver;
 
-import org.ispw.fastridetrack.Bean.CoordinateBean;
+
 import java.util.List;
 
 public interface DriverDAO {
     void save(Driver driver);
     Driver findById(int id_driver);
     Driver retrieveDriverByUsernameAndPassword(String username, String password);
-    List<AvailableDriverBean> findDriversAvailableWithinRadius(CoordinateBean origin, int radiusKm);
+    List<AvailableDriverBean> findDriversAvailableWithinRadius(Coordinate origin, int radiusKm);
     //void updateAvailability(int driverId, boolean isAvailable);
 }
 

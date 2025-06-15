@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.Model;
+package org.ispw.fastridetrack.model;
 
 public class RideRequest {
     private Integer requestId;
@@ -6,13 +6,13 @@ public class RideRequest {
     private String pickupLocation;
     private String destination;
     private Integer radiusKm;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private Driver driver;
 
 
     // Costruttore completo
     public RideRequest(Integer requestId, Client client, String pickupLocation, String destination,
-                       Integer radiusKm, String paymentMethod, Driver driver) {
+                       Integer radiusKm, PaymentMethod paymentMethod, Driver driver) {
         this.requestId = requestId;
         this.client = client;
         this.pickupLocation = pickupLocation;
@@ -65,11 +65,11 @@ public class RideRequest {
     }
 
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 

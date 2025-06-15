@@ -1,7 +1,8 @@
-package org.ispw.fastridetrack.DAO.InMemory;
+package org.ispw.fastridetrack.dao.InMemory;
 
-import org.ispw.fastridetrack.DAO.ClientDAO;
-import org.ispw.fastridetrack.Model.Client;
+import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.model.PaymentMethod;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
@@ -19,10 +20,8 @@ public class ClientDAOInMemory implements ClientDAO {
                 "Mario Rossi",
                 "mario@gmail.com",
                 "1234567890",
-                "Carta di Credito"
+                PaymentMethod.CARD
         );
-        testClient.setLatitude(41.9028);
-        testClient.setLongitude(12.4964);
         clients.put(testClient.getUsername(), testClient);
     }
 

@@ -1,7 +1,7 @@
-package org.ispw.fastridetrack.DAO.Adapter;
+package org.ispw.fastridetrack.dao.Adapter;
 
-import org.ispw.fastridetrack.Bean.MapRequestBean;
-import org.ispw.fastridetrack.Model.Map;
+import org.ispw.fastridetrack.bean.MapRequestBean;
+import org.ispw.fastridetrack.model.Map;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -29,10 +29,62 @@ public class GoogleMapsAdapter implements MapService {
 
         double estimatedTimeMinutes = -1.0;
         double distanceKm = -1.0;
-        // Se serve, aggiungi chiamata separata a Directions or Distance Matrix API
+
+        try {
+            // Costruisci URL per Distance Matrix API
+            String encodedOrigin = URLEncoder.encode(from, StandardCharsets.UTF_8);
+            String encodedDestination = URLEncoder.encode(to, StandardCharsets.UTF_8);
+
+            String url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+                    + "?origins=" + encodedOrigin
+                    + "&destinations=" + encodedDestination
+                    + "&mode=driving"
+                    + "&language=it"
+                    + "&key=" + API_KEY;
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                String status = json.get("status").getAsString();
+
+                if ("OK".equals(status)) {
+                    JsonArray rows = json.getAsJsonArray("rows");
+                    JsonObject element = rows.get(0).getAsJsonObject()
+                            .getAsJsonArray("elements")
+                            .get(0).getAsJsonObject();
+
+                    String elementStatus = element.get("status").getAsString();
+                    if ("OK".equals(elementStatus)) {
+                        int durationSeconds = element.getAsJsonObject("duration").get("value").getAsInt();
+                        int distanceMeters = element.getAsJsonObject("distance").get("value").getAsInt();
+
+                        estimatedTimeMinutes = durationSeconds / 60.0;
+                        distanceKm = distanceMeters / 1000.0;
+                    } else {
+                        throw new IllegalStateException("Errore nella risposta Distance Matrix: " + elementStatus);
+                    }
+                } else {
+                    throw new IllegalStateException("Errore API Distance Matrix: " + status);
+                }
+            } else {
+                throw new RuntimeException("Errore HTTP Distance Matrix: " + response.statusCode());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Errore nel calcolo della distanza o tempo stimato", e);
+        }
 
         return new Map(html, from, to, distanceKm, estimatedTimeMinutes);
     }
+
 
 
     private String generateRouteHtml(String origin, String destination) {
@@ -48,20 +100,16 @@ public class GoogleMapsAdapter implements MapService {
                 .append("?key=").append(API_KEY)
                 .append("&origin=").append(encodedOrigin)
                 .append("&destination=").append(encodedDestination)
-                .append("&mode=driving")            // modalità di trasporto: driving, walking, bicycling, transit :contentReference[oaicite:1]{index=1}
-                .append("&language=it")             // interfaccia in italiano :contentReference[oaicite:2]{index=2}
-                .append("&region=IT");              // formato regionale e confini adatti all’Italia :contentReference[oaicite:3]{index=3}
+                .append("&mode=driving")            // modalità di trasporto: driving, walking, bicycling, transit
+                .append("&language=it")
+                .append("&region=IT");              // formato regionale e confini adatti all’Italia
 
-        return "<iframe width=\"100%\" height=\"400\" frameborder=\"0\" style=\"border:0\" "
+        return "<iframe width=\"100%\" height=\"100%\" frameborder=\"0\" style=\"border:0\" "
                 + "src=\"" + src.toString() + "\" allowfullscreen></iframe>";
     }
 
+    // Metodo pubblico per ottenere l'indirizzo (reverse geocoding) a partire da latitudine e longitudine.
 
-
-    /**
-     * Metodo pubblico per ottenere l'indirizzo (reverse geocoding) a partire da latitudine e longitudine.
-     * Restituisce l'indirizzo formattato o un messaggio di fallback.
-     */
     public String getAddressFromCoordinates(double latitude, double longitude) {
         if (API_KEY == null || API_KEY.isBlank()) {
             return "Indirizzo non disponibile (API key mancante)";
