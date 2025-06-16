@@ -1,9 +1,10 @@
 package org.ispw.fastridetrack.controller;
 
-import org.ispw.fastridetrack.controller.ApplicationController.ClientRideManagementApplicationController;
-import org.ispw.fastridetrack.controller.ApplicationController.DriverMatchingApplicationController;
-import org.ispw.fastridetrack.controller.ApplicationController.LoginApplicationController;
-import org.ispw.fastridetrack.controller.ApplicationController.MapApplicationController;
+import org.ispw.fastridetrack.controller.applicationcontroller.ClientRideManagementApplicationController;
+import org.ispw.fastridetrack.controller.applicationcontroller.DriverMatchingApplicationController;
+import org.ispw.fastridetrack.controller.applicationcontroller.LoginApplicationController;
+import org.ispw.fastridetrack.controller.applicationcontroller.MapApplicationController;
+import org.ispw.fastridetrack.exception.DatabaseConnectionException;
 
 public class ApplicationFacade {
 
@@ -12,7 +13,7 @@ public class ApplicationFacade {
     private final ClientRideManagementApplicationController clientRideManagementAC;
     private final MapApplicationController mapAC;
 
-    public ApplicationFacade() {
+    public ApplicationFacade() throws DatabaseConnectionException {
         this.loginAC = new LoginApplicationController();
         this.driverMatchingAC = new DriverMatchingApplicationController();
         this.clientRideManagementAC = new ClientRideManagementApplicationController();

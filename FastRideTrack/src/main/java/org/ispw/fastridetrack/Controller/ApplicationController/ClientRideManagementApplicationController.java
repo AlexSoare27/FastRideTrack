@@ -1,13 +1,13 @@
-package org.ispw.fastridetrack.controller.ApplicationController;
+package org.ispw.fastridetrack.controller.applicationcontroller;
 
 import jakarta.mail.MessagingException;
 import org.ispw.fastridetrack.bean.EmailBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
-import org.ispw.fastridetrack.model.Session.SessionManager;
-import org.ispw.fastridetrack.dao.Adapter.EmailService;
-import org.ispw.fastridetrack.dao.Adapter.GmailAdapter;
+import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.dao.adapter.EmailService;
+import org.ispw.fastridetrack.dao.adapter.GmailAdapter;
 
 public class ClientRideManagementApplicationController {
 

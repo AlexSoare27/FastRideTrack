@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,12 +15,14 @@ import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.PaymentMethod;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.util.*;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class HomeGUIController implements Initializable {
 
@@ -36,6 +38,7 @@ public class HomeGUIController implements Initializable {
     private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -45,10 +48,8 @@ public class HomeGUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //System.out.println("[HomeGUIController] facade = " + facade);
         if (facade == null) {
             facade = SceneNavigator.getFacade();
-            //System.out.println("[HomeGUIController] facade dopo getFacade = " + facade);
         }
         showGPSAlert();
         initializeChoiceBox();
@@ -112,12 +113,19 @@ public class HomeGUIController implements Initializable {
                     }
                 });
 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // re-imposto il flag
+                Platform.runLater(() -> {
+                    showAlert("Operazione interrotta. Verrà caricata la mappa di default.");
+                    loadMapWithDefaultLocation();
+                });
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     showAlert("Impossibile recuperare la posizione. Verrà caricata la mappa di default.");
                     loadMapWithDefaultLocation();
                 });
             }
+
         }).start();
     }
 
@@ -155,7 +163,7 @@ public class HomeGUIController implements Initializable {
         Client loggedClient = SessionManager.getInstance().getLoggedClient();
         if (loggedClient == null) {
             showAlert("Sessione utente non valida. Effettua nuovamente il login.");
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+            SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
             return;
         }
 
@@ -187,7 +195,7 @@ public class HomeGUIController implements Initializable {
 
             // Passo a SelectTaxi tramite SceneNavigator e salvo i dati temporanei
             TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SelectTaxi.fxml", "Selezione Taxi");
+            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Selezione Taxi");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,19 +220,19 @@ public class HomeGUIController implements Initializable {
 
     @FXML
     private void onMyWallet() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyWallet.fxml", "Wallet");
+        SceneNavigator.switchTo(WALLET_FXML, "Wallet");
     }
 
     @FXML
     private void onMyAccount() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/MyAccount.fxml", "Account");
+        SceneNavigator.switchTo(ACCOUNT_FXML, "Account");
     }
 
     @FXML
     private void onLogout() throws FXMLLoadException {
         SessionManager.getInstance().clearSession();
         TemporaryMemory.getInstance().clear();
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+        SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 }
 

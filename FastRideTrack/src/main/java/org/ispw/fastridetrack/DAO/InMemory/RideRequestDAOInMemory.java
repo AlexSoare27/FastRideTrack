@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.InMemory;
+package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.model.RideRequest;
 import org.ispw.fastridetrack.dao.RideRequestDAO;

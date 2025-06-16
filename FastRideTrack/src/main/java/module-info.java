@@ -11,9 +11,9 @@ module org.ispw.fastridetrack {
 
 
     opens org.ispw.fastridetrack to javafx.fxml;
-    opens org.ispw.fastridetrack.controller.GUIController to javafx.fxml;
+    opens org.ispw.fastridetrack.controller.guicontroller to javafx.fxml;
 
     exports org.ispw.fastridetrack;
-    exports org.ispw.fastridetrack.controller.GUIController;
+    exports org.ispw.fastridetrack.controller.guicontroller;
 }
 

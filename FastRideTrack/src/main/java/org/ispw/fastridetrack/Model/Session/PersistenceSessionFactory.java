@@ -1,11 +1,18 @@
-package org.ispw.fastridetrack.model.Session;
+package org.ispw.fastridetrack.model.session;
 
 import org.ispw.fastridetrack.dao.*;
-import org.ispw.fastridetrack.dao.MYSQL.*;
+import org.ispw.fastridetrack.dao.mysql.*;
 
 public class PersistenceSessionFactory implements SessionFactory {
 
     private final SingletonDBSession dbSession = SingletonDBSession.getInstance();
+
+    public PersistenceSessionFactory() {
+        String usePersistenceEnv = System.getenv("USE_PERSISTENCE");
+        if (!"true".equalsIgnoreCase(usePersistenceEnv)) {
+            throw new IllegalStateException("PersistenceSessionFactory può essere usata solo con USE_PERSISTENCE=true");
+        }
+    }
 
     @Override
     public ClientDAO createClientDAO() {

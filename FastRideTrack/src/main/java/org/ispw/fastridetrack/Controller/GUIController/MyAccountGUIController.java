@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -7,8 +7,10 @@ import org.ispw.fastridetrack.bean.ClientBean;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.Client;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.controller.SceneNavigator;
+
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
 
 public class MyAccountGUIController {
 
@@ -20,6 +22,7 @@ public class MyAccountGUIController {
     @FXML public Button btnBack;
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -56,7 +59,7 @@ public class MyAccountGUIController {
 
     @FXML
     private void onBackPressed() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+        SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
     }
 }
 

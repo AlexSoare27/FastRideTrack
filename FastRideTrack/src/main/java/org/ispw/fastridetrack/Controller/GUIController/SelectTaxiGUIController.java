@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
@@ -11,12 +11,15 @@ import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.model.PaymentMethod;
 import org.ispw.fastridetrack.model.RideConfirmationStatus;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.util.TemporaryMemory;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.SELECT_DRIVER_FXML;
 
 public class SelectTaxiGUIController {
 
@@ -38,12 +41,12 @@ public class SelectTaxiGUIController {
     private final TemporaryMemory tempMemory = TemporaryMemory.getInstance();
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
     public void setFacade(ApplicationFacade facade) {
         this.facade = facade;
-        //System.out.println("[SelectTaxiGUIController] setFacade chiamato");
 
         // Ora che la facade è disponibile, completo l'inizializzazione
         if (mapRequestBean == null) {
@@ -66,7 +69,6 @@ public class SelectTaxiGUIController {
 
     @FXML
     public void initialize() {
-        //System.out.println("[SelectTaxiGUIController] initialize() start");
         initializeTable();
         initializePaymentChoices();
         destinationField.setEditable(false);
@@ -86,6 +88,7 @@ public class SelectTaxiGUIController {
 
     private void initializePaymentChoices() {
         paymentChoiceBox.getItems().clear();
+
         // Popolo con versioni leggibili dell'enum PaymentMethod (es. "Cash", "Card")
         for (PaymentMethod pm : PaymentMethod.values()) {
             String displayName = pm.name().charAt(0) + pm.name().substring(1).toLowerCase();
@@ -93,17 +96,18 @@ public class SelectTaxiGUIController {
         }
 
         // Se c'è un metodo pagamento selezionato in memoria, lo seleziono
-        if (tempMemory.getSelectedPaymentMethod() != null) {
-            String savedMethod = tempMemory.getSelectedPaymentMethod();
-            paymentChoiceBox.getSelectionModel().select(savedMethod);
+        PaymentMethod selected = tempMemory.getSelectedPaymentMethod();
+        if (selected != null) {
+            String displayName = selected.name().charAt(0) + selected.name().substring(1).toLowerCase();
+            paymentChoiceBox.getSelectionModel().select(displayName);
         } else {
             paymentChoiceBox.getSelectionModel().selectFirst();
         }
     }
 
+
     // Metodo per impostare la mappa e la richiesta di corsa.
     public void setMapAndRequest(MapRequestBean bean, Map map) {
-        //System.out.println("setMapAndRequest chiamato con bean: " + bean + ", map: " + map);
         if (bean == null || map == null || map.getHtmlContent() == null) {
             showAlert("Dati mappa o richiesta non validi.");
             return;
@@ -114,7 +118,6 @@ public class SelectTaxiGUIController {
         try {
             // Ottengo la lista base di driver vicini (con solo posizione ecc.)
             List<AvailableDriverBean> baseDrivers = facade.getDriverMatchingAC().findAvailableDrivers(bean);
-            //System.out.println("Numero driver trovati: " + baseDrivers.size());
 
             // Utente attuale
             CoordinateBean userPos = bean.getOrigin();
@@ -224,7 +227,7 @@ public class SelectTaxiGUIController {
 
             tempMemory.setRideConfirmation(confirmationBean);
 
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SelectDriver.fxml", "Conferma Driver");
+            SceneNavigator.switchTo(SELECT_DRIVER_FXML, "Conferma Driver");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -235,7 +238,7 @@ public class SelectTaxiGUIController {
     @FXML
     private void onGoBackHome() {
         try {
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+            SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
         } catch (FXMLLoadException e) {
             e.printStackTrace();
             showAlert("Errore nel ritorno alla schermata Home.");

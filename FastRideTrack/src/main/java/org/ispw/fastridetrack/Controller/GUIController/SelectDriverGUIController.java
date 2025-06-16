@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import jakarta.mail.MessagingException;
 import javafx.fxml.FXML;
@@ -10,13 +10,15 @@ import javafx.event.ActionEvent;
 import org.ispw.fastridetrack.bean.*;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.controller.SceneNavigator;
-import org.ispw.fastridetrack.dao.RideRequestDAO;
-import org.ispw.fastridetrack.dao.TaxiRideDAO;
-import org.ispw.fastridetrack.dao.Adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.dao.adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.exception.DatabaseConnectionException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.util.TemporaryMemory;
+
+import static org.ispw.fastridetrack.util.ViewPath.SELECT_TAXI_FXML;
 
 public class SelectDriverGUIController {
 
@@ -26,16 +28,14 @@ public class SelectDriverGUIController {
     @FXML private Label estimatedFareLabel;
     @FXML private Label estimatedTimeLabel;
     @FXML private Button confirmButton;
-    @FXML public Button cancelButton;
     @FXML public Button goBackButton;
     @FXML private WebView mapView;
 
-    private final RideRequestDAO rideRequestDAO;
-    private final TaxiRideDAO taxiRideDAO;
     private final TemporaryMemory tempMemory;
     private TaxiRideConfirmationBean taxiRideBean;
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection è intenzionale per SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -43,16 +43,14 @@ public class SelectDriverGUIController {
         this.facade = facade;
     }
 
-    public SelectDriverGUIController() {
+    public SelectDriverGUIController() throws DatabaseConnectionException {
         SessionManager session = SessionManager.getInstance();
-        this.rideRequestDAO = session.getRideRequestDAO();
-        this.taxiRideDAO = session.getTaxiRideDAO();
         this.facade = new ApplicationFacade();
         this.tempMemory = TemporaryMemory.getInstance();
     }
 
     @FXML
-    public void initialize() {
+    public void initialize() throws MapServiceException {
         this.taxiRideBean = tempMemory.getRideConfirmation();
 
         if (taxiRideBean == null || taxiRideBean.getDriver() == null) {
@@ -74,7 +72,7 @@ public class SelectDriverGUIController {
         loadMapInView();
     }
 
-    private void loadMapInView() {
+    private void loadMapInView() throws MapServiceException {
         if (taxiRideBean == null) return;
 
         CoordinateBean origin = taxiRideBean.getUserLocation();
@@ -104,12 +102,12 @@ public class SelectDriverGUIController {
             showInfo("Corsa confermata", "Il driver è stato notificato via email.");
             confirmButton.setDisable(true);
             goBackButton.setDisable(true);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MapServiceException e) {
             showError("Errore", "Errore durante l'invio dell'email al driver.");
         }
     }
 
-    private EmailBean buildEmailBean() {
+    private EmailBean buildEmailBean() throws MapServiceException {
         DriverBean driver = taxiRideBean.getDriver();
         GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
 
@@ -123,14 +121,25 @@ public class SelectDriverGUIController {
         }
 
         String subject = "Nuova corsa: " + taxiRideBean.getRideID();
+
+        String bodyTemplate = """
+        Ciao %s,
+
+        Hai una nuova corsa assegnata.
+
+        Cliente: %s
+        Partenza: %s
+        Destinazione: %s
+        Tariffa stimata: €%.2f
+        Tempo stimato: %.2f minuti
+
+        Controlla l'app per maggiori dettagli.
+
+        Grazie!
+        """;
+
         String body = String.format(
-                "Ciao %s,\n\nHai una nuova corsa assegnata.\n\n" +
-                        "Cliente: %s\n" +
-                        "Partenza: %s\n" +
-                        "Destinazione: %s\n" +
-                        "Tariffa stimata: €%.2f\n" +
-                        "Tempo stimato: %.2f minuti\n\n" +
-                        "Controlla l'app per maggiori dettagli.\n\nGrazie!",
+                bodyTemplate,
                 driver.getName(),
                 taxiRideBean.getClient().getName(),
                 originAddress,
@@ -138,14 +147,16 @@ public class SelectDriverGUIController {
                 taxiRideBean.getEstimatedFare(),
                 taxiRideBean.getEstimatedTime()
         );
+
         return new EmailBean(driver.getEmail(), subject, body);
     }
+
 
 
     @FXML
     private void onGoBack(ActionEvent event) {
         try {
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SelectTaxi.fxml", "Seleziona Taxi");
+            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Seleziona Taxi");
         } catch (FXMLLoadException e) {
             e.printStackTrace();
             showError("Errore caricamento", "Errore nel tornare alla selezione del taxi.");

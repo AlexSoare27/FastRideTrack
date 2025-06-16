@@ -1,8 +1,9 @@
-package org.ispw.fastridetrack.dao.MYSQL;
+package org.ispw.fastridetrack.dao.mysql;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.DriverDAO;
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.*;
 import org.ispw.fastridetrack.model.Driver;
 
@@ -79,7 +80,7 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                     return Optional.empty();
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DriverDAOException | DriverDAOMYSQL.DriverDAOException e) {
             throw new RuntimeException("Errore nel recupero di TaxiRide con rideID " + rideID, e);
         }
     }

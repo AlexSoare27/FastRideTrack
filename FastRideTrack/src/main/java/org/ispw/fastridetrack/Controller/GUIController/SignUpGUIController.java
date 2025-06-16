@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,6 +11,8 @@ import org.ispw.fastridetrack.controller.SceneNavigator;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+
 public class SignUpGUIController implements Initializable {
 
     @FXML public TextField firstNameField;
@@ -22,6 +24,7 @@ public class SignUpGUIController implements Initializable {
     @FXML private ChoiceBox<String> userTypeChoiceBox;
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -45,13 +48,13 @@ public class SignUpGUIController implements Initializable {
 
     @FXML
     private void onHomepage() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+        SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 
     @FXML
     private void onSignUp() throws FXMLLoadException {
-        // Qui posso anche validare i campi e poi procedere con la schermata iniziale dell'app!
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Home");
+        // Qui posso anche validare i campi e poi ritornare alla schermata di homepage per effettuare il sign in
+        SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 }
 

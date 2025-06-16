@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.InMemory;
+package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.model.Client;
@@ -31,10 +31,10 @@ public class ClientDAOInMemory implements ClientDAO {
     }
 
     @Override
-    public Client findById(Integer id_client) {
+    public Client findById(Integer idclient) {
         // Map indexed by username → bisogna scorrere tutti
         for (Client c : clients.values()) {
-            if (c.getUserID().equals(id_client)) {
+            if (c.getUserID().equals(idclient)) {
                 return c;
             }
         }

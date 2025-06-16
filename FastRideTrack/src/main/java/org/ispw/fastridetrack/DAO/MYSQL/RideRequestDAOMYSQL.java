@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.MYSQL;
+package org.ispw.fastridetrack.dao.mysql;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.RideRequestDAO;

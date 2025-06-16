@@ -3,8 +3,10 @@ package org.ispw.fastridetrack;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.controller.SceneNavigator;
+
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
 
 public class Main extends Application {
 
@@ -13,7 +15,7 @@ public class Main extends Application {
         SessionManager.init();
         SceneNavigator.setStage(primaryStage);
         SceneNavigator.setFacade(new ApplicationFacade());
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+        SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
         primaryStage.setOnCloseRequest(event -> SessionManager.getInstance().shutdown());
     }
 

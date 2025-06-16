@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.FileSystem;
+package org.ispw.fastridetrack.dao.filesystem;
 
 import org.ispw.fastridetrack.dao.RideRequestDAO;
 import org.ispw.fastridetrack.model.Client;

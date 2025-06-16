@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.InMemory;
+package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.DriverBean;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class DriverDAOInMemory implements DriverDAO {
     private final Map<String, Driver> driverMap = new HashMap<>();
-
+    private static final String AFFILIATION = "FastRide";
     // Costruttore con driver di test pre-caricati
     public DriverDAOInMemory() {
             Driver d1 = new Driver(
@@ -27,7 +27,7 @@ public class DriverDAOInMemory implements DriverDAO {
                     12.499,
                     "Fiat Panda",
                     "AA123BB",
-                    "FastRide",
+                    AFFILIATION,
                     true
             );
 
@@ -42,7 +42,7 @@ public class DriverDAOInMemory implements DriverDAO {
                 8.8320,       // ~1 km est
                 "Toyota Yaris",
                 "BB456CC",
-                "FastRide",
+                AFFILIATION,
                 true
              );
 
@@ -57,7 +57,7 @@ public class DriverDAOInMemory implements DriverDAO {
                     12.495,
                     "Renault Clio",
                     "CC789DD",
-                    "FastRide",
+                    AFFILIATION,
                     true
             );
 
@@ -72,7 +72,7 @@ public class DriverDAOInMemory implements DriverDAO {
                 8.8485,
                 "Renault Clio",
                 "CC699DE",
-                "FastRide",
+                AFFILIATION,
                 true
              );
 
@@ -98,9 +98,9 @@ public class DriverDAOInMemory implements DriverDAO {
     }
 
     @Override
-    public Driver findById(int id_driver) {
+    public Driver findById(int iddriver) {
         for (Driver driver : driverMap.values()) {
-            if (driver.getUserID() == id_driver) {
+            if (driver.getUserID() == iddriver) {
                 return driver;
             }
         }

@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.MYSQL;
+package org.ispw.fastridetrack.dao.mysql;
 
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.DriverBean;
@@ -8,26 +8,33 @@ import org.ispw.fastridetrack.model.Driver;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DriverDAOMYSQL implements DriverDAO {
+
     private final Connection connection;
-    private static final String GOOGLE_API_KEY = System.getenv("GOOGLE_MAPS_API_KEY"); // Sostituisci con la tua chiave
+    private static final String GOOGLE_API_KEY = System.getenv("GOOGLE_MAPS_API_KEY"); // Usa la tua chiave
 
     public DriverDAOMYSQL(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public void save(Driver driver) {
-        String sql = "INSERT INTO driver (userId, username, password, name, email, phonenumber, latitude, longitude, vehicleInfo, vehiclePlate, affiliation, available) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public void save(Driver driver) throws DriverDAOException {
+        String sql = """
+                INSERT INTO driver (
+                    userId, username, password, name, email, phonenumber,
+                    latitude, longitude, vehicleInfo, vehiclePlate,
+                    affiliation, available
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, driver.getUserID());
             stmt.setString(2, driver.getUsername());
@@ -43,14 +50,19 @@ public class DriverDAOMYSQL implements DriverDAO {
             stmt.setInt(12, driver.isAvailable() ? 1 : 0);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("SQL error during save driver:");
-            e.printStackTrace();
+            throw new DriverDAOException("Errore SQL durante il salvataggio del driver", e);
         }
     }
 
     @Override
-    public Driver retrieveDriverByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT * FROM driver WHERE username = ? AND password = ?";
+    public Driver retrieveDriverByUsernameAndPassword(String username, String password) throws DriverDAOException {
+        String sql = """
+                SELECT userID, username, password, name, email, phoneNumber,
+                       latitude, longitude, vehicleInfo, vehiclePlate,
+                       affiliation, available
+                FROM driver
+                WHERE username = ? AND password = ?
+                """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
@@ -60,45 +72,52 @@ public class DriverDAOMYSQL implements DriverDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("SQL error during retrieveDriverByUsernameAndPassword:");
-            e.printStackTrace();
+            throw new DriverDAOException("Errore SQL durante il recupero del driver per username e password", e);
         }
         return null;
     }
 
     @Override
-    public Driver findById(int id_driver) {
-        String sql = "SELECT * FROM driver WHERE userID = ?";
+    public Driver findById(int iddriver) throws DriverDAOException {
+        String sql = """
+                SELECT userID, username, password, name, email, phoneNumber,
+                       latitude, longitude, vehicleInfo, vehiclePlate,
+                       affiliation, available
+                FROM driver
+                WHERE userID = ?
+                """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id_driver);
+            stmt.setInt(1, iddriver);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return extractDriverFromResultSet(rs);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("SQL error during findById:");
-            e.printStackTrace();
+            throw new DriverDAOException("Errore SQL durante il recupero del driver per ID", e);
         }
         return null;
     }
 
     @Override
-    public List<AvailableDriverBean> findDriversAvailableWithinRadius(Coordinate origin, int radiusKm) {
+    public List<AvailableDriverBean> findDriversAvailableWithinRadius(Coordinate origin, int radiusKm) throws DriverDAOException {
         List<AvailableDriverBean> availableDrivers = new ArrayList<>();
-        String sql = "SELECT * FROM (\n" +
-                "  SELECT *, \n" +
-                "    (6371 * acos(\n" +
-                "      cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) +\n" +
-                "      sin(radians(?)) * sin(radians(latitude))\n" +
-                "    )) AS distance \n" +
-                "  FROM driver \n" +
-                "  WHERE available = 1\n" +
-                "    AND latitude BETWEEN ? AND ?\n" +
-                "    AND longitude BETWEEN ? AND ?\n" +
-                ") AS sub\n" +
-                "WHERE distance <= ?\n" +
-                "ORDER BY distance ASC";
+
+        String sql = """
+                SELECT userID, username, password, name, email, phoneNumber,
+                       latitude, longitude, vehicleInfo, vehiclePlate,
+                       affiliation, available,
+                       (6371 * acos(
+                           cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) +
+                           sin(radians(?)) * sin(radians(latitude))
+                       )) AS distance
+                FROM driver
+                WHERE available = 1
+                  AND latitude BETWEEN ? AND ?
+                  AND longitude BETWEEN ? AND ?
+                HAVING distance <= ?
+                ORDER BY distance ASC
+                """;
 
         double lat = origin.getLatitude();
         double lon = origin.getLongitude();
@@ -138,7 +157,7 @@ public class DriverDAOMYSQL implements DriverDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DriverDAOException("Errore SQL durante la ricerca di driver disponibili nel raggio", e);
         }
         return availableDrivers;
     }
@@ -173,24 +192,23 @@ public class DriverDAOMYSQL implements DriverDAO {
     private RouteInfo getRouteInfoFromGoogleMaps(Coordinate origin, Coordinate dest) {
         try {
             String urlStr = String.format(
-                    "https://maps.googleapis.com/maps/api/directions/json?origin=%f,%f&destination=%f,%f&key=%s",
+                    """
+                    https://maps.googleapis.com/maps/api/directions/json?origin=%f,%f&destination=%f,%f&key=%s
+                    """,
                     origin.getLatitude(), origin.getLongitude(),
                     dest.getLatitude(), dest.getLongitude(),
                     GOOGLE_API_KEY
             );
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder responseBuilder = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                responseBuilder.append(line);
-            }
-            in.close();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlStr.strip()))
+                    .GET()
+                    .build();
 
-            JSONObject json = new JSONObject(responseBuilder.toString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            JSONObject json = new JSONObject(response.body());
             JSONArray routes = json.getJSONArray("routes");
             if (routes.length() > 0) {
                 JSONObject leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0);
@@ -198,8 +216,8 @@ public class DriverDAOMYSQL implements DriverDAO {
                 double durationSeconds = leg.getJSONObject("duration").getDouble("value");
                 return new RouteInfo(distanceMeters / 1000.0, durationSeconds / 60.0);
             }
-        } catch (Exception e) {
-            System.err.println("Error retrieving route info from Google Maps: " + e.getMessage());
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Errore nel recupero informazioni percorso da Google Maps: " + e.getMessage());
         }
         return null;
     }
@@ -231,7 +249,15 @@ public class DriverDAOMYSQL implements DriverDAO {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return EARTH_RADIUS_KM * c;
     }
+
+    // Custom exception per gestire errori DAO
+    public static class DriverDAOException extends Exception {
+        public DriverDAOException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }
+
 
 
 

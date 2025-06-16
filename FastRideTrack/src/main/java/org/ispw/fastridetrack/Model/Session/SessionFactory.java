@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.model.Session;
+package org.ispw.fastridetrack.model.session;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.DriverDAO;

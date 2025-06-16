@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 
 import javafx.fxml.FXML;
@@ -15,6 +15,9 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+import static org.ispw.fastridetrack.util.ViewPath.SIGNIN_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.SIGNUPAS_FXML;
+
 public class HomepageGUIController implements Initializable {
 
     @FXML public Button signInButton;
@@ -22,6 +25,7 @@ public class HomepageGUIController implements Initializable {
     @FXML private ImageView imageView;
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -37,12 +41,12 @@ public class HomepageGUIController implements Initializable {
 
     @FXML
     public void onSignInClick() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SignIn.fxml","Sign in");
+        SceneNavigator.switchTo(SIGNIN_FXML,"Sign in");
     }
 
     @FXML
     public void onSignUpClick() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/SignUpAs.fxml","Sign up");
+        SceneNavigator.switchTo(SIGNUPAS_FXML,"Sign up as...");
     }
 }
 

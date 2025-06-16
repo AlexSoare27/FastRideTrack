@@ -1,6 +1,7 @@
-package org.ispw.fastridetrack.dao.MYSQL;
+package org.ispw.fastridetrack.dao.mysql;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
+import org.ispw.fastridetrack.exception.ClientDAOException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.PaymentMethod;
 
@@ -34,45 +35,48 @@ public class ClientDAOMYSQL implements ClientDAO {
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
-                System.err.println("Save client failed: no rows affected.");
+                throw new ClientDAOException("Salvataggio client fallito: nessuna riga inserita.");
             }
         } catch (SQLException e) {
-            System.err.println("SQL error during save client:");
-            e.printStackTrace();
+            throw new ClientDAOException("Errore SQL durante il salvataggio del client", e);
         }
     }
 
     @Override
-    public Client findById(Integer id_client) {
-        String sql = "SELECT * FROM client WHERE userID = ?";
+    public Client findById(Integer idclient) {
+        String sql = "SELECT userID, username, password, name, email, phoneNumber, paymentMethod, latitude, longitude " +
+                "FROM client WHERE userID = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id_client);
+            stmt.setInt(1, idclient);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return extractClientFromResultSet(rs);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il recupero del client con ID " + id_client, e);
+            throw new ClientDAOException("Errore durante il recupero del client con ID " + idclient, e);
         }
         return null;
     }
 
     @Override
     public Client retrieveClientByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT * FROM client WHERE username = ? AND password = ?";
+        String sql = "SELECT userID, username, password, name, email, phoneNumber, paymentMethod, latitude, longitude " +
+                "FROM client WHERE username = ? AND password = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return extractClientFromResultSet(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractClientFromResultSet(rs);
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il login del client", e);
+            throw new ClientDAOException("Errore durante il login del client", e);
         }
         return null;
     }
+
 
     // Metodo privato di supporto per evitare duplicazione codice
     private Client extractClientFromResultSet(ResultSet rs) throws SQLException {

@@ -1,11 +1,11 @@
-package org.ispw.fastridetrack.model.Session;
+package org.ispw.fastridetrack.model.session;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.DriverDAO;
-import org.ispw.fastridetrack.dao.FileSystem.ClientDAOFileSystem;
-import org.ispw.fastridetrack.dao.FileSystem.DriverDAOFileSystem;
-import org.ispw.fastridetrack.dao.FileSystem.RideRequestDAOFileSystem;
-import org.ispw.fastridetrack.dao.FileSystem.TaxiRideDAOFileSystem;
+import org.ispw.fastridetrack.dao.filesystem.ClientDAOFileSystem;
+import org.ispw.fastridetrack.dao.filesystem.DriverDAOFileSystem;
+import org.ispw.fastridetrack.dao.filesystem.RideRequestDAOFileSystem;
+import org.ispw.fastridetrack.dao.filesystem.TaxiRideDAOFileSystem;
 import org.ispw.fastridetrack.dao.RideRequestDAO;
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
 
@@ -13,6 +13,13 @@ public class FileSystemSessionFactory implements SessionFactory {
 
     private final ClientDAOFileSystem clientDAO = new ClientDAOFileSystem();
     private final DriverDAOFileSystem driverDAO = new DriverDAOFileSystem();
+
+    public FileSystemSessionFactory() {
+        String mode = System.getenv("USE_PERSISTENCE");
+        if (!"file".equalsIgnoreCase(mode)) {
+            throw new IllegalStateException("FileSystemSessionFactory può essere usata solo con USE_PERSISTENCE=file");
+        }
+    }
 
     @Override
     public ClientDAO createClientDAO() {

@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -9,6 +9,9 @@ import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.UserType;
 
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
+
 public class SignInGUIController {
 
     @FXML
@@ -17,6 +20,7 @@ public class SignInGUIController {
     @FXML
     private PasswordField passwordField;
 
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     public void setFacade(ApplicationFacade facade) {
@@ -38,7 +42,7 @@ public class SignInGUIController {
             boolean isValidDriver = facade.getLoginAC().validateDriverCredentials(username, password, UserType.DRIVER);
 
             if (isValidClient) {
-                SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+                SceneNavigator.switchTo(HOMECLIENT_FXML, "Home Client");
             } else if (isValidDriver) {
                 SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home_driver.fxml", "Home Driver");
             } else {
@@ -52,7 +56,7 @@ public class SignInGUIController {
 
     @FXML
     private void onHomepageClick() throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Homepage.fxml", "Homepage");
+        SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 
     private void showErrorAlert(String title, String content) {

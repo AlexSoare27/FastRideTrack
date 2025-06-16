@@ -1,9 +1,10 @@
-package org.ispw.fastridetrack.controller.ApplicationController;
+package org.ispw.fastridetrack.controller.applicationcontroller;
 
 import org.ispw.fastridetrack.bean.MapRequestBean;
-import org.ispw.fastridetrack.dao.Adapter.MapService;
+import org.ispw.fastridetrack.dao.adapter.MapService;
+import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
-import org.ispw.fastridetrack.model.Session.SessionManager;
+import org.ispw.fastridetrack.model.session.SessionManager;
 
 public class MapApplicationController {
 
@@ -14,12 +15,11 @@ public class MapApplicationController {
     }
 
     // Calcolo il percorso e aggiorno il MapRequestBean con il tempo stimato.
-    public Map showMap(MapRequestBean mapRequestBean) {
+    public Map showMap(MapRequestBean mapRequestBean) throws MapServiceException {
         if (mapRequestBean == null) {
             throw new IllegalArgumentException("MapRequestBean non può essere nullo");
         }
 
-        //System.out.println("Richiesta mappa con: " + mapRequestBean);
         if (mapRequestBean.getOrigin() == null || mapRequestBean.getDestination() == null) {
             throw new IllegalArgumentException("Origin o destination nulli!");
         }

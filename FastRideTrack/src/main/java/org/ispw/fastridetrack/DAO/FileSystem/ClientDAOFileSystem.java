@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.FileSystem;
+package org.ispw.fastridetrack.dao.filesystem;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.model.Client;
@@ -46,9 +46,9 @@ public class ClientDAOFileSystem implements ClientDAO {
     }
 
     @Override
-    public Client findById(Integer id_client) {
+    public Client findById(Integer idclient) {
         for (Client client : getAllClients()) {
-            if (client.getUserID().equals(id_client)) {
+            if (client.getUserID().equals(idclient)) {
                 return client;
             }
         }

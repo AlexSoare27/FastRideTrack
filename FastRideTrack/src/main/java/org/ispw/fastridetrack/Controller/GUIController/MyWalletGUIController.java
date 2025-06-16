@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.controller.GUIController;
+package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,10 +8,14 @@ import javafx.scene.layout.GridPane;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.controller.SceneNavigator;
+import org.ispw.fastridetrack.exception.SceneSwitchException;
+
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
 
 public class MyWalletGUIController {
 
     // Facade iniettata da SceneNavigator
+    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -49,7 +53,7 @@ public class MyWalletGUIController {
 
     @FXML
     void onBackPressed(ActionEvent event) throws FXMLLoadException {
-        SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+        SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
     }
 
     @FXML
@@ -58,7 +62,7 @@ public class MyWalletGUIController {
             showAddCardDialog();
         } else if (checkBoxCash.isSelected()) {
             System.out.println("Pagamento in contanti selezionato.");
-            SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+            SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Attenzione");
@@ -104,10 +108,8 @@ public class MyWalletGUIController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Recupero il bottone Aggiungi per poterlo disabilitare se i dati non sono validi
         Button addButton = (Button) dialog.getDialogPane().lookupButton(addButtonType);
 
-        // Validazione al volo: abilita/disabilita il bottone Aggiungi
         Runnable validateInputs = () -> {
             boolean valid = isCardNumberValid(cardNumber.getText())
                     && !cardHolder.getText().trim().isEmpty()
@@ -121,26 +123,18 @@ public class MyWalletGUIController {
         expiryDate.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
         cvv.textProperty().addListener((obs, oldV, newV) -> validateInputs.run());
 
-        // Inizializzo il bottone disabilitato
         addButton.setDisable(true);
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == addButtonType) {
-                // Controllo finale (può essere superfluo se validiamo prima)
-                if (!isCardNumberValid(cardNumber.getText())) {
-                    showError("Numero carta non valido. Deve contenere solo cifre (13-19)!");
-                    return null;
-                }
-                if (cardHolder.getText().trim().isEmpty()) {
-                    showError("Intestatario non può essere vuoto!");
-                    return null;
-                }
-                if (!isExpiryDateValid(expiryDate.getText())) {
-                    showError("Data di scadenza non valida o scaduta! Usa MM/YY.");
-                    return null;
-                }
-                if (!isCvvValid(cvv.getText())) {
-                    showError("CVV non valido! Deve essere di 3 o 4 cifre.");
+                String errorMessage = validateCardInputs(
+                        cardNumber.getText(),
+                        cardHolder.getText(),
+                        expiryDate.getText(),
+                        cvv.getText()
+                );
+                if (errorMessage != null) {
+                    showError(errorMessage);
                     return null;
                 }
 
@@ -151,16 +145,34 @@ public class MyWalletGUIController {
                 System.out.println("CVV: " + cvv.getText());
 
                 try {
-                    SceneNavigator.switchTo("/org/ispw/fastridetrack/views/Home.fxml", "Home");
+                    SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
                 } catch (FXMLLoadException e) {
-                    throw new RuntimeException(e);
+                    throw new SceneSwitchException("Errore nel cambio scena verso Home", e);
                 }
+
             }
             return null;
         });
 
         dialog.showAndWait();
     }
+
+    private String validateCardInputs(String number, String holder, String expiry, String cvv) {
+        if (!isCardNumberValid(number)) {
+            return "Numero carta non valido. Deve contenere solo cifre (13-19)!";
+        }
+        if (holder == null || holder.trim().isEmpty()) {
+            return "Intestatario non può essere vuoto!";
+        }
+        if (!isExpiryDateValid(expiry)) {
+            return "Data di scadenza non valida o scaduta! Usa MM/YY.";
+        }
+        if (!isCvvValid(cvv)) {
+            return "CVV non valido! Deve essere di 3 o 4 cifre.";
+        }
+        return null;
+    }
+
 
     // Funzione per validare numero carta (solo cifre, lunghezza 13-19)
     private boolean isCardNumberValid(String number) {

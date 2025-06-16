@@ -1,6 +1,7 @@
-package org.ispw.fastridetrack.dao.InMemory;
+package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.exception.RideNotFoundException;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class TaxiRideDAOInMemory implements TaxiRideDAO {
     public void update(TaxiRideConfirmation updatedRide) {
         int rideID = updatedRide.getRideID();
         if (!rides.containsKey(rideID)) {
-            throw new RuntimeException("Nessuna corsa trovata con rideID " + rideID);
+            throw new RideNotFoundException(rideID);
         }
         rides.put(rideID, updatedRide);
     }
