@@ -15,7 +15,6 @@ import org.ispw.fastridetrack.exception.DatabaseConnectionException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
-import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.util.TemporaryMemory;
 
 import static org.ispw.fastridetrack.util.ViewPath.SELECT_TAXI_FXML;
@@ -44,7 +43,6 @@ public class SelectDriverGUIController {
     }
 
     public SelectDriverGUIController() throws DatabaseConnectionException {
-        SessionManager session = SessionManager.getInstance();
         this.facade = new ApplicationFacade();
         this.tempMemory = TemporaryMemory.getInstance();
     }
@@ -64,10 +62,29 @@ public class SelectDriverGUIController {
         driverNameLabel.setText("Driver: " + driver.getName());
         vehicleInfoLabel.setText("Vehicle Model: " + driver.getVehicleInfo());
         vehiclePlateLabel.setText("Vehicle Plate: " + driver.getVehiclePlate());
-        estimatedFareLabel.setText(taxiRideBean.getEstimatedFare() != null ?
-                String.format("Estimated Fare: €%.2f", taxiRideBean.getEstimatedFare()) : "Estimated Fare: N/D");
-        estimatedTimeLabel.setText(taxiRideBean.getEstimatedTime() != null ?
-                "Estimated Time: " + taxiRideBean.getEstimatedTime() + " mins" : "Estimated Time: N/D");
+        // Mostra il prezzo stimato con due decimali
+        if (taxiRideBean.getEstimatedFare() != null) {
+            estimatedFareLabel.setText(String.format("Estimated Fare: €%.2f", taxiRideBean.getEstimatedFare()));
+        } else {
+            estimatedFareLabel.setText("Estimated Fare: N/D");
+        }
+        // Mostra il tempo stimato in ore e minuti
+        if (taxiRideBean.getEstimatedTime() != null) {
+            int totalMinutes = (int) Math.round(taxiRideBean.getEstimatedTime());
+            int hours = totalMinutes / 60;
+            int minutes = totalMinutes % 60;
+
+            String formattedTime;
+            if (hours > 0) {
+                formattedTime = String.format("Estimated Time: %dh %02dmin", hours, minutes);
+            } else {
+                formattedTime = String.format("Estimated Time: %dmin", minutes);
+            }
+
+            estimatedTimeLabel.setText(formattedTime);
+        } else {
+            estimatedTimeLabel.setText("Estimated Time: N/D");
+        }
 
         loadMapInView();
     }

@@ -13,17 +13,23 @@ public class DriverDAOFileSystem implements DriverDAO {
     private static final String FILE_PATH = "src/data/drivers.csv";
 
     public DriverDAOFileSystem() {
-        // Crea file se non esiste
         File file = new File(FILE_PATH);
         if (!file.exists()) {
             try {
-                file.getParentFile().mkdirs(); // crea la cartella "data"
-                file.createNewFile();
+                File parent = file.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs(); // crea la cartella "data"
+                }
+                boolean created = file.createNewFile();
+                if (!created) {
+                    System.err.println("Il file driver CSV NON è stato creato perché esiste già o errore sconosciuto.");
+                }
             } catch (IOException e) {
                 System.err.println("Errore nella creazione del file driver CSV: " + e.getMessage());
             }
         }
     }
+
 
     @Override
     public void save(Driver driver) {

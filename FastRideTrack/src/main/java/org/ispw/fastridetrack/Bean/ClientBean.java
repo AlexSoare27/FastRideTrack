@@ -8,7 +8,6 @@ import org.ispw.fastridetrack.model.UserType;
 public class ClientBean extends UserBean {
     private final PaymentMethod paymentMethod;
 
-
     public ClientBean(String username, String password, Integer userID, String name,
                       String email, String phoneNumber, double latitude, double longitude, PaymentMethod paymentMethod) {
         super(username, password, UserType.CLIENT, userID, name, email, phoneNumber, latitude, longitude);

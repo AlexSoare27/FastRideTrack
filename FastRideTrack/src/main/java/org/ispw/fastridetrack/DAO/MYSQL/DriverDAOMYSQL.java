@@ -3,6 +3,7 @@ package org.ispw.fastridetrack.dao.mysql;
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Driver;
 import org.json.JSONArray;
@@ -21,6 +22,7 @@ public class DriverDAOMYSQL implements DriverDAO {
 
     private final Connection connection;
     private static final String GOOGLE_API_KEY = System.getenv("GOOGLE_MAPS_API_KEY"); // Usa la tua chiave
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public DriverDAOMYSQL(Connection connection) {
         this.connection = connection;
@@ -192,21 +194,18 @@ public class DriverDAOMYSQL implements DriverDAO {
     private RouteInfo getRouteInfoFromGoogleMaps(Coordinate origin, Coordinate dest) {
         try {
             String urlStr = String.format(
-                    """
-                    https://maps.googleapis.com/maps/api/directions/json?origin=%f,%f&destination=%f,%f&key=%s
-                    """,
+                    "https://maps.googleapis.com/maps/api/directions/json?origin=%f,%f&destination=%f,%f&key=%s",
                     origin.getLatitude(), origin.getLongitude(),
                     dest.getLatitude(), dest.getLongitude(),
                     GOOGLE_API_KEY
             );
 
-            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlStr.strip()))
                     .GET()
                     .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             JSONObject json = new JSONObject(response.body());
             JSONArray routes = json.getJSONArray("routes");
@@ -216,11 +215,16 @@ public class DriverDAOMYSQL implements DriverDAO {
                 double durationSeconds = leg.getJSONObject("duration").getDouble("value");
                 return new RouteInfo(distanceMeters / 1000.0, durationSeconds / 60.0);
             }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Errore nel recupero informazioni percorso da Google Maps: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Errore IO nel recupero informazioni percorso da Google Maps: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // ripristina lo stato di interruzione
+            System.err.println("Thread interrotto durante la richiesta a Google Maps: " + e.getMessage());
         }
+
         return null;
     }
+
 
     private double calculateEstimatedTime(Coordinate origin, Coordinate dest) {
         double distanceKm = calculateDistanceKm(origin.getLatitude(), origin.getLongitude(), dest.getLatitude(), dest.getLongitude());
@@ -250,12 +254,6 @@ public class DriverDAOMYSQL implements DriverDAO {
         return EARTH_RADIUS_KM * c;
     }
 
-    // Custom exception per gestire errori DAO
-    public static class DriverDAOException extends Exception {
-        public DriverDAOException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
 }
 
 

@@ -16,7 +16,7 @@ public class SingletonDBSession {
             String password = System.getenv("DB_PASSWORD");
 
             if (url == null || username == null || password == null) {
-                throw new RuntimeException("Le variabili d'ambiente per il database non sono state configurate correttamente.");
+                throw new DatabaseConnectionException("Le variabili d'ambiente per il database non sono state configurate correttamente.");
             }
 
             System.out.println("[DEBUG] Connessione a MySQL...");

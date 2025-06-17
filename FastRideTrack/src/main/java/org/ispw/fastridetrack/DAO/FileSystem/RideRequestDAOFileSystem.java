@@ -1,6 +1,7 @@
 package org.ispw.fastridetrack.dao.filesystem;
 
 import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.exception.RideRequestPersistenceException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.RideRequest;
 
@@ -8,6 +9,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RideRequestDAOFileSystem implements RideRequestDAO {
 
@@ -27,16 +29,17 @@ public class RideRequestDAOFileSystem implements RideRequestDAO {
                 Files.createFile(path);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Impossibile creare file ride_requests.csv", e);
+            throw new RideRequestPersistenceException("Impossibile creare file ride_requests.csv", e);
         }
     }
 
     @Override
     public RideRequest save(RideRequest request) {
         List<RideRequest> allRequests = findAll();
-        // Genera nuovo ID incrementale
         int newId = allRequests.stream()
-                .mapToInt(RideRequest::getRequestId)
+                .map(RideRequest::getRequestId)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::intValue)
                 .max()
                 .orElse(0) + 1;
         request.setRequestId(newId);
@@ -45,30 +48,33 @@ public class RideRequestDAOFileSystem implements RideRequestDAO {
         return request;
     }
 
+
     @Override
     public RideRequest findById(int requestID) {
         return findAll().stream()
-                .filter(r -> r.getRequestId() == requestID)
+                .filter(r -> r.getRequestId().equals(requestID))
                 .findFirst()
                 .orElse(null);
     }
+
 
     @Override
     public void update(RideRequest request) {
         List<RideRequest> allRequests = findAll();
         boolean updated = false;
         for (int i = 0; i < allRequests.size(); i++) {
-            if (allRequests.get(i).getRequestId() == request.getRequestId()) {
+            if (allRequests.get(i).getRequestId().equals(request.getRequestId())) {
                 allRequests.set(i, request);
                 updated = true;
                 break;
             }
         }
         if (!updated) {
-            throw new RuntimeException("Nessuna RideRequest trovata con ID " + request.getRequestId());
+            throw new RideRequestPersistenceException("Nessuna RideRequest trovata con ID " + request.getRequestId());
         }
         writeAll(allRequests);
     }
+
 
     private List<RideRequest> findAll() {
         List<RideRequest> list = new ArrayList<>();
@@ -81,14 +87,12 @@ public class RideRequestDAOFileSystem implements RideRequestDAO {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Errore nella lettura del file ride_requests.csv", e);
+            throw new RideRequestPersistenceException("Errore nella lettura del file ride_requests.csv", e);
         }
         return list;
     }
 
     private RideRequest parseLine(String line) {
-        // Assumiamo CSV separato da ;
-        // campi: requestId;clientID;pickupLocation;destination;...
         String[] tokens = line.split(";");
         if (tokens.length < 4) return null;
 
@@ -124,7 +128,7 @@ public class RideRequestDAOFileSystem implements RideRequestDAO {
                 bw.newLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Errore nella scrittura del file ride_requests.csv", e);
+            throw new RideRequestPersistenceException("Errore nella scrittura del file ride_requests.csv", e);
         }
     }
 }

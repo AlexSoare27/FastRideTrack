@@ -3,7 +3,6 @@ package org.ispw.fastridetrack.controller.applicationcontroller;
 import org.ispw.fastridetrack.bean.*;
 import org.ispw.fastridetrack.dao.DriverDAO;
 import org.ispw.fastridetrack.dao.RideRequestDAO;
-import org.ispw.fastridetrack.dao.mysql.DriverDAOMYSQL;
 import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Driver;
@@ -26,13 +25,13 @@ public class DriverMatchingApplicationController {
     }
 
     // Assegno un driver a una richiesta usando il bean DriverAssignmentBean.
-    public void assignDriverToRequest(DriverAssignmentBean assignmentBean) throws DriverDAOException, DriverDAOMYSQL.DriverDAOException {
+    public void assignDriverToRequest(DriverAssignmentBean assignmentBean) throws DriverDAOException {
         Objects.requireNonNull(assignmentBean, "DriverAssignmentBean non può essere nullo");
         assignDriverToRequest(assignmentBean.getRequestID(), assignmentBean.getDriver().getUserID());
     }
 
     // Assegno un driver alla richiesta di corsa e aggiorno la persistenza.
-    public void assignDriverToRequest(int requestID, int driverID) throws DriverDAOException, DriverDAOMYSQL.DriverDAOException {
+    public void assignDriverToRequest(int requestID, int driverID) throws DriverDAOException{
         RideRequest model = rideRequestDAO.findById(requestID);
         Driver driver = driverDAO.findById(driverID);
 
@@ -44,7 +43,7 @@ public class DriverMatchingApplicationController {
     }
 
     // Trovo i driver disponibili entro il raggio fornito dal MapRequestBean.
-    public List<AvailableDriverBean> findAvailableDrivers(MapRequestBean mapRequestBean) throws DriverDAOException, DriverDAOMYSQL.DriverDAOException {
+    public List<AvailableDriverBean> findAvailableDrivers(MapRequestBean mapRequestBean) throws DriverDAOException{
         Objects.requireNonNull(mapRequestBean, "MapRequestBean non può essere nullo");
 
         CoordinateBean originBean = mapRequestBean.getOrigin();

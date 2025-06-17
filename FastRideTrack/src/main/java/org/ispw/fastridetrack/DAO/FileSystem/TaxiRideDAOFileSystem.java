@@ -1,6 +1,7 @@
 package org.ispw.fastridetrack.dao.filesystem;
 
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
+import org.ispw.fastridetrack.exception.TaxiRidePersistenceException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.Driver;
 import org.ispw.fastridetrack.model.RideConfirmationStatus;
@@ -12,6 +13,7 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class TaxiRideDAOFileSystem implements TaxiRideDAO {
@@ -35,9 +37,10 @@ public class TaxiRideDAOFileSystem implements TaxiRideDAO {
                 Files.createFile(path);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Impossibile creare file taxi_rides.csv", e);
+            throw new TaxiRidePersistenceException("Impossibile creare file taxi_rides.csv", e);
         }
     }
+
 
     @Override
     public void save(TaxiRideConfirmation ride) {
@@ -65,17 +68,18 @@ public class TaxiRideDAOFileSystem implements TaxiRideDAO {
         List<TaxiRideConfirmation> allRides = findAll();
         boolean updated = false;
         for (int i = 0; i < allRides.size(); i++) {
-            if (allRides.get(i).getRideID() == ride.getRideID()) {
+            if (Objects.equals(ride.getRideID(), allRides.get(i).getRideID())) {
                 allRides.set(i, ride);
                 updated = true;
                 break;
             }
         }
         if (!updated) {
-            throw new RuntimeException("Nessuna corsa trovata con rideID " + ride.getRideID());
+            throw new TaxiRidePersistenceException("Nessuna corsa trovata con rideID " + ride.getRideID());
         }
         writeAll(allRides);
     }
+
 
     @Override
     public boolean exists(int rideID) {
@@ -93,13 +97,12 @@ public class TaxiRideDAOFileSystem implements TaxiRideDAO {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Errore nella lettura del file taxi_rides.csv", e);
+            throw new TaxiRidePersistenceException("Errore nella lettura del file taxi_rides.csv", e);
         }
         return list;
     }
 
     private TaxiRideConfirmation parseLine(String line) {
-        // Formato CSV: rideID;driverID;clientID;rideConfirmationStatus;estimatedFare;estimatedTime;paymentMethod;confirmationTime;destination
         String[] tokens = line.split(";");
         if (tokens.length < 9) return null;
 
@@ -155,7 +158,7 @@ public class TaxiRideDAOFileSystem implements TaxiRideDAO {
                 bw.newLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Errore nella scrittura del file taxi_rides.csv", e);
+            throw new TaxiRidePersistenceException("Errore nella scrittura del file taxi_rides.csv", e);
         }
     }
 }

@@ -4,6 +4,7 @@ import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.DriverDAO;
 import org.ispw.fastridetrack.dao.TaxiRideDAO;
 import org.ispw.fastridetrack.exception.DriverDAOException;
+import org.ispw.fastridetrack.exception.TaxiRidePersistenceException;
 import org.ispw.fastridetrack.model.*;
 import org.ispw.fastridetrack.model.Driver;
 
@@ -38,13 +39,19 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore salvataggio corsa confermata", e);
+            throw new TaxiRidePersistenceException("Errore salvataggio corsa confermata", e);
         }
     }
 
     @Override
     public Optional<TaxiRideConfirmation> findById(int rideID) {
-        String sql = "SELECT * FROM taxi_rides WHERE rideID = ?";
+        String sql = """
+        SELECT rideID, driverID, clientID, rideConfirmationStatus, estimatedFare,
+               estimatedTime, paymentMethod, confirmationTime, destination
+        FROM taxi_rides
+        WHERE rideID = ?
+        """;
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, rideID);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -80,10 +87,11 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                     return Optional.empty();
                 }
             }
-        } catch (SQLException | DriverDAOException | DriverDAOMYSQL.DriverDAOException e) {
-            throw new RuntimeException("Errore nel recupero di TaxiRide con rideID " + rideID, e);
+        } catch (SQLException | DriverDAOException e) {
+            throw new TaxiRidePersistenceException("Errore nel recupero di TaxiRide con rideID " + rideID, e);
         }
     }
+
 
     @Override
     public void update(TaxiRideConfirmation ride) {
@@ -103,10 +111,10 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
 
             int rows = stmt.executeUpdate();
             if (rows == 0) {
-                throw new RuntimeException("Nessuna corsa trovata con rideID " + ride.getRideID());
+                throw new TaxiRidePersistenceException("Nessuna corsa trovata con rideID " + ride.getRideID());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore aggiornamento corsa con rideID " + ride.getRideID(), e);
+            throw new TaxiRidePersistenceException("Errore aggiornamento corsa con rideID " + ride.getRideID(), e);
         }
     }
 
@@ -120,7 +128,7 @@ public class TaxiRideDAOMYSQL implements TaxiRideDAO {
                 return rs.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il controllo esistenza della corsa con rideID " + rideID, e);
+            throw new TaxiRidePersistenceException("Errore durante il controllo esistenza della corsa con rideID " + rideID, e);
         }
     }
 }

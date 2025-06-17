@@ -1,6 +1,6 @@
 package org.ispw.fastridetrack.controller.applicationcontroller;
 
-import org.ispw.fastridetrack.dao.mysql.DriverDAOMYSQL;
+import org.ispw.fastridetrack.exception.ClientDAOException;
 import org.ispw.fastridetrack.exception.DatabaseConnectionException;
 import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Client;
@@ -26,7 +26,7 @@ public class LoginApplicationController {
     }
 
     // Validazione credenziali per il client
-    public boolean validateClientCredentials(String username, String password, UserType userType) {
+    public boolean validateClientCredentials(String username, String password, UserType userType) throws ClientDAOException {
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             return false;
         }
@@ -42,7 +42,7 @@ public class LoginApplicationController {
 
 
     // Validazione credenziali per il driver
-    public boolean validateDriverCredentials(String username, String password, UserType userType) throws DriverDAOException, DriverDAOMYSQL.DriverDAOException {
+    public boolean validateDriverCredentials(String username, String password, UserType userType) throws DriverDAOException{
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             return false;
         }

@@ -35,7 +35,6 @@ public class TaxiRideConfirmationBean {
         this.confirmationTime = confirmationTime;
     }
 
-    // Getters e setters (omessi per brevità, ma da aggiungere)
 
     public Integer getRideID() {
         return rideID;

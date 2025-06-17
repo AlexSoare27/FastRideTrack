@@ -5,6 +5,7 @@ import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.PaymentMethod;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +16,14 @@ public class ClientDAOFileSystem implements ClientDAO {
         File file = new File(FILE_PATH);
         if (!file.exists()) {
             try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
+                File parent = file.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs();
+                }
+                boolean created = file.createNewFile();
+                if (!created) {
+                    System.err.println("Il file client CSV NON è stato creato perché esiste già o errore sconosciuto.");
+                }
             } catch (IOException e) {
                 System.err.println("Errore nella creazione del file client CSV: " + e.getMessage());
             }
@@ -68,7 +75,7 @@ public class ClientDAOFileSystem implements ClientDAO {
     private List<Client> getAllClients() {
         List<Client> clients = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(FILE_PATH), "UTF-8"))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(";", -1);
@@ -76,21 +83,9 @@ public class ClientDAOFileSystem implements ClientDAO {
                     continue;
                 }
 
-                try {
-                    Client client = new Client(
-                            Integer.parseInt(tokens[0]),
-                            tokens[1],
-                            tokens[2],
-                            tokens[3],
-                            tokens[4],
-                            tokens[5],
-                            PaymentMethod.valueOf(tokens[6])
-                    );
-                    client.setLatitude(Double.parseDouble(tokens[7]));
-                    client.setLongitude(Double.parseDouble(tokens[8]));
+                Client client = parseClientFromLine(tokens);
+                if (client != null) {
                     clients.add(client);
-                } catch (Exception ignored) {
-                    // Salta righe malformate
                 }
             }
         } catch (IOException e) {
@@ -99,7 +94,27 @@ public class ClientDAOFileSystem implements ClientDAO {
 
         return clients;
     }
+
+    private Client parseClientFromLine(String[] tokens) {
+        try {
+            Client client = new Client(
+                    Integer.parseInt(tokens[0]),
+                    tokens[1],
+                    tokens[2],
+                    tokens[3],
+                    tokens[4],
+                    tokens[5],
+                    PaymentMethod.valueOf(tokens[6])
+            );
+            client.setLatitude(Double.parseDouble(tokens[7]));
+            client.setLongitude(Double.parseDouble(tokens[8]));
+            return client;
+        } catch (Exception ignored) {
+            return null; // righe malformate vengono ignorate
+        }
+    }
 }
+
 
 
 

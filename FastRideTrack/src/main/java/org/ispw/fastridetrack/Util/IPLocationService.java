@@ -14,6 +14,9 @@ import java.net.http.HttpResponse;
 
 public class IPLocationService {
 
+    // HttpClient riutilizzabile e thread-safe
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
     private IPLocationService() {
         throw new UnsupportedOperationException("Utility class - non deve essere istanziata");
     }
@@ -22,18 +25,16 @@ public class IPLocationService {
         String url = "http://ip-api.com/json/" + ip;
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .build();
 
-            // Chiamata HTTP e ottenimento InputStream
-            HttpResponse<java.io.InputStream> response = client.send(request,
-                    HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<java.io.InputStream> response = CLIENT.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofInputStream()
+            );
 
-            // Creazione di InputStreamReader a partire dall'InputStream
             try (InputStreamReader reader = new InputStreamReader(response.body())) {
                 JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
