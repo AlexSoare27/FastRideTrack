@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.DAO.Adapter;
+package org.ispw.fastridetrack.dao.adapter;
 
-import org.ispw.fastridetrack.Bean.MapRequestBean;
+import org.ispw.fastridetrack.bean.MapRequestBean;
 
 public interface MapDAO {
     String showRoute(String origin, String destination);

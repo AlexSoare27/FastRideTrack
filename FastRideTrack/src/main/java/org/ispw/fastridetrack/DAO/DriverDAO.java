@@ -5,7 +5,6 @@ import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Driver;
 
-
 import java.util.List;
 
 public interface DriverDAO {
@@ -13,7 +12,7 @@ public interface DriverDAO {
     Driver findById(int iddriver) throws DriverDAOException;
     Driver retrieveDriverByUsernameAndPassword(String username, String password) throws DriverDAOException;
     List<AvailableDriverBean> findDriversAvailableWithinRadius(Coordinate origin, int radiusKm) throws DriverDAOException;
-    //void updateAvailability(int driverId, boolean isAvailable);
+    void updateAvailability(int driverId, boolean availability) throws DriverDAOException;
 }
 
 

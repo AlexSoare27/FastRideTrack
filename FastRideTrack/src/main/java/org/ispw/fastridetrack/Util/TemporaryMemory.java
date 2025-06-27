@@ -3,7 +3,7 @@ package org.ispw.fastridetrack.util;
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.MapRequestBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 
 import java.util.List;
 
@@ -48,8 +48,8 @@ public class TemporaryMemory {
         this.rideConfirmation = null;
         System.out.println("TemporaryMemory cleared!");
     }
-}
 
+}
 
 
 

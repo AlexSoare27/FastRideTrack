@@ -1,7 +1,7 @@
 package org.ispw.fastridetrack.bean;
 
 import org.ispw.fastridetrack.model.Driver;
-import org.ispw.fastridetrack.model.UserType;
+import org.ispw.fastridetrack.model.enumeration.UserType;
 
 
 public class DriverBean extends UserBean {
@@ -9,7 +9,7 @@ public class DriverBean extends UserBean {
     private final String vehicleInfo;
     private final String vehiclePlate;
     private final String affiliation;
-    private final boolean available;
+    private final Boolean available;
 
 
     public DriverBean(String username, String password, int userID, String name,
@@ -40,21 +40,33 @@ public class DriverBean extends UserBean {
         return vehicleInfo;
     }
 
+    /*public void setVehicleInfo(String vehicleInfo) {
+        this.vehicleInfo = vehicleInfo;
+    }*/
 
     public String getVehiclePlate() {
         return vehiclePlate;
     }
 
+    /*public void setVehiclePlate(String vehiclePlate) {
+        this.vehiclePlate = vehiclePlate;
+    }*/
 
     public String getAffiliation() {
         return affiliation;
     }
 
+    /*public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }*/
 
     public boolean isAvailable() {
         return available;
     }
 
+    /*public void setAvailable(boolean available) {
+        this.available = available;
+    }*/
 
     public static DriverBean fromModel(Driver driver) {
         if (driver == null) return null;

@@ -2,7 +2,7 @@ package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.model.Client;
-import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
@@ -49,7 +49,11 @@ public class ClientDAOInMemory implements ClientDAO {
         }
         return null;
     }
-}
 
+    // Metodo per eliminare un cliente
+    public void delete(String username) {
+        clients.remove(username);
+    }
+}
 
 

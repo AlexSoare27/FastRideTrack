@@ -1,8 +1,8 @@
 package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.model.UserType;
+import org.ispw.fastridetrack.model.enumeration.UserType;
 
-public class UserBean {
+public abstract class UserBean {
 
     private String username;
     private String password;
@@ -13,6 +13,12 @@ public class UserBean {
     private String phoneNumber;
     private double latitude;
     private double longitude;
+
+    // Costruttore senza posizione
+    public UserBean(String username, String password, UserType userType, int userID,
+                    String name, String email, String phoneNumber) {
+        this(username, password, userType, userID, name, email, phoneNumber, 0.0, 0.0);
+    }
 
     // Costruttore completo
     public UserBean(String username, String password, UserType userType, Integer userID,

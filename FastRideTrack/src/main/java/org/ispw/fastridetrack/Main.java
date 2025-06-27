@@ -3,10 +3,11 @@ package org.ispw.fastridetrack;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
+import org.ispw.fastridetrack.controller.clicontroller.DriverCLIController;
+import org.ispw.fastridetrack.controller.guicontroller.SceneNavigator;
 import org.ispw.fastridetrack.model.session.SessionManager;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 
-import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEPAGE_FXML;
 
 public class Main extends Application {
 
@@ -26,7 +27,25 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+
+        String useCliEnv=System.getenv("USE_CLI");
+        boolean useCli = useCliEnv != null && useCliEnv.equalsIgnoreCase("true");
+        if (useCli) {
+            System.out.println("Using CLI");
+            try{
+                DriverCLIController driverCLIController = new DriverCLIController();
+                driverCLIController.start();
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+            finally {
+                SessionManager.getInstance().shutdown();
+            }
+        }else{
+            System.out.println("Using GUI");
+            launch(args);
+        }
     }
 }
 

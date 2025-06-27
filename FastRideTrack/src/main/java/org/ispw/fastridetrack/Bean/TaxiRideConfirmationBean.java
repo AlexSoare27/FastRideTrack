@@ -1,8 +1,8 @@
 package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.model.PaymentMethod;
-import org.ispw.fastridetrack.model.RideConfirmationStatus;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +17,8 @@ public class TaxiRideConfirmationBean {
     private Double estimatedTime;
     private PaymentMethod paymentMethod;
     private LocalDateTime confirmationTime;
+
+    public TaxiRideConfirmationBean(int rideID, DriverBean driver, ClientBean client, Object userLocation, Object destination, String status, float estimatedFare, float estimatedTime, String paymentMethod, LocalDateTime localDateTime) {}
 
     // Costruttore completo
     public TaxiRideConfirmationBean(Integer rideID, DriverBean driver, ClientBean client,
@@ -36,6 +38,7 @@ public class TaxiRideConfirmationBean {
     }
 
 
+    // Getter e setter aggiornati
     public Integer getRideID() {
         return rideID;
     }
@@ -100,11 +103,11 @@ public class TaxiRideConfirmationBean {
         this.estimatedTime = estimatedTime;
     }
 
-    public PaymentMethod getPaymentStatus() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentStatus(PaymentMethod paymentStatus) {
+    public void setPaymentMethod(PaymentMethod paymentStatus) {
         this.paymentMethod = paymentStatus;
     }
 
@@ -114,6 +117,22 @@ public class TaxiRideConfirmationBean {
 
     public void setConfirmationTime(LocalDateTime confirmationTime) {
         this.confirmationTime = confirmationTime;
+    }
+
+    /**
+     * Inizializza la conferma con i dati di una RideRequestBean,
+     * imposta paymentStatus a "Pending" e conferma l’ora corrente.
+     */
+    public void setRideRequest(RideRequestBean rideRequest) {
+        if (rideRequest != null) {
+            this.rideID = rideRequest.getRequestID();
+            this.client = rideRequest.getClient();
+            this.userLocation = rideRequest.getOriginAsCoordinateBean();  // Metodo da implementare in RideRequestBean
+            this.destination = rideRequest.getDestination();
+            this.paymentMethod = rideRequest.getPaymentMethod();
+            this.confirmationTime = LocalDateTime.now();
+            this.status = RideConfirmationStatus.PENDING;
+        }
     }
 
     // Conversione da Model a Bean
@@ -150,9 +169,10 @@ public class TaxiRideConfirmationBean {
         );
     }
 
-    // Imposto lo stato su "PENDING"
+    // Imposta lo stato su "PENDING"
     public void markPending() {
         this.status = RideConfirmationStatus.valueOf("PENDING");
     }
+
 }
 

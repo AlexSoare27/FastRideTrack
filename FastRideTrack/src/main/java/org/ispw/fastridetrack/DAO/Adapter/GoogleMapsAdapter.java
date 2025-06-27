@@ -1,12 +1,14 @@
 package org.ispw.fastridetrack.dao.adapter;
 
 import com.google.gson.*;
+import org.ispw.fastridetrack.bean.CoordinateBean;
 import org.ispw.fastridetrack.bean.MapRequestBean;
 import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -113,6 +115,7 @@ public class GoogleMapsAdapter implements MapService {
                     URLEncoder.encode(latlngParam, StandardCharsets.UTF_8) +
                     "&key=" + API_KEY;
 
+            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -145,6 +148,11 @@ public class GoogleMapsAdapter implements MapService {
             throw new MapServiceException("Errore durante il reverse geocoding", e);
         }
 
+    }
+
+    @Override
+    public CoordinateBean geocodeAddress(String address) throws MapServiceException {
+        return null;
     }
 }
 

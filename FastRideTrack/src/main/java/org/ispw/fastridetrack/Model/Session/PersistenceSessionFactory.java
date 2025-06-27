@@ -31,8 +31,13 @@ public class PersistenceSessionFactory implements SessionFactory {
     }
 
     @Override
-    public TaxiRideDAO createTaxiRideDAO() {
-        return new TaxiRideDAOMYSQL(dbSession.getConnection());
+    public TaxiRideConfirmationDAO createTaxiRideDAO() {
+        return new TaxiRideConfirmationDAOMYSQL(dbSession.getConnection());
+    }
+
+    @Override
+    public RideDAO createRideDAO() {
+        return new RideDAOMYSQL(dbSession.getConnection());
     }
 }
 

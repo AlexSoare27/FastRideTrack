@@ -6,12 +6,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEPAGE_FXML;
 
 public class SignUpGUIController implements Initializable {
 

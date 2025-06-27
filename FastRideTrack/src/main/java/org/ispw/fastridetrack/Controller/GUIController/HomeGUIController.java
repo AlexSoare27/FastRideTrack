@@ -11,10 +11,8 @@ import org.ispw.fastridetrack.bean.MapRequestBean;
 import org.ispw.fastridetrack.bean.RideRequestBean;
 import org.ispw.fastridetrack.bean.CoordinateBean;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.model.Client;
-import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.util.*;
 
@@ -22,7 +20,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static org.ispw.fastridetrack.util.ViewPath.*;
+import static org.ispw.fastridetrack.util.ViewPathFXML.*;
 
 public class HomeGUIController implements Initializable {
 
@@ -55,11 +53,12 @@ public class HomeGUIController implements Initializable {
         initializeChoiceBox();
         displayUserName();
         restoreTemporaryData();
+        //loadMapWithDefaultLocation();
         loadCurrentLocationMap();
     }
 
     private void displayUserName() {
-        Client client = SessionManager.getInstance().getLoggedClient();
+        ClientBean client = facade.getSessionDataAC().getClientBean();
         if (client != null) {
             welcomeLabel.setText("Benvenuto, " + client.getName());
         }
@@ -89,6 +88,7 @@ public class HomeGUIController implements Initializable {
             if (rangeChoiceBox.getItems().contains(radiusStr)) {
                 rangeChoiceBox.setValue(radiusStr);
             }
+            // Se vuoi puoi anche aggiornare currentLocation in base a bean.getOrigin()
             if (bean.getOrigin() != null) {
                 currentLocation = bean.getOrigin();
             }
@@ -99,8 +99,12 @@ public class HomeGUIController implements Initializable {
         new Thread(() -> {
             try {
                 String ip = IPFetcher.getPublicIP();
+                System.out.println("IP pubblico: " + ip);
+
                 var coordModel = IPLocationService.getCoordinateFromIP(ip);
                 currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
+
+                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
 
                 Platform.runLater(() -> {
                     try {
@@ -160,7 +164,7 @@ public class HomeGUIController implements Initializable {
             return;
         }
 
-        Client loggedClient = SessionManager.getInstance().getLoggedClient();
+        ClientBean loggedClient = facade.getSessionDataAC().getClientBean();
         if (loggedClient == null) {
             showAlert("Sessione utente non valida. Effettua nuovamente il login.");
             SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
@@ -174,7 +178,7 @@ public class HomeGUIController implements Initializable {
         // Creo solo i Bean nel controller GUI
         RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, PaymentMethod.CASH);
         rideRequestBean.setRequestID(null);
-        rideRequestBean.setClient(ClientBean.fromModel(loggedClient));
+        rideRequestBean.setClient(loggedClient);
         rideRequestBean.setPickupLocation(pickupLocationStr);
         rideRequestBean.setDestination(destination.trim());
 
@@ -235,6 +239,7 @@ public class HomeGUIController implements Initializable {
         SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 }
+
 
 
 

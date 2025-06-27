@@ -3,6 +3,7 @@ package org.ispw.fastridetrack.dao.filesystem;
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Driver;
 
@@ -85,6 +86,11 @@ public class DriverDAOFileSystem implements DriverDAO {
             }
         }
         return available;
+    }
+
+    @Override
+    public void updateAvailability(int driverId, boolean availability) throws DriverDAOException {
+
     }
 
     private List<Driver> getAllDrivers() {

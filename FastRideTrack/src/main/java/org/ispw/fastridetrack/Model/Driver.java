@@ -1,5 +1,8 @@
 package org.ispw.fastridetrack.model;
 
+import org.ispw.fastridetrack.bean.DriverBean;
+import org.ispw.fastridetrack.model.enumeration.UserType;
+
 public class Driver extends User {
 
     private String vehicleInfo;
@@ -32,7 +35,20 @@ public class Driver extends User {
         this.available = available;
     }
 
+    //Costruttore da Bean
+    public Driver(DriverBean driverBean) {
+        super(driverBean.getUserID(), driverBean.getUsername(), driverBean.getPassword(), driverBean.getName(), driverBean.getEmail(), driverBean.getPhoneNumber(), UserType.DRIVER);
+        this.vehicleInfo = driverBean.getVehicleInfo();
+        this.vehiclePlate = driverBean.getVehiclePlate();
+        this.affiliation = driverBean.getAffiliation();
+        this.available = driverBean.isAvailable();
+        setLatitude(driverBean.getLatitude());
+        setLongitude(driverBean.getLongitude());
+    }
 
+    public DriverBean toBean(){
+        return new DriverBean(super.getUsername(),super.getPassword(), super.getUserID(), super.getName(), super.getEmail(), super.getPhoneNumber(), super.getLatitude(),super.getLongitude(), this.vehicleInfo, this.vehiclePlate, this.affiliation, this.available);
+    }
 
     public String getVehicleInfo() {
         return vehicleInfo;

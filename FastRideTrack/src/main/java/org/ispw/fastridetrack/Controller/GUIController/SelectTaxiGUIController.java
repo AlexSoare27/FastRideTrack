@@ -6,20 +6,17 @@ import javafx.scene.control.*;
 import javafx.scene.web.WebView;
 import org.ispw.fastridetrack.bean.*;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.Map;
-import org.ispw.fastridetrack.model.PaymentMethod;
-import org.ispw.fastridetrack.model.RideConfirmationStatus;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
+import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.util.TemporaryMemory;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
-import static org.ispw.fastridetrack.util.ViewPath.SELECT_DRIVER_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.HOMECLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.SELECT_DRIVER_FXML;
 
 public class SelectTaxiGUIController {
 
@@ -34,7 +31,6 @@ public class SelectTaxiGUIController {
     @FXML private TableColumn<AvailableDriverBean, String> priceColumn;
     @FXML private ChoiceBox<String> paymentChoiceBox;
     @FXML private TextField destinationField;
-
 
     private MapRequestBean mapRequestBean;
 
@@ -161,7 +157,6 @@ public class SelectTaxiGUIController {
         mapView.getEngine().loadContent(map.getHtmlContent());
     }
 
-
     @FXML
     private void onConfirmRide() {
         AvailableDriverBean selectedDriver = taxiTable.getSelectionModel().getSelectedItem();
@@ -184,13 +179,14 @@ public class SelectTaxiGUIController {
             return;
         }
 
-        ClientBean currentClient = ClientBean.fromModel(SessionManager.getInstance().getLoggedClient());
+        ClientBean currentClient = facade.getSessionDataAC().getClientBean();
         if (currentClient == null) {
             showAlert("Utente non loggato o client non trovato.");
             return;
         }
 
         try {
+            // 1. Creazione richiesta corsa
             RideRequestBean rideRequest = new RideRequestBean(
                     mapRequestBean.getOrigin(),
                     mapRequestBean.getDestination(),
@@ -253,7 +249,6 @@ public class SelectTaxiGUIController {
         alert.showAndWait();
     }
 }
-
 
 
 

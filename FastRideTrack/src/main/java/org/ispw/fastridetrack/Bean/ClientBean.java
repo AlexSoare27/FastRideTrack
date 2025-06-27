@@ -2,8 +2,8 @@ package org.ispw.fastridetrack.bean;
 
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.Coordinate;
-import org.ispw.fastridetrack.model.PaymentMethod;
-import org.ispw.fastridetrack.model.UserType;
+import org.ispw.fastridetrack.model.enumeration.UserType;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 
 public class ClientBean extends UserBean {
     private final PaymentMethod paymentMethod;
@@ -27,6 +27,9 @@ public class ClientBean extends UserBean {
         return paymentMethod;
     }
 
+    /*public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }*/
 
     public static ClientBean fromModel(Client client) {
         if (client == null) return null;

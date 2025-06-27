@@ -3,6 +3,7 @@ package org.ispw.fastridetrack.dao.inmemory;
 import org.ispw.fastridetrack.bean.AvailableDriverBean;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Driver;
 
@@ -130,6 +131,11 @@ public class DriverDAOInMemory implements DriverDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public void updateAvailability(int driverId, boolean availability) throws DriverDAOException {
+
     }
 
     // Haversine formula per distanza in km tra due coordinate

@@ -21,8 +21,14 @@ public class InMemorySessionFactory implements SessionFactory {
     }
 
     @Override
-    public TaxiRideDAO createTaxiRideDAO() {
-        return new TaxiRideDAOInMemory();
+    public TaxiRideConfirmationDAO createTaxiRideDAO() {
+        return new TaxiRideConfirmationDAOInMemory();
+    }
+
+    @Override
+    public RideDAO createRideDAO() {
+        return null;
+        //return new RideDAOInMemory();
     }
 }
 

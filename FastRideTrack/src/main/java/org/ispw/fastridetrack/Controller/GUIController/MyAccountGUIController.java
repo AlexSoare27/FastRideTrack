@@ -6,11 +6,8 @@ import javafx.scene.control.TextField;
 import org.ispw.fastridetrack.bean.ClientBean;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.model.Client;
-import org.ispw.fastridetrack.model.session.SessionManager;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 
-import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.HOMECLIENT_FXML;
 
 public class MyAccountGUIController {
 
@@ -32,17 +29,17 @@ public class MyAccountGUIController {
 
     @FXML
     public void initialize() {
-        Client client = SessionManager.getInstance().getLoggedClient();
+        ClientBean clientBean = facade.getSessionDataAC().getClientBean();
 
-        if (client == null) {
+        if (clientBean == null) {
             System.err.println("Nessun client loggato.");
             return;
         }
 
         // Uso il metodo fromModel per popolare il bean
-        ClientBean clientBean = ClientBean.fromModel(client);
+        //ClientBean clientBean = client;
 
-        // Imposto i campi (UserType lo forzo a CLIENT)
+        // Imposta i campi (UserType lo forziamo a CLIENT come da tua richiesta)
         nameField.setText(clientBean.getName());
         emailField.setText(clientBean.getEmail());
         userIdField.setText(String.valueOf(clientBean.getUserID()));

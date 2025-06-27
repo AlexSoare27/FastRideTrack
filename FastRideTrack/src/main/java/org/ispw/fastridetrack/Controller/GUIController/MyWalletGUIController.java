@@ -7,10 +7,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.exception.SceneSwitchException;
 
-import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.HOMECLIENT_FXML;
 
 public class MyWalletGUIController {
 

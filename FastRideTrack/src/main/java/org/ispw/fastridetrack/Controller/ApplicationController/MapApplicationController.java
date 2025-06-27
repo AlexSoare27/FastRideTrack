@@ -26,11 +26,11 @@ public class MapApplicationController {
 
         Map map = mapService.calculateRoute(mapRequestBean);
 
+        // Aggiorna tempo stimato nel bean
         mapRequestBean.setEstimatedTimeMinutes(map.getEstimatedTimeMinutes());
 
         return map;
     }
-
 }
 
 

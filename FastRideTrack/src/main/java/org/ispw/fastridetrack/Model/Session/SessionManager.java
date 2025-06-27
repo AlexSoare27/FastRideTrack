@@ -1,16 +1,15 @@
 package org.ispw.fastridetrack.model.session;
 
+import org.ispw.fastridetrack.dao.*;
 import org.ispw.fastridetrack.dao.adapter.EmailService;
 import org.ispw.fastridetrack.dao.adapter.GmailAdapter;
 import org.ispw.fastridetrack.dao.adapter.GoogleMapsAdapter;
 import org.ispw.fastridetrack.dao.adapter.MapService;
-import org.ispw.fastridetrack.dao.ClientDAO;
-import org.ispw.fastridetrack.dao.DriverDAO;
 import org.ispw.fastridetrack.dao.mysql.SingletonDBSession;
-import org.ispw.fastridetrack.dao.RideRequestDAO;
-import org.ispw.fastridetrack.dao.TaxiRideDAO;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.Driver;
+import org.ispw.fastridetrack.model.Ride;
+import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 
 public class SessionManager {
 
@@ -18,6 +17,7 @@ public class SessionManager {
     private final SessionFactory sessionFactory;
     private Client loggedClient;
     private Driver loggedDriver;
+    private final DriverSessionContext driverSessionContext;
 
     private SessionManager() {
         // Carico la configurazione dalla variabile d'ambiente
@@ -32,9 +32,12 @@ public class SessionManager {
             this.sessionFactory = new InMemorySessionFactory();
         }
 
-        // Adapter unificati per Gmail e GoogleMaps
+        // servizi esterni
         this.mapService = new GoogleMapsAdapter();
         this.emailService = new GmailAdapter();
+
+        // inizializzazione contesto temporaneo
+        this.driverSessionContext = new DriverSessionContext();
     }
 
 
@@ -59,9 +62,11 @@ public class SessionManager {
         return sessionFactory.createRideRequestDAO();
     }
 
-    public TaxiRideDAO getTaxiRideDAO() {
+    public TaxiRideConfirmationDAO getTaxiRideDAO() {
         return sessionFactory.createTaxiRideDAO();
     }
+
+    public RideDAO getRideDAO() { return sessionFactory.createRideDAO(); }
 
 
     // === CLIENT ===
@@ -82,11 +87,27 @@ public class SessionManager {
         this.loggedDriver = driver;
     }
 
+    public DriverSessionContext getDriverSessionContext() { return driverSessionContext; }
+
+    public void setDriverSessionContext(TaxiRideConfirmation confirmation, Ride ride) {
+        this.driverSessionContext.setCurrentConfirmation(confirmation);
+        this.driverSessionContext.setCurrentRide(ride);
+    }
+
+    public void setCurrentConfirmation(TaxiRideConfirmation confirmation) {
+        this.driverSessionContext.setCurrentConfirmation(confirmation);
+    }
+
+    public void setCurrentRide(Ride ride) {
+        this.driverSessionContext.setCurrentRide(ride);
+    }
+
     // === CLEAR SESSION ===
     public void clearSession() {
         System.out.println("Sessione utente terminata.");
         this.loggedClient = null;
         this.loggedDriver = null;
+        this.driverSessionContext.clear();
     }
 
     // === SERVIZI ESTERNI ===

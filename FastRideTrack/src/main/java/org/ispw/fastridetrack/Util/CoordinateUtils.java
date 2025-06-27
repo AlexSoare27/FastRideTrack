@@ -1,6 +1,6 @@
-package org.ispw.fastridetrack.Util;
+package org.ispw.fastridetrack.util;
 
-import org.ispw.fastridetrack.Bean.CoordinateBean;
+import org.ispw.fastridetrack.bean.CoordinateBean;
 
 public class CoordinateUtils {
 

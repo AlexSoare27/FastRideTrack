@@ -1,6 +1,6 @@
 package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.model.PaymentMethod;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.RideRequest;
 
 public class RideRequestBean {
@@ -28,6 +28,17 @@ public class RideRequestBean {
         this.driver = null;  // nessun driver assegnato all’inizio
     }
 
+    // Costruttore completo (es. ricostruzione da DB) con Bean come parametri
+    public RideRequestBean(Integer requestID, ClientBean client, String pickupLocation, String destination,
+                           Integer radiusKm, PaymentMethod paymentMethod, DriverBean driver) {
+        this.requestID = requestID;
+        this.client = client;
+        this.pickupLocation = pickupLocation;
+        this.destination = destination;
+        this.radiusKm = radiusKm;
+        this.paymentMethod = paymentMethod;
+        this.driver = driver;
+    }
 
     // Getter e setter
     public Integer getRequestID() {

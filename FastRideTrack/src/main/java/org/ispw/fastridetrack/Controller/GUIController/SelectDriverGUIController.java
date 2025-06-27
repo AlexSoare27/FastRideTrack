@@ -9,7 +9,6 @@ import javafx.event.ActionEvent;
 
 import org.ispw.fastridetrack.bean.*;
 import org.ispw.fastridetrack.controller.ApplicationFacade;
-import org.ispw.fastridetrack.controller.SceneNavigator;
 import org.ispw.fastridetrack.dao.adapter.GoogleMapsAdapter;
 import org.ispw.fastridetrack.exception.DatabaseConnectionException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
@@ -17,7 +16,7 @@ import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.util.TemporaryMemory;
 
-import static org.ispw.fastridetrack.util.ViewPath.SELECT_TAXI_FXML;
+import static org.ispw.fastridetrack.util.ViewPathFXML.SELECT_TAXI_FXML;
 
 public class SelectDriverGUIController {
 
@@ -27,6 +26,7 @@ public class SelectDriverGUIController {
     @FXML private Label estimatedFareLabel;
     @FXML private Label estimatedTimeLabel;
     @FXML private Button confirmButton;
+    @FXML private Button cancelButton;
     @FXML public Button goBackButton;
     @FXML private WebView mapView;
 
@@ -60,7 +60,7 @@ public class SelectDriverGUIController {
         // **Qui cambia: driver è DriverBean, non Model**
         DriverBean driver = taxiRideBean.getDriver();
         driverNameLabel.setText("Driver: " + driver.getName());
-        vehicleInfoLabel.setText("Vehicle Model: " + driver.getVehicleInfo());
+        vehicleInfoLabel.setText("Vehicle model: " + driver.getVehicleInfo());
         vehiclePlateLabel.setText("Vehicle Plate: " + driver.getVehiclePlate());
         // Mostra il prezzo stimato con due decimali
         if (taxiRideBean.getEstimatedFare() != null) {
@@ -97,6 +97,7 @@ public class SelectDriverGUIController {
 
         GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
 
+        // Prepara la richiesta mappa senza raggio (SelectDriver non usa raggio)
         MapRequestBean mapRequest = new MapRequestBean();
         mapRequest.setOrigin(origin);
         mapRequest.setDestination(destination);
@@ -164,7 +165,6 @@ public class SelectDriverGUIController {
                 taxiRideBean.getEstimatedFare(),
                 taxiRideBean.getEstimatedTime()
         );
-
         return new EmailBean(driver.getEmail(), subject, body);
     }
 
