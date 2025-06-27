@@ -28,6 +28,5 @@ public class RideRequestDAOInMemory implements RideRequestDAO {
     public void update(RideRequest rideRequest) {
         storage.put(rideRequest.getRequestId(), rideRequest);
     }
-
 }
 

@@ -3,10 +3,11 @@ package org.ispw.fastridetrack.controller.guicontroller;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import org.ispw.fastridetrack.bean.DriverBean;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.Client;
+import org.ispw.fastridetrack.session.SessionManager;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.*;
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class DriverNoPendingRideConfirmationGUI {
 
@@ -28,7 +29,7 @@ public class DriverNoPendingRideConfirmationGUI {
     }
 
     private void displayDriverUsername() {
-        DriverBean driver = facade.getSessionDataAC().getDriverBean();
+        DriverBean driver = DriverBean.fromModel(SessionManager.getInstance().getLoggedDriver());
         if (driver != null) {
             driverUsernameField.setText(driver.getUsername());
         }

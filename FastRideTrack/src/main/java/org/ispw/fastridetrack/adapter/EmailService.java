@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.adapter;
+package org.ispw.fastridetrack.adapter;
 
 import jakarta.mail.MessagingException;
 

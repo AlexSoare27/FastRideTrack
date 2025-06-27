@@ -5,16 +5,15 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.exception.SceneSwitchException;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMECLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
 
 public class MyWalletGUIController {
 
-    // Facade iniettata da SceneNavigator
-    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
+    // Facade iniettata intenzionalmente da SceneNavigator
+    @SuppressWarnings("java:S1104")
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade

@@ -86,14 +86,9 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
         return findById(rideID).isPresent();
     }
 
-    //@Override
-    public List<TaxiRideConfirmation> findByDriverIDandStatus(int driverID, RideConfirmationStatus status) {
-        return List.of();
-    }
-
-    //@Override
-    public List<TaxiRideConfirmation> findByDriverIDandStatus(String driverID, RideConfirmationStatus status) {
-        return List.of();
+    @Override
+    public Object findByDriverIDandStatus(int driverId, RideConfirmationStatus rideConfirmationStatus) {
+        return null;
     }
 
     private List<TaxiRideConfirmation> findAll() {

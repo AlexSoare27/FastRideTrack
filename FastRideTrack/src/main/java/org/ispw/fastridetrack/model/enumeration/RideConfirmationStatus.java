@@ -2,6 +2,6 @@ package org.ispw.fastridetrack.model.enumeration;
 
 public enum RideConfirmationStatus {
     PENDING,
-    REJECTED,
-    ACCEPTED
+    ACCEPTED,
+    REJECTED
 }

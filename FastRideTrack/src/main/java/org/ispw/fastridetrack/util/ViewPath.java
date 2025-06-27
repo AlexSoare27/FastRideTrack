@@ -1,7 +1,8 @@
 package org.ispw.fastridetrack.util;
 
-public class ViewPathFXML {
-    private ViewPathFXML() {
+public class ViewPath {
+
+    private ViewPath() {
         throw new UnsupportedOperationException("Utility class");
     }
 

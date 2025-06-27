@@ -7,7 +7,7 @@ import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.exception.RideConfirmationNotFoundException;
 import org.ispw.fastridetrack.model.Driver;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
 import java.util.Comparator;
@@ -57,7 +57,6 @@ public class RideConfirmationApplicationController {
             driver.setAvailable(false);
             driverDAO.updateAvailability(driverId, false);
             SessionManager.getInstance().setLoggedDriver(driver);
-            //sessionC.setDriverConfirmation(accepted.get());
 
             List<TaxiRideConfirmation> others = (List<TaxiRideConfirmation>) taxiRideConfirmationDAO.findByDriverIDandStatus(driverId, RideConfirmationStatus.PENDING);
             for (TaxiRideConfirmation r : others) {
@@ -68,8 +67,6 @@ public class RideConfirmationApplicationController {
             }
         }
     }
-
-
 
     /**
      * Rifiuta una richiesta specifica di conferma corsa.

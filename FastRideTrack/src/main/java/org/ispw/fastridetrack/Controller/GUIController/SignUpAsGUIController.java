@@ -1,11 +1,10 @@
 package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.fxml.FXML;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEPAGE_FXML;
-import static org.ispw.fastridetrack.util.ViewPathFXML.SIGNUPCLIENT_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.SIGNUPCLIENT_FXML;
 
 public class SignUpAsGUIController {
 

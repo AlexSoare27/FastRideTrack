@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.adapter;
+package org.ispw.fastridetrack.adapter;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -30,6 +30,7 @@ public class GmailAdapter implements EmailService {
         props.put("mail.smtp.port", "587");
 
         Session session = Session.getInstance(props, new Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, appPassword);
             }

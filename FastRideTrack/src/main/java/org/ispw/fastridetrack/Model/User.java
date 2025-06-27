@@ -2,7 +2,7 @@ package org.ispw.fastridetrack.model;
 
 import org.ispw.fastridetrack.model.enumeration.UserType;
 
-public abstract class User {
+public class User {
     private Integer userID;
     private String username;
     private String password;

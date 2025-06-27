@@ -3,7 +3,7 @@ package org.ispw.fastridetrack.controller.applicationcontroller;
 import org.ispw.fastridetrack.bean.RideRequestBean;
 import org.ispw.fastridetrack.dao.RideRequestDAO;
 import org.ispw.fastridetrack.model.RideRequest;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
 
 public class RideRequestApplicationController {
 

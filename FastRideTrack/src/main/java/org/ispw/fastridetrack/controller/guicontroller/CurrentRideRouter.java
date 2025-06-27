@@ -1,16 +1,10 @@
 package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.skin.SeparatorSkin;
-import org.ispw.fastridetrack.bean.DriverBean;
-import org.ispw.fastridetrack.bean.RideBean;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
 
-import java.util.Optional;
-
-import static org.ispw.fastridetrack.util.ViewPathFXML.*;
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class CurrentRideRouter {
 

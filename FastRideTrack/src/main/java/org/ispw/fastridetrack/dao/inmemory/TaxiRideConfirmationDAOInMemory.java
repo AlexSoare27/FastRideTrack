@@ -1,12 +1,11 @@
 package org.ispw.fastridetrack.dao.inmemory;
 
 import org.ispw.fastridetrack.dao.TaxiRideConfirmationDAO;
-import org.ispw.fastridetrack.exception.RideConfirmationNotFoundException;
+import org.ispw.fastridetrack.exception.RideNotFoundException;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
     public void update(TaxiRideConfirmation updatedRide) {
         int rideID = updatedRide.getRideID();
         if (!rides.containsKey(rideID)) {
-            throw new RideConfirmationNotFoundException(rideID);
+            throw new RideNotFoundException(rideID);
         }
         rides.put(rideID, updatedRide);
     }
@@ -38,8 +37,9 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
     }
 
     @Override
-    public List<TaxiRideConfirmation> findByDriverIDandStatus(int driverID, RideConfirmationStatus status) {
-        return List.of();
+    public Object findByDriverIDandStatus(int driverId, RideConfirmationStatus rideConfirmationStatus) {
+        return null;
     }
 }
+
 

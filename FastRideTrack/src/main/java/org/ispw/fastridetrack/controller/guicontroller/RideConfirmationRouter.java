@@ -1,17 +1,15 @@
 package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.scene.control.Alert;
-import org.ispw.fastridetrack.bean.RideBean;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.model.session.SessionManager;
-import org.ispw.fastridetrack.util.TemporaryMemory;
+import org.ispw.fastridetrack.model.TemporaryMemory;
+import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 
 import java.util.Optional;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.*;
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class RideConfirmationRouter {
 
@@ -23,7 +21,7 @@ public class RideConfirmationRouter {
 
     public void routeToNextConfirmationView() throws FXMLLoadException {
         SessionManager session = SessionManager.getInstance();
-        DriverBean driver = session.getLoggedDriver().toBean();
+        DriverBean driver = DriverBean.fromModel(session.getLoggedDriver());
         boolean isAcceptedConfirmation = session.getDriverSessionContext().hasPendingConfirmation();
         boolean isActiveRide = session.getDriverSessionContext().hasActiveRide();
         TaxiRideConfirmationBean acceptedConfirmation;

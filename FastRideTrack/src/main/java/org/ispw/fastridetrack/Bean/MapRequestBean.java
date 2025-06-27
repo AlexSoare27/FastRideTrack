@@ -1,5 +1,6 @@
 package org.ispw.fastridetrack.bean;
 
+
 public class MapRequestBean {
     private CoordinateBean origin;
     private String destination;
@@ -62,6 +63,7 @@ public class MapRequestBean {
                 '}';
     }
 }
+
 
 
 

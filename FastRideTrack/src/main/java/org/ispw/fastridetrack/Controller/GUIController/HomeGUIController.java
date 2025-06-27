@@ -10,17 +10,18 @@ import org.ispw.fastridetrack.bean.ClientBean;
 import org.ispw.fastridetrack.bean.MapRequestBean;
 import org.ispw.fastridetrack.bean.RideRequestBean;
 import org.ispw.fastridetrack.bean.CoordinateBean;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.model.TemporaryMemory;
+import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.util.*;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.*;
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class HomeGUIController implements Initializable {
 
@@ -35,8 +36,8 @@ public class HomeGUIController implements Initializable {
 
     private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
 
-    // Facade iniettata da SceneNavigator
-    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
+    // Facade iniettata intenzionalmente da SceneNavigator
+    @SuppressWarnings("java:S1104")
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade
@@ -46,19 +47,16 @@ public class HomeGUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (facade == null) {
-            facade = SceneNavigator.getFacade();
-        }
+        if (facade == null) facade = SceneNavigator.getFacade();
         showGPSAlert();
         initializeChoiceBox();
         displayUserName();
         restoreTemporaryData();
-        //loadMapWithDefaultLocation();
         loadCurrentLocationMap();
     }
 
     private void displayUserName() {
-        ClientBean client = facade.getSessionDataAC().getClientBean();
+        Client client = SessionManager.getInstance().getLoggedClient();
         if (client != null) {
             welcomeLabel.setText("Benvenuto, " + client.getName());
         }
@@ -88,7 +86,6 @@ public class HomeGUIController implements Initializable {
             if (rangeChoiceBox.getItems().contains(radiusStr)) {
                 rangeChoiceBox.setValue(radiusStr);
             }
-            // Se vuoi puoi anche aggiornare currentLocation in base a bean.getOrigin()
             if (bean.getOrigin() != null) {
                 currentLocation = bean.getOrigin();
             }
@@ -99,12 +96,8 @@ public class HomeGUIController implements Initializable {
         new Thread(() -> {
             try {
                 String ip = IPFetcher.getPublicIP();
-                System.out.println("IP pubblico: " + ip);
-
                 var coordModel = IPLocationService.getCoordinateFromIP(ip);
                 currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
-
-                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
 
                 Platform.runLater(() -> {
                     try {
@@ -164,7 +157,7 @@ public class HomeGUIController implements Initializable {
             return;
         }
 
-        ClientBean loggedClient = facade.getSessionDataAC().getClientBean();
+        Client loggedClient = SessionManager.getInstance().getLoggedClient();
         if (loggedClient == null) {
             showAlert("Sessione utente non valida. Effettua nuovamente il login.");
             SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
@@ -175,37 +168,35 @@ public class HomeGUIController implements Initializable {
                 ? currentLocation.getLatitude() + "," + currentLocation.getLongitude()
                 : "";
 
-        // Creo solo i Bean nel controller GUI
+        // Creo i Bean
         RideRequestBean rideRequestBean = new RideRequestBean(currentLocation, destination.trim(), radiusKm, PaymentMethod.CASH);
-        rideRequestBean.setRequestID(null);
-        rideRequestBean.setClient(loggedClient);
+        rideRequestBean.setClient(ClientBean.fromModel(loggedClient));
         rideRequestBean.setPickupLocation(pickupLocationStr);
         rideRequestBean.setDestination(destination.trim());
 
+        MapRequestBean mapRequestBean = new MapRequestBean(currentLocation, destination.trim(), radiusKm);
+
         try {
-            // Uso il facade per salvare la richiesta (con la conversione Model/Bean)
-            facade.getDriverMatchingAC().saveRideRequest(rideRequestBean);
+            // Uso il Facade per salvare la richiesta e ottenere la mappa
+            String html = facade.processRideRequestAndReturnMapHtml(rideRequestBean, mapRequestBean);
 
-            MapRequestBean mapRequestBean = new MapRequestBean(currentLocation, destination.trim(), radiusKm);
-
-            var map = facade.getMapAC().showMap(mapRequestBean);
-
-            if (map == null || map.getHtmlContent() == null || map.getHtmlContent().isBlank()) {
+            if (html == null || html.isBlank()) {
                 showAlert("Errore nel calcolo o visualizzazione del percorso.");
                 return;
             }
 
-            mapWebView.getEngine().loadContent(map.getHtmlContent());
+            mapWebView.getEngine().loadContent(html);
 
-            // Passo a SelectTaxi tramite SceneNavigator e salvo i dati temporanei
+            // Salvo i dati temporanei e navigo alla schermata successiva
             TemporaryMemory.getInstance().setMapRequestBean(mapRequestBean);
-            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Selezione Taxi");
+            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Seleziona Taxi");
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Errore durante l'elaborazione della richiesta.");
         }
     }
+
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -239,7 +230,6 @@ public class HomeGUIController implements Initializable {
         SceneNavigator.switchTo(HOMEPAGE_FXML, "Homepage");
     }
 }
-
 
 
 

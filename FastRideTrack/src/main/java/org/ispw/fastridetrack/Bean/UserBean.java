@@ -2,7 +2,7 @@ package org.ispw.fastridetrack.bean;
 
 import org.ispw.fastridetrack.model.enumeration.UserType;
 
-public abstract class UserBean {
+public class UserBean {
 
     private String username;
     private String password;
@@ -14,13 +14,7 @@ public abstract class UserBean {
     private double latitude;
     private double longitude;
 
-    // Costruttore senza posizione
-    public UserBean(String username, String password, UserType userType, int userID,
-                    String name, String email, String phoneNumber) {
-        this(username, password, userType, userID, name, email, phoneNumber, 0.0, 0.0);
-    }
-
-    // Costruttore completo
+    @SuppressWarnings("java:S107")
     public UserBean(String username, String password, UserType userType, Integer userID,
                     String name, String email, String phoneNumber, double latitude, double longitude) {
         this.username = username;

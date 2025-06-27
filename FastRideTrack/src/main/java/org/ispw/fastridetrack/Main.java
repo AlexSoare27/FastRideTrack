@@ -2,12 +2,12 @@ package org.ispw.fastridetrack;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.controller.clicontroller.DriverCLIController;
+import org.ispw.fastridetrack.controller.guicontroller.ApplicationFacade;
 import org.ispw.fastridetrack.controller.guicontroller.SceneNavigator;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
 
 public class Main extends Application {
 
@@ -32,17 +32,16 @@ public class Main extends Application {
         boolean useCli = useCliEnv != null && useCliEnv.equalsIgnoreCase("true");
         if (useCli) {
             System.out.println("Using CLI");
-            try{
+            try {
+                SessionManager.init();
                 DriverCLIController driverCLIController = new DriverCLIController();
                 driverCLIController.start();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
-            }
-            finally {
+            } finally {
                 SessionManager.getInstance().shutdown();
             }
-        }else{
+        } else{
             System.out.println("Using GUI");
             launch(args);
         }

@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.model.session;
+package org.ispw.fastridetrack.session;
 
 import org.ispw.fastridetrack.dao.*;
 

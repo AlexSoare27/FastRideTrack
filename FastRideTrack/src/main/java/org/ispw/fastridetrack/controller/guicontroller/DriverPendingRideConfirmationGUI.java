@@ -8,13 +8,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
+import org.ispw.fastridetrack.model.TemporaryMemory;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
-import org.ispw.fastridetrack.util.TemporaryMemory;
+import org.ispw.fastridetrack.session.SessionManager;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.*;
+import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class DriverPendingRideConfirmationGUI {
 
@@ -50,7 +50,7 @@ public class DriverPendingRideConfirmationGUI {
     }
 
     private void displayDriverUsername() {
-        DriverBean driver = facade.getSessionDataAC().getDriverBean();
+        DriverBean driver = DriverBean.fromModel(SessionManager.getInstance().getLoggedDriver());
         if (driver != null) {
             driverUsernameField.setText(driver.getUsername());
         }

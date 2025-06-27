@@ -4,7 +4,7 @@ import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.dao.RideDAO;
 import org.ispw.fastridetrack.model.Ride;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.model.enumeration.RideStatus;
 
 import java.time.LocalDateTime;

@@ -5,10 +5,6 @@ public class AvailableDriverBean extends DriverBean {
     private double estimatedTime;   // Tempo stimato in minuti
     private double estimatedPrice;  // Prezzo stimato in valuta
 
-    /**
-     * Costruttore che prende un DriverBean esistente e aggiunge tempo e prezzo stimati.
-     * Passa tutti i dati a DriverBean incluso il campo available.
-     */
     public AvailableDriverBean(DriverBean driverBean, double estimatedTime, double estimatedPrice) {
         super(
                 driverBean.getUsername(),
@@ -30,10 +26,6 @@ public class AvailableDriverBean extends DriverBean {
 
     public double getEstimatedTime() {
         return estimatedTime;
-    }
-
-    public void setEstimatedTime(float estimatedTime) {
-        this.estimatedTime = estimatedTime;
     }
 
     public double getEstimatedPrice() {

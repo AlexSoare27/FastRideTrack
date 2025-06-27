@@ -1,14 +1,15 @@
 package org.ispw.fastridetrack.controller.applicationcontroller;
 
 import org.ispw.fastridetrack.bean.*;
-import org.ispw.fastridetrack.exception.DriverDAOException;
-import org.ispw.fastridetrack.exception.RideRequestSaveException;
-import org.ispw.fastridetrack.model.Driver;
 import org.ispw.fastridetrack.dao.DriverDAO;
 import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Coordinate;
+import org.ispw.fastridetrack.model.Driver;
 import org.ispw.fastridetrack.model.RideRequest;
-import org.ispw.fastridetrack.model.session.SessionManager;
+import org.ispw.fastridetrack.session.SessionManager;
+import org.ispw.fastridetrack.exception.RideRequestSaveException;
+
 
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +55,6 @@ public class DriverMatchingApplicationController {
 
     }
 
-
     // Salvo una nuova richiesta di corsa a partire dal bean.
     public RideRequestBean saveRideRequest(RideRequestBean rideRequestBean) {
         Objects.requireNonNull(rideRequestBean, "RideRequestBean non può essere nullo");
@@ -62,7 +62,7 @@ public class DriverMatchingApplicationController {
         // Conversione: Bean → Model
         RideRequest model = rideRequestBean.toModel();
 
-        // Salvataggio nel dao (Model)
+        // Salvataggio nel DAO (Model)
         RideRequest savedModel = rideRequestDAO.save(model);
 
         if (savedModel == null) {

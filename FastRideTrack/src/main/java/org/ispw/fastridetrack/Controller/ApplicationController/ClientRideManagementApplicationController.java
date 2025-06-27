@@ -3,13 +3,11 @@ package org.ispw.fastridetrack.controller.applicationcontroller;
 import jakarta.mail.MessagingException;
 import org.ispw.fastridetrack.bean.EmailBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.dao.adapter.EmailService;
-import org.ispw.fastridetrack.dao.adapter.GmailAdapter;
 import org.ispw.fastridetrack.dao.TaxiRideConfirmationDAO;
-import org.ispw.fastridetrack.exception.RideConfirmationNotFoundException;
-import org.ispw.fastridetrack.model.session.SessionManager;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
-
+import org.ispw.fastridetrack.session.SessionManager;
+import org.ispw.fastridetrack.adapter.EmailService;
+import org.ispw.fastridetrack.adapter.GmailAdapter;
 
 public class ClientRideManagementApplicationController {
 
@@ -22,24 +20,8 @@ public class ClientRideManagementApplicationController {
         this.emailService = new GmailAdapter();
     }
 
-    /**
-     * Recupera i dati di conferma corsa a partire dall'ID.
-     * @param rideID identificativo della corsa
-     * @return TaxiRideConfirmationBean
-     * @throws RideConfirmationNotFoundException se la corsa non esiste
-     */
-    public TaxiRideConfirmationBean viewRideConfirmation(int rideID) {
-        TaxiRideConfirmation model = taxiRideConfirmationDAO.findById(rideID)
-                .orElseThrow(() -> new RideConfirmationNotFoundException(rideID));
-        return TaxiRideConfirmationBean.fromModel(model);
-    }
 
-    /**
-     * Conferma una corsa e invia una notifica al driver via email.
-     * @param bean Bean contenente i dati della corsa confermata
-     * @param email EmailBean con i dettagli della notifica
-     * @throws MessagingException se si verifica un errore nell'invio della mail
-     */
+    //Confermo una corsa e invio una notifica al driver via email.
     public void confirmRideAndNotify(TaxiRideConfirmationBean bean, EmailBean email) throws MessagingException {
         bean.markPending();
 
@@ -55,5 +37,6 @@ public class ClientRideManagementApplicationController {
         // Invio notifica al driver
         emailService.sendEmail(email.getRecipient(), email.getSubject(), email.getBody());
     }
-
 }
+
+

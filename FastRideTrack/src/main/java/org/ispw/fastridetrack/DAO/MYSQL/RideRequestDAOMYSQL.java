@@ -2,6 +2,7 @@ package org.ispw.fastridetrack.dao.mysql;
 
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.RideRequestDAO;
+import org.ispw.fastridetrack.exception.RideRequestPersistenceException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.RideRequest;
 
@@ -35,13 +36,17 @@ public class RideRequestDAOMYSQL implements RideRequestDAO {
             }
             return request;
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il salvataggio della RideRequest", e);
+            throw new RideRequestPersistenceException("Errore durante il salvataggio della RideRequest", e);
         }
     }
 
     @Override
     public RideRequest findById(int requestID) {
-        String query = "SELECT * FROM ride_request WHERE requestID = ?";
+        String query = """
+            SELECT requestID, clientID, pickupLocation, destination
+            FROM ride_request
+            WHERE requestID = ?
+            """;
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, requestID);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -57,17 +62,18 @@ public class RideRequestDAOMYSQL implements RideRequestDAO {
                             client,
                             pickup,
                             destination,
-                            0, // radiusKm non gestito
-                            null, // paymentMethod non gestito
-                            null  // driver non gestito
+                            0,       // radiusKm non gestito
+                            null,    // paymentMethod non gestito
+                            null     // driver non gestito
                     );
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante il recupero della RideRequest", e);
+            throw new RideRequestPersistenceException("Errore durante il recupero della RideRequest", e);
         }
         return null;
     }
+
 
     @Override
     public void update(RideRequest request) {
@@ -80,12 +86,13 @@ public class RideRequestDAOMYSQL implements RideRequestDAO {
 
             int rows = stmt.executeUpdate();
             if (rows == 0) {
-                throw new RuntimeException("Nessun aggiornamento effettuato per requestID " + request.getRequestId());
+                throw new RideRequestPersistenceException("Nessun aggiornamento effettuato per requestID " + request.getRequestId());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante l'aggiornamento della RideRequest", e);
+            throw new RideRequestPersistenceException("Errore durante l'aggiornamento della RideRequest", e);
         }
     }
 }
+
 
 

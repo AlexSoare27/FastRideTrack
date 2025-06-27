@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.adapter;
+package org.ispw.fastridetrack.adapter;
 
 import com.google.gson.*;
 import org.ispw.fastridetrack.bean.CoordinateBean;
@@ -8,7 +8,6 @@ import org.ispw.fastridetrack.model.Map;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -115,7 +114,6 @@ public class GoogleMapsAdapter implements MapService {
                     URLEncoder.encode(latlngParam, StandardCharsets.UTF_8) +
                     "&key=" + API_KEY;
 
-            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -152,8 +150,56 @@ public class GoogleMapsAdapter implements MapService {
 
     @Override
     public CoordinateBean geocodeAddress(String address) throws MapServiceException {
-        return null;
+        if (API_KEY == null || API_KEY.isBlank()) {
+            throw new MapServiceException("Google Maps API key non configurata");
+        }
+
+        try {
+            String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8);
+            String url = "https://maps.googleapis.com/maps/api/geocode/json?address="
+                    + encodedAddress + "&key=" + API_KEY;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                String status = json.get(STATUS_FIELD).getAsString();
+
+                if ("OK".equals(status)) {
+                    JsonArray results = json.getAsJsonArray("results");
+                    if (results.size() > 0) {
+                        JsonObject location = results.get(0)
+                                .getAsJsonObject()
+                                .getAsJsonObject("geometry")
+                                .getAsJsonObject("location");
+
+                        double lat = location.get("lat").getAsDouble();
+                        double lng = location.get("lng").getAsDouble();
+
+                        return new CoordinateBean(lat, lng);
+                    } else {
+                        throw new MapServiceException("Nessun risultato trovato per l'indirizzo");
+                    }
+                } else {
+                    throw new MapServiceException("Errore API Geocoding: " + status);
+                }
+            } else {
+                throw new MapServiceException("Errore HTTP Geocoding: " + response.statusCode());
+            }
+
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new MapServiceException("Operazione interrotta durante il geocoding", ie);
+        } catch (Exception e) {
+            throw new MapServiceException("Errore durante il geocoding", e);
+        }
     }
+
 }
 
 

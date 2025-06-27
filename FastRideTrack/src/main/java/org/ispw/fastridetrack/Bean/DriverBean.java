@@ -9,9 +9,9 @@ public class DriverBean extends UserBean {
     private final String vehicleInfo;
     private final String vehiclePlate;
     private final String affiliation;
-    private final Boolean available;
+    private final boolean available;
 
-
+    @SuppressWarnings("java:S107")
     public DriverBean(String username, String password, int userID, String name,
                       String email, String phoneNumber,
                       double latitude, double longitude,
@@ -23,7 +23,7 @@ public class DriverBean extends UserBean {
         this.affiliation = affiliation;
         this.available = available;
     }
-
+    @SuppressWarnings("java:S107")
     public DriverBean(String username, String password, int userID, String name,
                       String email, String phoneNumber,
                       CoordinateBean coordinate,
@@ -40,33 +40,21 @@ public class DriverBean extends UserBean {
         return vehicleInfo;
     }
 
-    /*public void setVehicleInfo(String vehicleInfo) {
-        this.vehicleInfo = vehicleInfo;
-    }*/
 
     public String getVehiclePlate() {
         return vehiclePlate;
     }
 
-    /*public void setVehiclePlate(String vehiclePlate) {
-        this.vehiclePlate = vehiclePlate;
-    }*/
 
     public String getAffiliation() {
         return affiliation;
     }
 
-    /*public void setAffiliation(String affiliation) {
-        this.affiliation = affiliation;
-    }*/
 
     public boolean isAvailable() {
         return available;
     }
 
-    /*public void setAvailable(boolean available) {
-        this.available = available;
-    }*/
 
     public static DriverBean fromModel(Driver driver) {
         if (driver == null) return null;

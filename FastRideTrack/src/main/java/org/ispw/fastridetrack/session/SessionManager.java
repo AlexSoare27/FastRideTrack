@@ -1,10 +1,11 @@
-package org.ispw.fastridetrack.model.session;
+package org.ispw.fastridetrack.session;
 
+import org.ispw.fastridetrack.adapter.EmailService;
+import org.ispw.fastridetrack.adapter.GmailAdapter;
+import org.ispw.fastridetrack.adapter.GoogleMapsAdapter;
+import org.ispw.fastridetrack.adapter.MapService;
+import org.ispw.fastridetrack.controller.applicationcontroller.DriverMatchingApplicationController;
 import org.ispw.fastridetrack.dao.*;
-import org.ispw.fastridetrack.dao.adapter.EmailService;
-import org.ispw.fastridetrack.dao.adapter.GmailAdapter;
-import org.ispw.fastridetrack.dao.adapter.GoogleMapsAdapter;
-import org.ispw.fastridetrack.dao.adapter.MapService;
 import org.ispw.fastridetrack.dao.mysql.SingletonDBSession;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.Driver;
@@ -17,7 +18,7 @@ public class SessionManager {
     private final SessionFactory sessionFactory;
     private Client loggedClient;
     private Driver loggedDriver;
-    private final DriverSessionContext driverSessionContext;
+    private DriverSessionContext driverSessionContext;
 
     private SessionManager() {
         // Carico la configurazione dalla variabile d'ambiente
@@ -32,11 +33,11 @@ public class SessionManager {
             this.sessionFactory = new InMemorySessionFactory();
         }
 
-        // servizi esterni
+        // Adapter unificati per Gmail e GoogleMaps
         this.mapService = new GoogleMapsAdapter();
         this.emailService = new GmailAdapter();
 
-        // inizializzazione contesto temporaneo
+        //Inizializzazione contesto temporaneo
         this.driverSessionContext = new DriverSessionContext();
     }
 
@@ -66,8 +67,7 @@ public class SessionManager {
         return sessionFactory.createTaxiRideDAO();
     }
 
-    public RideDAO getRideDAO() { return sessionFactory.createRideDAO(); }
-
+    public RideDAO getRideDAO() {return sessionFactory.createRideDAO();}
 
     // === CLIENT ===
     public Client getLoggedClient() {
@@ -107,7 +107,6 @@ public class SessionManager {
         System.out.println("Sessione utente terminata.");
         this.loggedClient = null;
         this.loggedDriver = null;
-        this.driverSessionContext.clear();
     }
 
     // === SERVIZI ESTERNI ===

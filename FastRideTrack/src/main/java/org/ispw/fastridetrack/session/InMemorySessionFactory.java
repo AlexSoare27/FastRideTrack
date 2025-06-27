@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.model.session;
+package org.ispw.fastridetrack.session;
 
 import org.ispw.fastridetrack.dao.*;
 import org.ispw.fastridetrack.dao.inmemory.*;
@@ -28,7 +28,6 @@ public class InMemorySessionFactory implements SessionFactory {
     @Override
     public RideDAO createRideDAO() {
         return null;
-        //return new RideDAOInMemory();
     }
 }
 

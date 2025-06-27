@@ -1,13 +1,8 @@
-package org.ispw.fastridetrack.model.session;
-
+package org.ispw.fastridetrack.session;
 
 import org.ispw.fastridetrack.model.Ride;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 
-/**
- * Contesto temporaneo legato alla sessione del driver autenticato.
- * Contiene lo stato della conferma accettata e del viaggio in corso.
- */
 public class DriverSessionContext {
 
     private TaxiRideConfirmation currentConfirmation;

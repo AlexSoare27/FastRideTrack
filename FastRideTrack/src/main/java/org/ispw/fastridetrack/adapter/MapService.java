@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.dao.adapter;
+package org.ispw.fastridetrack.adapter;
 
 import org.ispw.fastridetrack.bean.CoordinateBean;
 import org.ispw.fastridetrack.bean.MapRequestBean;

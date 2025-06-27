@@ -1,6 +1,5 @@
 package org.ispw.fastridetrack.model;
 
-import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.model.enumeration.UserType;
 
 public class Driver extends User {
@@ -10,7 +9,7 @@ public class Driver extends User {
     private String affiliation;
     private boolean available;
 
-
+    @SuppressWarnings("java:S107")
     public Driver(Integer userID, String username, String password, String name, String email,
                   String phoneNumber, Coordinate coordinate, String vehicleInfo, String vehiclePlate, String affiliation, boolean available) {
         super(userID, username, password, name, email, phoneNumber, UserType.DRIVER);
@@ -23,7 +22,7 @@ public class Driver extends User {
             setLongitude(coordinate.getLongitude());
         }
     }
-
+    @SuppressWarnings("java:S107")
     public Driver(int userID, String username, String password, String name, String email, String phoneNumber,
                   double latitude, double longitude, String vehicleInfo, String vehiclePlate, String affiliation, boolean available) {
         super(userID, username, password, name, email, phoneNumber, UserType.DRIVER);
@@ -35,20 +34,7 @@ public class Driver extends User {
         this.available = available;
     }
 
-    //Costruttore da Bean
-    public Driver(DriverBean driverBean) {
-        super(driverBean.getUserID(), driverBean.getUsername(), driverBean.getPassword(), driverBean.getName(), driverBean.getEmail(), driverBean.getPhoneNumber(), UserType.DRIVER);
-        this.vehicleInfo = driverBean.getVehicleInfo();
-        this.vehiclePlate = driverBean.getVehiclePlate();
-        this.affiliation = driverBean.getAffiliation();
-        this.available = driverBean.isAvailable();
-        setLatitude(driverBean.getLatitude());
-        setLongitude(driverBean.getLongitude());
-    }
 
-    public DriverBean toBean(){
-        return new DriverBean(super.getUsername(),super.getPassword(), super.getUserID(), super.getName(), super.getEmail(), super.getPhoneNumber(), super.getLatitude(),super.getLongitude(), this.vehicleInfo, this.vehiclePlate, this.affiliation, this.available);
-    }
 
     public String getVehicleInfo() {
         return vehicleInfo;

@@ -6,7 +6,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 
 
@@ -14,8 +13,8 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.SIGNIN_FXML;
-import static org.ispw.fastridetrack.util.ViewPathFXML.SIGNUPAS_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.SIGNIN_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.SIGNUPAS_FXML;
 
 public class HomepageGUIController implements Initializable {
 
@@ -23,8 +22,8 @@ public class HomepageGUIController implements Initializable {
     @FXML public Button signUpButton;
     @FXML private ImageView imageView;
 
-    // Facade iniettata da SceneNavigator
-    @SuppressWarnings("java:S1104") // Field injection is intentional for SceneNavigator
+    // Facade iniettata intenzionalmente da SceneNavigator
+    @SuppressWarnings("java:S1104")
     private ApplicationFacade facade;
 
     // Setter usato da SceneNavigator per iniettare il facade

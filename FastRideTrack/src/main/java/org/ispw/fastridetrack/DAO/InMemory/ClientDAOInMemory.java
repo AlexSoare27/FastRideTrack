@@ -49,11 +49,7 @@ public class ClientDAOInMemory implements ClientDAO {
         }
         return null;
     }
-
-    // Metodo per eliminare un cliente
-    public void delete(String username) {
-        clients.remove(username);
-    }
 }
+
 
 

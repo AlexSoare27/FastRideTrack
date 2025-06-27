@@ -4,13 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.ispw.fastridetrack.controller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.model.enumeration.UserType;
 
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEPAGE_FXML;
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMECLIENT_FXML;
-import static org.ispw.fastridetrack.util.ViewPathFXML.HOMEDRIVER_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMEPAGE_FXML;
+import static org.ispw.fastridetrack.util.ViewPath.HOMECLIENT_FXML;
 
 public class SignInGUIController {
 
@@ -31,7 +29,6 @@ public class SignInGUIController {
     private void onNextClick() {
         String username = usernameField.getText();
         String password = passwordField.getText();
-        UserType user;
 
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             showErrorAlert("Dati mancanti", "Inserisci username e password.");
@@ -39,15 +36,13 @@ public class SignInGUIController {
         }
 
         try {
-            boolean success = facade.validateUserCredentials(username, password);
-
+            boolean success = facade.login(username, password);
             if (success) {
-                user = facade.getLoggedUserType();
-                if(user == UserType.CLIENT){
+                UserType userType = facade.getLoggedUserType();
+                if (userType == UserType.CLIENT) {
                     SceneNavigator.switchTo(HOMECLIENT_FXML, "Home Client");
-                }
-                else if (user == UserType.DRIVER) {
-                    SceneNavigator.switchTo(HOMEDRIVER_FXML, "Home Driver");
+                } else if (userType == UserType.DRIVER) {
+                    SceneNavigator.switchTo("/org/ispw/fastridetrack/views/DriverHome.fxml", "Home Driver");
                 }
             } else {
                 showErrorAlert("Login Fallito", "Credenziali errate. Riprova.");
@@ -57,6 +52,7 @@ public class SignInGUIController {
             showErrorAlert("Errore di connessione", "Impossibile connettersi al database:\n" + e.getMessage());
         }
     }
+
 
     @FXML
     private void onHomepageClick() throws FXMLLoadException {

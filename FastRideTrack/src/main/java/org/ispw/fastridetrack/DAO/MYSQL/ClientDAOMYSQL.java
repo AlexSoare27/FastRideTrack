@@ -59,7 +59,6 @@ public class ClientDAOMYSQL implements ClientDAO {
         return null;
     }
 
-
     @Override
     public Client retrieveClientByUsernameAndPassword(String username, String password) {
         String sql = "SELECT userID, username, password, name, email, phoneNumber, paymentMethod, latitude, longitude " +
@@ -77,6 +76,7 @@ public class ClientDAOMYSQL implements ClientDAO {
         }
         return null;
     }
+
 
     // Metodo privato di supporto per evitare duplicazione codice
     private Client extractClientFromResultSet(ResultSet rs) throws SQLException {

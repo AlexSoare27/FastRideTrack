@@ -1,4 +1,4 @@
-package org.ispw.fastridetrack.model.session;
+package org.ispw.fastridetrack.session;
 
 import org.ispw.fastridetrack.dao.*;
 import org.ispw.fastridetrack.dao.mysql.*;
@@ -37,7 +37,7 @@ public class PersistenceSessionFactory implements SessionFactory {
 
     @Override
     public RideDAO createRideDAO() {
-        return new RideDAOMYSQL(dbSession.getConnection());
+        return new  RideDAOMYSQL(dbSession.getConnection());
     }
 }
 
