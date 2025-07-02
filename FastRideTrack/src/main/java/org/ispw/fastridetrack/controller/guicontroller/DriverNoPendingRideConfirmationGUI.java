@@ -1,7 +1,7 @@
 package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
@@ -11,8 +11,7 @@ import static org.ispw.fastridetrack.util.ViewPath.*;
 
 public class DriverNoPendingRideConfirmationGUI {
 
-    @FXML
-    TextField driverUsernameField;
+    @FXML Label driverUsernameField;
 
     private ApplicationFacade facade;
 
@@ -31,7 +30,7 @@ public class DriverNoPendingRideConfirmationGUI {
     private void displayDriverUsername() {
         DriverBean driver = DriverBean.fromModel(SessionManager.getInstance().getLoggedDriver());
         if (driver != null) {
-            driverUsernameField.setText(driver.getUsername());
+            driverUsernameField.setText(driver.getName());
         }
     }
 
@@ -42,7 +41,8 @@ public class DriverNoPendingRideConfirmationGUI {
 
     @FXML
     public void onCurrentRide()throws FXMLLoadException{
-
+        CurrentRideRouter currentRideRouter = new CurrentRideRouter();
+        currentRideRouter.manageCurrentRideView();
     }
 
     public void tryNewConfirmation() throws FXMLLoadException{

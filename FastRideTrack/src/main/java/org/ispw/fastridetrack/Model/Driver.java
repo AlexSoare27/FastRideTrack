@@ -1,5 +1,6 @@
 package org.ispw.fastridetrack.model;
 
+import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.model.enumeration.UserType;
 
 public class Driver extends User {

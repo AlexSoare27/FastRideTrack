@@ -20,6 +20,7 @@ public class ClientRideManagementApplicationController {
         this.emailService = new GmailAdapter();
     }
 
+
     //Confermo una corsa e invio una notifica al driver via email.
     public void confirmRideAndNotify(TaxiRideConfirmationBean bean, EmailBean email) throws MessagingException {
         bean.markPending();
@@ -38,5 +39,3 @@ public class ClientRideManagementApplicationController {
     }
 
 }
-
-

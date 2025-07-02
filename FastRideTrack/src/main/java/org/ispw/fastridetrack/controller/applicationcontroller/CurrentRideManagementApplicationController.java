@@ -1,13 +1,17 @@
 package org.ispw.fastridetrack.controller.applicationcontroller;
 
+import org.ispw.fastridetrack.bean.LocationBean;
+import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.dao.RideDAO;
-import org.ispw.fastridetrack.model.Ride;
-import org.ispw.fastridetrack.model.TaxiRideConfirmation;
+import org.ispw.fastridetrack.exception.ClientNotFetchedException;
+import org.ispw.fastridetrack.model.Location;
 import org.ispw.fastridetrack.session.SessionManager;
+import org.ispw.fastridetrack.model.Ride;
 import org.ispw.fastridetrack.model.enumeration.RideStatus;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class CurrentRideManagementApplicationController {
 
@@ -17,62 +21,79 @@ public class CurrentRideManagementApplicationController {
         this.rideDAO = SessionManager.getInstance().getRideDAO();
     }
 
-    public void initializeCurrentRide(TaxiRideConfirmationBean confirmationBean) {
-        TaxiRideConfirmation confirmation  = confirmationBean.toModel();
+    public RideBean initializeCurrentRide(TaxiRideConfirmationBean confirmationBean) {
         Ride ride = new Ride(
-                confirmation.getRideID(),
-                confirmation.getClient(),
-                confirmation.getDriver(),
-                confirmation.getDestination(),
+                confirmationBean.getRideID(),
+                confirmationBean.getClient().toModel(),
+                confirmationBean.getDriver().toModel(),
+                confirmationBean.getDestination(),
                 LocalDateTime.now(),
                 null,
                 null,
+                false,
                 RideStatus.INITIATED
         );
-        SessionManager.getInstance().setCurrentRide(ride);
         rideDAO.save(ride);
+        return RideBean.fromModel(ride);
     }
 
-    public void confirmClientLocated() {
-        Ride ride = getCurrentRideOrFail();
-        if (ride.getStatus() != RideStatus.INITIATED) {
-            throw new IllegalStateException("Il cliente non può essere localizzato. ");
+    public RideBean markClientLocated(RideBean rideBean) {
+        if (!verifyRideExists(rideBean.getRideID())) {
+            throw new IllegalStateException("The current ride does not exist.");
         }
-        ride.setStatus(RideStatus.CLIENT_LOCATED);
+        Ride ride = rideBean.toModel();
+        ride.markClientFound();
         rideDAO.update(ride);
+        return RideBean.fromModel(ride);
     }
 
-    public void startRide() {
-        Ride ride = getCurrentRideOrFail();
-        if (ride.getStatus() != RideStatus.CLIENT_LOCATED) {
-            throw new IllegalStateException("La corsa può iniziare solo se il cliente è stato localizzato.");
+    public RideBean startRide(RideBean rideBean) throws ClientNotFetchedException {
+        if (!verifyRideExists(rideBean.getRideID())) {
+            throw new IllegalStateException("The current ride does not exist.");
         }
-        ride.setStatus(RideStatus.ONGOING);
-        ride.setStartTime(LocalDateTime.now());
+        if(!checkClientFetched(rideBean)){
+            throw new ClientNotFetchedException("Client not yet fetched.");
+        }
+        Ride ride = rideBean.toModel();
+        ride.startRide();
         rideDAO.update(ride);
+        return RideBean.fromModel(ride);
     }
 
-    public void finishRide() {
-        Ride ride = getCurrentRideOrFail();
-        if (ride.getStatus() != RideStatus.ONGOING) {
-            throw new IllegalStateException("La corsa può essere completata solo se è in corso.");
+    public boolean checkClientFetched(RideBean rideBean) {
+        Optional<Ride> optionalRide = rideDAO.findById(rideBean.getRideID());
+        if (optionalRide.isPresent()) {
+            return optionalRide.get().isClientFetched();
+        } else {
+            // Gestisci il caso in cui la corsa non esiste, ad esempio:
+            throw new IllegalStateException("La corsa non esiste o è stata rimossa.");
         }
-        ride.setStatus(RideStatus.FINISHED);
-        ride.setEndTime(LocalDateTime.now());
-        //ride.setTotalFare(calculateFare(ride));
+    }
+
+    public RideBean finishRide(RideBean rideBean, Double totalFare) {
+        if (!verifyRideExists(rideBean.getRideID())) {
+            throw new IllegalStateException("The current ride does not exist.");
+        }
+        Ride ride = rideBean.toModel();
+        ride.finishRide(totalFare);
         rideDAO.update(ride);
+        return RideBean.fromModel(ride);
     }
 
-    private Ride getCurrentRideOrFail() throws IllegalStateException {
-        Ride ride = SessionManager.getInstance().getDriverSessionContext().getCurrentRide();
-        if (ride == null) {
-            throw new IllegalStateException("Nessuna corsa attiva nella sessione.");
-        }
-        return ride;
+    public boolean verifyRideExists(int rideID) {
+        return rideDAO.exists(rideID);
     }
 
-    private double calculateFare(Ride ride) {
-        // Logica di esempio
-        return 15.0;
+    public LocationBean getStartPoint(RideBean rideBean) {
+        Ride ride = rideBean.toModel();
+        Location start = ride.getMapStartPoint();
+        return LocationBean.fromModel(start);
     }
+
+    public LocationBean getEndPoint(RideBean rideBean) {
+        Ride ride = rideBean.toModel();
+        Location end = ride.getMapEndPoint();
+        return LocationBean.fromModel(end);
+    }
+
 }

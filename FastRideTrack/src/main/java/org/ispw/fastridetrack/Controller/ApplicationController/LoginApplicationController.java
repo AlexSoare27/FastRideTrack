@@ -1,27 +1,32 @@
 package org.ispw.fastridetrack.controller.applicationcontroller;
 
+import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.exception.ClientDAOException;
 import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.model.Client;
 import org.ispw.fastridetrack.model.Driver;
+import org.ispw.fastridetrack.model.Ride;
 import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.model.enumeration.UserType;
 import org.ispw.fastridetrack.dao.ClientDAO;
 import org.ispw.fastridetrack.dao.DriverDAO;
+import org.ispw.fastridetrack.dao.RideDAO;
+
+import java.util.Optional;
 
 public class LoginApplicationController {
 
     private final ClientDAO clientDAO;
     private final DriverDAO driverDAO;
+    private final RideDAO rideDAO;
 
     public LoginApplicationController() {
-        // Inizializzo il SessionManager (solo se non già inizializzato)
         SessionManager.init();
 
-        // Ottengo i DAO dalla SessionFactory corretta (persistente o in-memory)
         SessionManager sessionManager = SessionManager.getInstance();
         this.clientDAO = sessionManager.getClientDAO();
         this.driverDAO = sessionManager.getDriverDAO();
+        this.rideDAO = sessionManager.getRideDAO();
     }
 
     // Validazione credenziali per il client
@@ -39,6 +44,14 @@ public class LoginApplicationController {
         return true;
     }
 
+    public RideBean loadPossibleActiveRide(int driverID){
+        Optional<Ride> existingRide = rideDAO.findActiveRideByDriver(driverID);
+        if (existingRide.isPresent()) {
+            Ride ride = existingRide.get();
+            return RideBean.fromModel(ride);
+        }
+        return null;
+    }
 
     // Validazione credenziali per il driver
     public boolean validateDriverCredentials(String username, String password, UserType userType) throws DriverDAOException{
@@ -52,6 +65,7 @@ public class LoginApplicationController {
         }
 
         SessionManager.getInstance().setLoggedDriver(driver);
+        loadPossibleActiveRide(driver.getUserID());
         return true;
     }
 

@@ -3,6 +3,7 @@ package org.ispw.fastridetrack.dao;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TaxiRideConfirmationDAO {
@@ -10,7 +11,8 @@ public interface TaxiRideConfirmationDAO {
     Optional<TaxiRideConfirmation> findById(int rideID);
     void update(TaxiRideConfirmation ride);
     boolean exists(int rideID);
-    Object findByDriverIDandStatus(int driverId, RideConfirmationStatus rideConfirmationStatus);
+
+    List<TaxiRideConfirmation> findByDriverIDandStatus(int driverID, RideConfirmationStatus status);
 }
 
 //Nota: Optional<TaxiRideConfirmation> indica un ritorno facoltativo,

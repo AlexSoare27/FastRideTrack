@@ -11,14 +11,13 @@ import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDAO {
 
     private static final String FILE_PATH = "src/data/taxi_rides.csv";
+
     private final ClientDAOFileSystem clientDAOFileSystem;
     private final DriverDAOFileSystem driverDAOFileSystem;
 
@@ -86,8 +85,11 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
     }
 
     @Override
-    public Object findByDriverIDandStatus(int driverId, RideConfirmationStatus rideConfirmationStatus) {
-        return null;
+    public List<TaxiRideConfirmation> findByDriverIDandStatus(int driverID, RideConfirmationStatus status) {
+        return findAll().stream()
+                .filter(ride -> ride.getDriver().getUserID() == driverID && ride.getStatus() == status)
+                .sorted(Comparator.comparing(TaxiRideConfirmation::getConfirmationTime))
+                .collect(Collectors.toList());
     }
 
     private List<TaxiRideConfirmation> findAll() {
@@ -115,8 +117,8 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
             int driverID = Integer.parseInt(tokens[1]);
             int clientID = Integer.parseInt(tokens[2]);
             RideConfirmationStatus status = RideConfirmationStatus.valueOf(tokens[3]);
-            double estimatedFare = Double.parseDouble(tokens[4]);
-            double estimatedTime = Double.parseDouble(tokens[5]);
+            double estimatedFare = Double.parseDouble(tokens[4].replace(",", "."));
+            double estimatedTime = Double.parseDouble(tokens[5].replace(",", "."));
             PaymentMethod paymentMethod = PaymentMethod.valueOf(tokens[6]);
             LocalDateTime confirmationTime = LocalDateTime.parse(tokens[7]);
             String destination = tokens[8];

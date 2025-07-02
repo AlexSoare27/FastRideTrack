@@ -1,7 +1,6 @@
 package org.ispw.fastridetrack.util;
 
 public class ViewPath {
-
     private ViewPath() {
         throw new UnsupportedOperationException("Utility class");
     }

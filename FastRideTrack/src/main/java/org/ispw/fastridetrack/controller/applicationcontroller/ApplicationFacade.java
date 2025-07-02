@@ -1,6 +1,7 @@
 package org.ispw.fastridetrack.controller.applicationcontroller;
 
 import jakarta.mail.MessagingException;
+import org.ispw.fastridetrack.adapter.GmailAdapter;
 import org.ispw.fastridetrack.bean.*;
 import org.ispw.fastridetrack.adapter.GoogleMapsAdapter;
 import org.ispw.fastridetrack.exception.*;
@@ -8,6 +9,7 @@ import org.ispw.fastridetrack.model.*;
 import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.model.enumeration.UserType;
+import org.ispw.fastridetrack.util.DriverSessionContext;
 import org.ispw.fastridetrack.session.SessionManager;
 
 import java.time.LocalDateTime;
@@ -43,17 +45,29 @@ public class ApplicationFacade {
         return mapAC;
     }
 
-    public boolean login(String username, String password) throws ClientDAOException, DriverDAOException {
-        return loginAC.validateClientCredentials(username, password, UserType.CLIENT) ||
-                loginAC.validateDriverCredentials(username, password, UserType.DRIVER);
-    }
 
+    public boolean login(String username, String password) throws ClientDAOException, DriverDAOException {
+        // Provo login client
+        if (loginAC.validateClientCredentials(username, password, UserType.CLIENT)) {
+            return true;
+        }
+        // Provo login driver
+        if (loginAC.validateDriverCredentials(username, password, UserType.DRIVER)) {
+            if (loginAC.loadPossibleActiveRide(SessionManager.getInstance().getLoggedDriver().getUserID()) != null){
+                DriverSessionContext.getInstance().setCurrentRide(loginAC.loadPossibleActiveRide(SessionManager.getInstance().getLoggedDriver().getUserID()));
+            }
+            return true;
+        }
+        // Nessuno ha validato
+        return false;
+    }
 
     public UserType getLoggedUserType() {
         if (SessionManager.getInstance().getLoggedClient() != null) return UserType.CLIENT;
         if (SessionManager.getInstance().getLoggedDriver() != null) return UserType.DRIVER;
         return null;
     }
+
 
     public String processRideRequestAndReturnMapHtml(RideRequestBean rideBean, MapRequestBean mapBean) throws RideRequestSaveException, MapServiceException {
         driverMatchingAC.saveRideRequest(rideBean);
@@ -196,13 +210,133 @@ public class ApplicationFacade {
         return rideConfirmationAC.getNextRideConfirmation(driverID);
     }
 
-    public void acceptRideConfirmationAndInitializeRide(TaxiRideConfirmationBean confirmationBean) throws DriverDAOException {
-        rideConfirmationAC.acceptRideConfirmationAndRejectOthers(confirmationBean.getRideID(), confirmationBean.getDriver().getUserID());
-        currentRideManagementAC.initializeCurrentRide(confirmationBean);
+    public void acceptRideConfirmationAndInitializeRide(TaxiRideConfirmationBean confirmationBean) throws DriverDAOException, MapServiceException, MessagingException {
+
+        GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
+        GmailAdapter gmailAdapter = new GmailAdapter();
+
+
+        rideConfirmationAC.acceptRideConfirmationAndRejectOthers(
+                confirmationBean.getRideID(), confirmationBean.getDriver().getUserID());
+
+        RideBean rideBean = currentRideManagementAC.initializeCurrentRide(confirmationBean);
+
+        DriverSessionContext.getInstance().setCurrentRide(rideBean);
+        DriverSessionContext.getInstance().setCurrentConfirmation(confirmationBean);
+        DriverSessionContext.getInstance().getCurrentConfirmation().setStatus(RideConfirmationStatus.ACCEPTED);
+
+        String originAddress = "Indirizzo non disponibile";
+        CoordinateBean originCoord = confirmationBean.getUserLocation();
+        if (originCoord != null) {
+            originAddress = mapsAdapter.getAddressFromCoordinates(
+                    originCoord.getLatitude(), originCoord.getLongitude()
+            );
+        }
+        String subject = "Corsa accettata: " + confirmationBean.getRideID();
+
+        String body = String.format("""
+        Ciao %s,
+
+        La tua richiesta di corsa è stata presa in carico.
+
+        Tassista: %s
+        Partenza: %s
+        Destinazione: %s
+        Tariffa stimata: €%.2f
+        Tempo stimato: %.2f minuti
+
+        Controlla l'app per maggiori dettagli.
+
+        Grazie!
+        """,    confirmationBean.getClient().getName(),
+                confirmationBean.getDriver().getName(),
+                originAddress,
+                confirmationBean.getDestination(),
+                confirmationBean.getEstimatedFare(),
+                confirmationBean.getEstimatedTime()
+        );
+        gmailAdapter.sendEmail(confirmationBean.getClient().getEmail(), subject, body);
     }
 
-    public void rejectRideConfirmation(int rideID, int driverID)  {
-        rideConfirmationAC.rejectRideConfirmation(rideID, driverID);
+
+    public void rejectRideConfirmation(TaxiRideConfirmationBean confirmation,String reason) throws MessagingException {
+
+        GmailAdapter gmailAdapter = new GmailAdapter();
+
+        rideConfirmationAC.rejectRideConfirmation(confirmation.getRideID(), confirmation.getDriver().getUserID());
+
+        String subject = "Corsa rifiutata: " + confirmation.getRideID();
+
+        String body = String.format("""
+        Ciao %s,
+
+        La tua richiesta di corsa è stata rifiutata.
+        Motivo:
+        %s
+
+        Controlla l'app per maggiori dettagli.
+        
+        """,    confirmation.getClient().getName(),
+                reason
+        );
+        gmailAdapter.sendEmail(confirmation.getClient().getEmail(), subject, body);
+    }
+
+
+    public Map loadDriverRouteBasedOnRideStatus() throws MapServiceException {
+        RideBean currentActiveRide = DriverSessionContext.getInstance().getCurrentRide();
+        LocationBean start = currentRideManagementAC.getStartPoint(currentActiveRide);
+        LocationBean end = currentRideManagementAC.getEndPoint(currentActiveRide);
+        return mapAC.displayMapRoute(start, end);
+    }
+
+    public Map loadDriverRoute() throws MapServiceException {
+        LocationBean start = DriverSessionContext.getInstance().getStartPoint();
+        LocationBean end = DriverSessionContext.getInstance().getEndPoint();
+        return mapAC.displayMapRoute(start, end);
+    }
+
+    public String getAddressFromCoordinatesString(String coordinates) throws MapServiceException {
+        GoogleMapsAdapter gmapsAdapter = new GoogleMapsAdapter();
+        return gmapsAdapter.getAddressFromCoordinatesString(coordinates);
+    }
+
+    public void markClientLocated(double estimatedTime) throws MessagingException {
+        RideBean currentRideBean = DriverSessionContext.getInstance().getCurrentRide();
+
+        RideBean updatedRide = currentRideManagementAC.markClientLocated(currentRideBean);
+
+        DriverSessionContext.getInstance().setCurrentRide(updatedRide);
+
+        // 3. invii l'email
+        GmailAdapter gmailAdapter = new GmailAdapter();
+        String subject = "Cliente trovato: " + updatedRide.getRideID();
+        String body = String.format("""
+        Ciao %s,
+
+        Il tassista ti ha localizzato ed è in arrivo alla tua posizione.
+
+        Tassista: %s
+        Tempo stimato all'arrivo: %.2f minuti
+        
+        Controlla l'app per maggiori dettagli.
+
+        Grazie!
+        """,
+                updatedRide.getClient().getName(),
+                updatedRide.getDriver().getName(),
+                estimatedTime
+        );
+
+        gmailAdapter.sendEmail(updatedRide.getClient().getEmail(), subject, body);
+    }
+
+    public void startRide() throws ClientNotFetchedException{
+        RideBean currentRideBean = DriverSessionContext.getInstance().getCurrentRide();
+
+        RideBean updatedRide = currentRideManagementAC.startRide(currentRideBean);
+
+        DriverSessionContext.getInstance().setCurrentRide(updatedRide);
     }
 
 }
