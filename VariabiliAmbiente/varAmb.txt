@@ -1,0 +1,1 @@
+DB_PASSWORD=1234;DB_URL=jdbc:mysql://localhost:3306/fastridetrack;DB_USERNAME=appuser;GMAIL_APP_PASSWORD=yozd knbe hege opox;GMAIL_EMAIL=gianmarco.manni02@gmail.com;GOOGLE_MAPS_API_KEY=AIzaSyCJeAvkl57u01i1nVfkko9_x60TODi11AU;USE_PERSISTENCE=true;USE_CLI=false
