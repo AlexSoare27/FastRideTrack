@@ -5,7 +5,6 @@ import org.ispw.fastridetrack.bean.LocationBean;
 import org.ispw.fastridetrack.bean.MapRequestBean;
 import org.ispw.fastridetrack.adapter.MapService;
 import org.ispw.fastridetrack.exception.MapServiceException;
-import org.ispw.fastridetrack.model.Location;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.session.SessionManager;
 

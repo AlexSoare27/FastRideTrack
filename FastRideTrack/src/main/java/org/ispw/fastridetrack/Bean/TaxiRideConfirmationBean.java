@@ -117,22 +117,6 @@ public class TaxiRideConfirmationBean {
         this.confirmationTime = confirmationTime;
     }
 
-    /**
-     * Inizializza la conferma con i dati di una RideRequestBean,
-     * imposta paymentStatus a "Pending" e conferma l’ora corrente.
-     */
-    public void setRideRequest(RideRequestBean rideRequest) {
-        if (rideRequest != null) {
-            this.rideID = rideRequest.getRequestID();
-            this.client = rideRequest.getClient();
-            this.userLocation = rideRequest.getOriginAsCoordinateBean();  // Metodo da implementare in RideRequestBean
-            this.destination = rideRequest.getDestination();
-            this.paymentMethod = rideRequest.getPaymentMethod();
-            this.confirmationTime = LocalDateTime.now();
-            this.status = RideConfirmationStatus.PENDING;
-        }
-    }
-
     // Conversione da Model a Bean
     public static TaxiRideConfirmationBean fromModel(TaxiRideConfirmation model) {
         if (model == null) return null;

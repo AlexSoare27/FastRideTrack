@@ -20,6 +20,7 @@ import org.ispw.fastridetrack.exception.RideStatusUpdateException;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.model.TaxiRideConfirmation;
 import org.ispw.fastridetrack.model.TemporaryMemory;
+import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.session.SessionManager;
 
 import static org.ispw.fastridetrack.util.ViewPath.SELECT_TAXI_FXML;
@@ -38,6 +39,9 @@ public class SelectDriverGUIController {
     private final TemporaryMemory tempMemory;
     private TaxiRideConfirmationBean taxiRideBean;
     private Timeline pollingTimeline;
+    private static final Duration TIMEOUT_DURATION = Duration.seconds(30);
+    private long pollingStartTime;
+
 
     // Facade iniettata da SceneNavigator
     @SuppressWarnings("java:S1104") // Field injection è intenzionale per SceneNavigator
@@ -134,6 +138,8 @@ public class SelectDriverGUIController {
     }
 
     private void startPollingRideStatus() {
+        pollingStartTime = System.currentTimeMillis();
+
         pollingTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             TaxiRideConfirmationBean currentBean = tempMemory.getRideConfirmation();
             if (currentBean == null) return;
@@ -142,18 +148,46 @@ public class SelectDriverGUIController {
                     .getTaxiRideDAO()
                     .findById(currentBean.getRideID());
 
-            if (optionalUpdatedModel.isPresent()) {
-                TaxiRideConfirmation updatedModel = optionalUpdatedModel.get();
+            if (optionalUpdatedModel.isEmpty()) return;
 
-                if (updatedModel.getStatus() != currentBean.getStatus()) {
-                    TaxiRideConfirmationBean updatedBean = TaxiRideConfirmationBean.fromModel(updatedModel);
-                    tempMemory.setRideConfirmation(updatedBean); // trigger observer
+            TaxiRideConfirmation updatedModel = optionalUpdatedModel.get();
+            RideConfirmationStatus updatedStatus = updatedModel.getStatus();
+            RideConfirmationStatus currentStatus = currentBean.getStatus();
+
+            // Se lo stato è cambiato
+            if (updatedStatus != currentStatus) {
+                pollingTimeline.stop();  // Ferma il polling
+                TaxiRideConfirmationBean updatedBean = TaxiRideConfirmationBean.fromModel(updatedModel);
+                tempMemory.setRideConfirmation(updatedBean);  // Aggiorna stato e notifica observer
+            }
+            // Timeout: ancora in stato PENDING e scaduto tempo massimo
+            else if (updatedStatus == RideConfirmationStatus.PENDING) {
+                long elapsed = System.currentTimeMillis() - pollingStartTime;
+                if (elapsed >= TIMEOUT_DURATION.toMillis()) {
+                    pollingTimeline.stop();
+
+                    // Aggiorna stato nel DB a REJECTED
+                    updatedModel.setStatus(RideConfirmationStatus.REJECTED);
+                    SessionManager.getInstance().getTaxiRideDAO().update(updatedModel);
+
+                    Platform.runLater(() -> {
+                        showError("Driver Busy", "The driver is busy with another ride. Please select another one.");
+                        try {
+                            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Select Taxi");
+                        } catch (FXMLLoadException e) {
+                            throw new RideStatusUpdateException("Error switching screen after timeout.", e);
+                        }
+                    });
                 }
             }
+
         }));
+
         pollingTimeline.setCycleCount(Animation.INDEFINITE);
         pollingTimeline.play();
     }
+
+
 
     private void loadMapInView() throws MapServiceException {
         if (taxiRideBean == null) return;

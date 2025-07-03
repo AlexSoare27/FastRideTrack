@@ -108,7 +108,7 @@ public class DriverPendingRideConfirmationGUI {
         rejectBox.setVisible(true);
         destinationButton.setVisible(false);
         clientPositionButton.setVisible(false);
-        
+
     }
 
     @FXML

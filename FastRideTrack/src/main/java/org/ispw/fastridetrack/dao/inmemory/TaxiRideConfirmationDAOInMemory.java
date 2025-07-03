@@ -93,5 +93,15 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void updateRideConfirmationStatus(int rideID, RideConfirmationStatus newStatus) {
+        TaxiRideConfirmation ride = rides.get(rideID);
+        if (ride == null) {
+            throw new RideConfirmationNotFoundException(rideID);
+        }
+        ride.setStatus(newStatus);
+    }
+
 }
 

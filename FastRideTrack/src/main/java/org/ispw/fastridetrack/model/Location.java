@@ -1,7 +1,5 @@
 package org.ispw.fastridetrack.model;
 
-import org.ispw.fastridetrack.bean.CoordinateBean;
-
 public class Location {
     private Coordinate coordinate;
     private String address;

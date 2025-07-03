@@ -167,5 +167,25 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
             throw new TaxiRidePersistenceException("Errore nella scrittura del file taxi_rides.csv", e);
         }
     }
+    @Override
+    public void updateRideConfirmationStatus(int rideID, RideConfirmationStatus newStatus) {
+        List<TaxiRideConfirmation> allRides = findAll();
+        boolean updated = false;
+
+        for (TaxiRideConfirmation ride : allRides) {
+            if (ride.getRideID() == rideID) {
+                ride.setStatus(newStatus);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            throw new TaxiRidePersistenceException("Nessuna corsa trovata con rideID " + rideID);
+        }
+
+        writeAll(allRides);
+    }
+
 }
 

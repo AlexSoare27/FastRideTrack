@@ -179,6 +179,19 @@ public class TaxiRideConfirmationDAOMYSQL implements TaxiRideConfirmationDAO {
         }
         return requests;
     }
+
+    public void updateRideConfirmationStatus(int rideId, RideConfirmationStatus newStatus) {
+        String sql = "UPDATE taxi_rides SET rideConfirmationStatus = ? WHERE rideID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, newStatus.name());
+            stmt.setInt(2, rideId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new TaxiRidePersistenceException("Errore durante l'aggiornamento dello stato della corsa con rideID " + rideId, e);
+        }
+    }
+
+
 }
 
 

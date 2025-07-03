@@ -5,6 +5,7 @@ import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.model.Ride;
 
+@SuppressWarnings("java:S6548")
 public class DriverSessionContext {
 
     private static DriverSessionContext INSTANCE;

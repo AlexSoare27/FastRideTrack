@@ -7,7 +7,6 @@ import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade
 import org.ispw.fastridetrack.exception.ClientNotFetchedException;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
-import org.ispw.fastridetrack.model.enumeration.UserType;
 import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.util.DriverSessionContext;
 
@@ -16,8 +15,6 @@ import java.util.Scanner;
 public class DriverCliController {
 
     private final Scanner scanner = new Scanner(System.in);
-
-    private UserType loggedUserType = null;
     private final ApplicationFacade facade;
 
 
@@ -55,7 +52,7 @@ public class DriverCliController {
                 }
 
             } else {
-                System.out.printf("Active ride (ID %d) - Status: %s\n", currentRide.getRideID(), currentRide.getStatus());
+                System.out.printf("Active ride (ID %d) - Status: %s%n", currentRide.getRideID(), currentRide.getStatus());
 
                 switch (currentRide.getStatus()) {
                     case INITIATED:
@@ -147,8 +144,8 @@ public class DriverCliController {
         System.out.println("Client: " + conf.getClient().getName());
         System.out.println("Pickup location: " + conf.getUserLocation());
         System.out.println("Destination: " + conf.getDestination());
-        System.out.printf("Estimated fare: €%.2f\n", conf.getEstimatedFare());
-        System.out.printf("Estimated time: %.2f minutes\n", conf.getEstimatedTime());
+        System.out.printf("Estimated fare: €%.2f%n", conf.getEstimatedFare());
+        System.out.printf("Estimated time: %.2f minutes%n", conf.getEstimatedTime());
         System.out.println("Confirmation status: " + conf.getStatus());
     }
 

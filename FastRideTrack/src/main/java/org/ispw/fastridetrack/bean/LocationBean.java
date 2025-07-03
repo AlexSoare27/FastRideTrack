@@ -1,6 +1,5 @@
 package org.ispw.fastridetrack.bean;
 
-import org.ispw.fastridetrack.model.Coordinate;
 import org.ispw.fastridetrack.model.Location;
 
 public class LocationBean {

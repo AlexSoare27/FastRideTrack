@@ -6,7 +6,6 @@ import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade
 import org.ispw.fastridetrack.exception.*;
 import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.TemporaryMemory;
-import org.ispw.fastridetrack.model.enumeration.UserType;
 import org.ispw.fastridetrack.session.SessionManager;
 
 import java.util.List;
@@ -16,9 +15,7 @@ public class ClientCliController {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private UserType loggedUserType = null;
     private final ApplicationFacade facade;
-
 
     public ClientCliController() throws ClientDAOException {
         facade = new ApplicationFacade();
@@ -72,7 +69,7 @@ public class ClientCliController {
         System.out.println("\nDriver disponibili:");
         for (int i = 0; i < availableDrivers.size(); i++) {
             AvailableDriverBean d = availableDrivers.get(i);
-            System.out.printf("[%d] %s - %s - %s - ETA: %s - Prezzo stimato: €%.2f\n",
+            System.out.printf("[%d] %s - %s - %s - ETA: %s - Prezzo stimato: €%.2f%n",
                     i + 1,
                     d.getName(),
                     d.getVehicleInfo(),

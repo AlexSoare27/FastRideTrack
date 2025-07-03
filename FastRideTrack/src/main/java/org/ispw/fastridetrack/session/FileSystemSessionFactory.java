@@ -31,9 +31,7 @@ public class FileSystemSessionFactory implements SessionFactory {
     }
 
     @Override
-    public TaxiRideConfirmationDAO createTaxiRideDAO() {
-        return new TaxiRideConfirmationDAOFileSystem(clientDAO, driverDAO);
-    }
+    public TaxiRideConfirmationDAO createTaxiRideDAO() { return new TaxiRideConfirmationDAOFileSystem(clientDAO, driverDAO); }
 
     @Override
     public RideDAO createRideDAO() {
