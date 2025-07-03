@@ -3,7 +3,6 @@ package org.ispw.fastridetrack.model.state;
 import org.ispw.fastridetrack.model.Location;
 import org.ispw.fastridetrack.model.enumeration.RideStatus;
 
-import java.math.BigDecimal;
 
 public interface RideState {
 

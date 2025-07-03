@@ -12,7 +12,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDAO {
 
@@ -89,7 +88,7 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
         return findAll().stream()
                 .filter(ride -> ride.getDriver().getUserID() == driverID && ride.getStatus() == status)
                 .sorted(Comparator.comparing(TaxiRideConfirmation::getConfirmationTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<TaxiRideConfirmation> findAll() {
@@ -103,7 +102,7 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
                 }
             }
         } catch (IOException e) {
-            throw new TaxiRidePersistenceException("Errore nella lettura del file taxi_rides.csv", e);
+            throw new TaxiRidePersistenceException("Error reading the file taxi_rides.csv", e);
         }
         return list;
     }

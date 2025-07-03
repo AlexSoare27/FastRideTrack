@@ -77,7 +77,6 @@ public class SelectTaxiGUIController implements Initializable {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             showAlert("Error while loading map or drivers.");
         }
     }
@@ -93,7 +92,6 @@ public class SelectTaxiGUIController implements Initializable {
             try {
                 SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
             } catch (FXMLLoadException e) {
-                e.printStackTrace();
                 showAlert("Error returning to Home screen.");
             }
         });

@@ -2,6 +2,7 @@ package org.ispw.fastridetrack.controller.guicontroller;
 
 import javafx.scene.control.Alert;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.util.DriverSessionContext;
 import org.ispw.fastridetrack.session.SessionManager;
@@ -20,19 +21,17 @@ public class RideConfirmationRouter {
         this.facade = SceneNavigator.getFacade();
     }
 
-    public void routeToNextConfirmationView() throws FXMLLoadException {
+    public void routeToNextConfirmationView() throws FXMLLoadException, DriverDAOException {
         SessionManager session = SessionManager.getInstance();
         DriverSessionContext driverContext = DriverSessionContext.getInstance();
         DriverBean driver = DriverBean.fromModel(session.getLoggedDriver());
-        boolean isAcceptedConfirmation = driverContext.hasPendingConfirmation();
-        boolean isActiveRide = driverContext.hasActiveRide();
+        boolean isAcceptedConfirmation = facade.isConfirmationAccepted();
+        boolean isActiveRide = facade.isActiveRide();
 
-        // 1. Verifica se il driver è disponibile
         if (!driver.isAvailable()) {
             if (isActiveRide && isAcceptedConfirmation) {
                 driverContext.getCurrentConfirmation();
-                //TemporaryGUIContext.getInstance().setRideConfirmation(acceptedConfirmation);
-                SceneNavigator.switchTo(DRIVERPENDINGREQUEST_FXML, "Corsa accettata");
+                SceneNavigator.switchTo(DRIVERPENDINGREQUEST_FXML, "Ride confirmation");
                 return;
             }
             else if (isActiveRide) {

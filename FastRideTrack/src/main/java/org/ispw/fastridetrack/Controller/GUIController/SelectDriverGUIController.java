@@ -23,6 +23,8 @@ import org.ispw.fastridetrack.model.TemporaryMemory;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.session.SessionManager;
 
+import java.util.Optional;
+
 import static org.ispw.fastridetrack.util.ViewPath.SELECT_TAXI_FXML;
 
 public class SelectDriverGUIController {
@@ -39,8 +41,9 @@ public class SelectDriverGUIController {
     private final TemporaryMemory tempMemory;
     private TaxiRideConfirmationBean taxiRideBean;
     private Timeline pollingTimeline;
+    private boolean rideStatusHandled = false;
     private static final Duration TIMEOUT_DURATION = Duration.seconds(30);
-    private long pollingStartTime;
+    private static final String SELECT_TAXI_TITLE = "Select Taxi";
 
 
     // Facade iniettata da SceneNavigator
@@ -109,6 +112,10 @@ public class SelectDriverGUIController {
     }
 
     private void handleRideStatusUpdate(TaxiRideConfirmationBean updatedBean) {
+        if (rideStatusHandled) return; // già gestito
+
+        rideStatusHandled = true; // segna come gestito
+
         Platform.runLater(() -> {
             switch (updatedBean.getStatus()) {
                 case ACCEPTED -> {
@@ -116,8 +123,6 @@ public class SelectDriverGUIController {
                         pollingTimeline.stop();
                     }
                     showInfo("Ride Confirmed", "The driver has accepted the ride. He is on the way!");
-                    // I bottoni rimangono disabilitati
-                    // Qui potrei passare a una schermata futura dove si vede l'inizio del viaggio!
                 }
                 case REJECTED -> {
                     if (pollingTimeline != null) {
@@ -125,7 +130,7 @@ public class SelectDriverGUIController {
                     }
                     showError("Ride Rejected", "The driver has rejected the ride. You can choose another one.");
                     try {
-                        SceneNavigator.switchTo(SELECT_TAXI_FXML, "Select Taxi");
+                        SceneNavigator.switchTo(SELECT_TAXI_FXML, SELECT_TAXI_TITLE);
                     } catch (FXMLLoadException e) {
                         throw new RideStatusUpdateException("Error switching screen after ride rejection.", e);
                     }
@@ -138,6 +143,69 @@ public class SelectDriverGUIController {
     }
 
     private void startPollingRideStatus() {
+        long pollingStartTime = System.currentTimeMillis(); // 👈 dichiarato qui
+
+        pollingTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
+            TaxiRideConfirmationBean currentBean = tempMemory.getRideConfirmation();
+            if (currentBean == null) return;
+
+            Optional<TaxiRideConfirmation> optionalUpdatedModel = SessionManager.getInstance()
+                    .getTaxiRideDAO()
+                    .findById(currentBean.getRideID());
+
+            if (optionalUpdatedModel.isEmpty()) return;
+
+            TaxiRideConfirmation updatedModel = optionalUpdatedModel.get();
+            RideConfirmationStatus updatedStatus = updatedModel.getStatus();
+            RideConfirmationStatus currentStatus = currentBean.getStatus();
+
+            if (statusHasChanged(updatedStatus, currentStatus)) {
+                handleStatusChange(updatedModel);
+            } else if (isPendingTooLong(updatedStatus, pollingStartTime)) {
+                handlePollingTimeout(updatedModel);
+            }
+        }));
+
+        pollingTimeline.setCycleCount(Animation.INDEFINITE);
+        pollingTimeline.play();
+    }
+
+    private boolean statusHasChanged(RideConfirmationStatus updated, RideConfirmationStatus current) {
+        return updated != current;
+    }
+
+    private boolean isPendingTooLong(RideConfirmationStatus status, long pollingStartTime) {
+        long elapsed = System.currentTimeMillis() - pollingStartTime;
+        return status == RideConfirmationStatus.PENDING && elapsed >= TIMEOUT_DURATION.toMillis();
+    }
+
+    private void handleStatusChange(TaxiRideConfirmation updatedModel) {
+        pollingTimeline.stop();
+        TaxiRideConfirmationBean updatedBean = TaxiRideConfirmationBean.fromModel(updatedModel);
+        tempMemory.setRideConfirmation(updatedBean); // notificherà observer
+    }
+
+    private void handlePollingTimeout(TaxiRideConfirmation updatedModel) {
+        if (rideStatusHandled) return;
+
+        rideStatusHandled = true;
+        pollingTimeline.stop();
+
+        // Forza il ride come REJECTED e aggiorna il DB
+        updatedModel.setStatus(RideConfirmationStatus.REJECTED);
+        SessionManager.getInstance().getTaxiRideDAO().update(updatedModel);
+
+        Platform.runLater(() -> {
+            showError("Driver Busy", "The driver is busy with another ride. Please select another one.");
+            try {
+                SceneNavigator.switchTo(SELECT_TAXI_FXML, SELECT_TAXI_TITLE);
+            } catch (FXMLLoadException e) {
+                throw new RideStatusUpdateException("Error switching screen after timeout.", e);
+            }
+        });
+    }
+
+    /*private void startPollingRideStatus() {
         pollingStartTime = System.currentTimeMillis();
 
         pollingTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
@@ -164,6 +232,9 @@ public class SelectDriverGUIController {
             else if (updatedStatus == RideConfirmationStatus.PENDING) {
                 long elapsed = System.currentTimeMillis() - pollingStartTime;
                 if (elapsed >= TIMEOUT_DURATION.toMillis()) {
+                    if (rideStatusHandled) return; // già gestito, non fare nulla
+                    rideStatusHandled = true;      // segna come gestito
+
                     pollingTimeline.stop();
 
                     // Aggiorna stato nel DB a REJECTED
@@ -180,14 +251,10 @@ public class SelectDriverGUIController {
                     });
                 }
             }
-
         }));
-
         pollingTimeline.setCycleCount(Animation.INDEFINITE);
         pollingTimeline.play();
-    }
-
-
+    }*/
 
     private void loadMapInView() throws MapServiceException {
         if (taxiRideBean == null) return;
@@ -225,7 +292,7 @@ public class SelectDriverGUIController {
     @FXML
     private void onGoBack(ActionEvent event) {
         try {
-            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Select Taxi");
+            SceneNavigator.switchTo(SELECT_TAXI_FXML, SELECT_TAXI_TITLE);
         } catch (FXMLLoadException e) {
             showError("Loading Error", "Error returning to taxi selection.");
         }

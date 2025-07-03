@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.util.DriverSessionContext;
 
@@ -72,6 +73,11 @@ public class DriverCurrentRideGUIController {
     private void showRideInfo(String destination, String clientName) {
         destinationLabel.setText(destination);
         clientNameLabel.setText(clientName);
+    }
+
+    @FXML
+    private void onPendingConfirmation() throws DriverDAOException, FXMLLoadException {
+        new RideConfirmationRouter().routeToNextConfirmationView();
     }
 
     @FXML

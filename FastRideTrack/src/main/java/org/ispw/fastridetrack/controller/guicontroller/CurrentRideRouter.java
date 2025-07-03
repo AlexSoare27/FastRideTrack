@@ -9,9 +9,9 @@ import static org.ispw.fastridetrack.util.ViewPath.*;
 public class CurrentRideRouter {
 
     public void manageCurrentRideView() throws FXMLLoadException {
-        boolean isAcativeRide = DriverSessionContext.getInstance().hasActiveRide();
+        boolean isActiveRide = DriverSessionContext.getInstance().hasActiveRide();
 
-        if(!isAcativeRide){
+        if(!isActiveRide){
             showErrorAlert("No active ride found", "No current active ride has been found!");
         }else{
             SceneNavigator.switchTo(DRIVERCURRENTRIDE_FXML, "Corsa corrente");

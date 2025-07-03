@@ -1,10 +1,10 @@
 package org.ispw.fastridetrack.controller.clicontroller;
 
-import org.ispw.fastridetrack.bean.LocationBean;
+import jakarta.mail.MessagingException;
 import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
-import org.ispw.fastridetrack.exception.ClientNotFetchedException;
+import org.ispw.fastridetrack.exception.*;
 import org.ispw.fastridetrack.model.Map;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.session.SessionManager;
@@ -15,14 +15,22 @@ import java.util.Scanner;
 public class DriverCliController {
 
     private final Scanner scanner = new Scanner(System.in);
+
     private final ApplicationFacade facade;
 
+    private static final String LOGOUT_OPTION = "[0] Logout and exit";
 
-    public DriverCliController() throws Exception {
+    private static final String OPTION = "Select an option: ";
+
+    private static final String LOGOUT = "Logging out...";
+
+    private static final String INVALID_OPTION = "Invalid option. Please try again.";
+
+    public DriverCliController() {
         facade = new ApplicationFacade();
     }
 
-    public void startDriverFlow() throws Exception {
+    public void startDriverFlow() throws DriverDAOException, MapServiceException, MessagingException {
         boolean exit = false;
 
         while (!exit) {
@@ -34,107 +42,110 @@ public class DriverCliController {
                 System.out.println("[1] View next PENDING ride confirmation");
                 System.out.println("[2] Accept ride confirmation");
                 System.out.println("[3] Reject ride confirmation");
-                System.out.println("[0] Logout and exit");
-                System.out.print("Select an option: ");
+                System.out.println(LOGOUT_OPTION);
+                System.out.print(OPTION);
 
                 String input = scanner.nextLine();
 
                 switch (input) {
-                    case "1": showNextRideConfirmation(); break;
-                    case "2": acceptRideConfirmation(); break;
-                    case "3": rejectRideConfirmation(); break;
+                    case "1": showNextPendingRideConfirmation(); break;
+                    case "2": acceptPendingRideConfirmation(); break;
+                    case "3": rejectPendingRideConfirmation(); break;
                     case "0":
-                        System.out.println("Logging out...");
+                        System.out.println(LOGOUT);
                         exit = true;
                         break;
                     default:
-                        System.out.println("Invalid option.");
+                        System.out.println(INVALID_OPTION);
                 }
 
             } else {
                 System.out.printf("Active ride (ID %d) - Status: %s%n", currentRide.getRideID(), currentRide.getStatus());
 
                 switch (currentRide.getStatus()) {
-                    case INITIATED:
-                        System.out.println("[1] View route: driver -> client");
-                        System.out.println("[2] Confirm client located");
-                        System.out.println("[0] Logout and exit");
-                        System.out.print("Select an option: ");
-
-                        String inputInit = scanner.nextLine();
-                        switch (inputInit) {
-                            case "1": showRouteDriverToClient(); break;
-                            case "2": confirmClientLocated(); break;
-                            case "0":
-                                System.out.println("Logging out...");
-                                exit = true;
-                                break;
-                            default:
-                                System.out.println("Invalid option.");
-                        }
-                        break;
-
-                    case CLIENT_LOCATED:
-                        System.out.println("[1] Start ride");
-                        System.out.println("[2] View ride route");
-                        System.out.println("[0] Logout and exit");
-                        System.out.print("Select an option: ");
-
-                        String inputClientLocated = scanner.nextLine();
-                        switch (inputClientLocated) {
-                            case "1": startRideIfClientFetchedFalse(); break;
-                            case "2": showRideRoute(); break;
-                            case "0":
-                                System.out.println("Logging out...");
-                                exit = true;
-                                break;
-                            default:
-                                System.out.println("Invalid option.");
-                        }
-                        break;
-
-                    case ONGOING:
-                        System.out.println("[1] View ride route");
-                        System.out.println("[0] Logout and exit");
-                        System.out.print("Select an option: ");
-
-                        String inputOngoing = scanner.nextLine();
-                        switch (inputOngoing) {
-                            case "1": showRideRoute(); break;
-                            case "0":
-                                System.out.println("Logging out...");
-                                exit = true;
-                                break;
-                            default:
-                                System.out.println("Invalid option.");
-                        }
-                        break;
-
-                    case FINISHED:
+                    case INITIATED -> showInitiatedRideMenu();
+                    case CLIENT_LOCATED -> showClientLocatedRideMenu();
+                    case ONGOING -> showOngoingRideMenu();
+                    case FINISHED -> {
                         System.out.println("Ride has finished. Logging out.");
                         exit = true;
-                        break;
-
-                    default:
-                        System.out.println("Unhandled ride status.");
+                    }
+                    default -> {
+                        System.out.println("Unhandled ride status. Exiting.");
                         exit = true;
+                    }
                 }
             }
         }
     }
 
-    private void showNextRideConfirmation() {
-        Integer driverID = SessionManager.getInstance().getLoggedDriver().getUserID();
-        var optConfirmation = facade.getNextRideConfirmation(driverID);
+    private void showInitiatedRideMenu() {
+        System.out.println("[1] View route: driver -> client");
+        System.out.println("[2] Confirm client located");
+        System.out.println(LOGOUT_OPTION);
+        System.out.print(OPTION);
 
-        if (optConfirmation.isEmpty()) {
+        String input = scanner.nextLine();
+
+        switch (input) {
+            case "1" -> showRideRoute("from driver to client location");
+            case "2" -> confirmClientLocated();
+            case "0" -> {
+                System.out.println(LOGOUT);
+                System.exit(0);
+            }
+            default -> System.out.println(INVALID_OPTION);
+        }
+    }
+
+    private void showClientLocatedRideMenu() {
+        System.out.println("[1] Start ride");
+        System.out.println("[2] View ride route");
+        System.out.println(LOGOUT_OPTION);
+        System.out.print(OPTION);
+
+        String input = scanner.nextLine();
+
+        switch (input) {
+            case "1" -> startRideIfClientNotFetched();
+            case "2" -> showRideRoute("from driver to client location");
+            case "0" -> {
+                System.out.println(LOGOUT);
+                System.exit(0);
+            }
+            default -> System.out.println(INVALID_OPTION);
+        }
+    }
+
+    private void showOngoingRideMenu() {
+        System.out.println("[1] View ride route");
+        System.out.println(LOGOUT_OPTION);
+        System.out.print(OPTION);
+
+        String input = scanner.nextLine();
+
+        switch (input) {
+            case "1" -> showRideRoute("from client location to destination");
+            case "0" -> {
+                System.out.println(LOGOUT);
+                System.exit(0);
+            }
+            default -> System.out.println(INVALID_OPTION);
+        }
+    }
+
+    private void showNextPendingRideConfirmation() throws DriverDAOException, DriverUnavailableException {
+        Integer driverID = SessionManager.getInstance().getLoggedDriver().getUserID();
+        var optConf = facade.getNextRideConfirmation(driverID);
+
+        if (optConf.isEmpty()) {
             System.out.println("No ride confirmations available.");
             return;
         }
 
-        TaxiRideConfirmationBean conf = optConfirmation.get();
+        TaxiRideConfirmationBean conf = optConf.get();
 
-        if (!conf.getStatus().equals(RideConfirmationStatus.PENDING)) {
+        if (conf.getStatus() != RideConfirmationStatus.PENDING) {
             System.out.println("No PENDING confirmations.");
             return;
         }
@@ -149,73 +160,74 @@ public class DriverCliController {
         System.out.println("Confirmation status: " + conf.getStatus());
     }
 
-    private void acceptRideConfirmation() throws Exception {
+    private void acceptPendingRideConfirmation() throws DriverDAOException, MapServiceException, MessagingException {
         Integer driverID = SessionManager.getInstance().getLoggedDriver().getUserID();
-        var optConfirmation = facade.getNextRideConfirmation(driverID);
 
-        if (optConfirmation.isEmpty()) {
-            System.out.println("No confirmation to accept.");
-            return;
-        }
-
-        TaxiRideConfirmationBean conf = optConfirmation.get();
-
-        if (!conf.getStatus().equals(RideConfirmationStatus.PENDING)) {
-            System.out.println("No PENDING confirmations to accept.");
-            return;
-        }
-
-        facade.acceptRideConfirmationAndInitializeRide(conf);
-        System.out.println("Ride confirmation accepted and ride initialized.");
-    }
-
-    private void rejectRideConfirmation() throws Exception {
-        Integer driverID = SessionManager.getInstance().getLoggedDriver().getUserID();
-        var optConfirmation = facade.getNextRideConfirmation(driverID);
-
-        if (optConfirmation.isEmpty()) {
-            System.out.println("No confirmation to reject.");
-            return;
-        }
-
-        TaxiRideConfirmationBean conf = optConfirmation.get();
-
-        if (!conf.getStatus().equals(RideConfirmationStatus.PENDING)) {
-            System.out.println("No PENDING confirmations to reject.");
-            return;
-        }
-
-        System.out.print("Enter rejection reason: ");
-        String reason = scanner.nextLine();
-
-        facade.rejectRideConfirmation(conf, reason);
-        System.out.println("Ride confirmation rejected and client notified.");
-    }
-
-    private void showRouteDriverToClient() {
         try {
-            RideBean ride = DriverSessionContext.getInstance().getCurrentRide();
-            if (ride == null) {
-                System.out.println("No active ride.");
+            var optConf = facade.getNextRideConfirmation(driverID);
+
+            if (optConf.isEmpty()) {
+                System.out.println("No confirmation to accept.");
                 return;
             }
 
-            LocationBean start = DriverSessionContext.getInstance().getStartPoint();
-            LocationBean end = DriverSessionContext.getInstance().getEndPoint();
+            TaxiRideConfirmationBean conf = optConf.get();
 
-            if (start == null || end == null) {
-                System.out.println("Route information not available.");
+            if (conf.getStatus() != RideConfirmationStatus.PENDING) {
+                System.out.println("No PENDING confirmations to accept.");
                 return;
             }
 
-            Map map = facade.loadDriverRouteBasedOnRideStatus();
+            acceptAndInitializeRide(conf);
 
-            System.out.println("Route from driver to client:");
-            System.out.println("Estimated distance: " + map.getDistanceKm() + " km");
-            System.out.println("Estimated time: " + map.getEstimatedTimeMinutes() + " minutes");
+        } catch (DriverUnavailableException e) {
+            System.out.println("Driver not available: " + e.getMessage());
+        } catch (RideConfirmationNotFoundException e) {
+            System.out.println("Ride confirmation not found: " + e.getMessage());
+        } catch (RideConfirmationNotPendingException e) {
+            System.out.println("Ride confirmation is no longer pending: " + e.getMessage());
+        } catch (DriverMismatchException e) {
+            System.out.println("Driver mismatch: " + e.getMessage());
+        }
+    }
 
-        } catch (Exception e) {
-            System.out.println("Error loading route: " + e.getMessage());
+    private void acceptAndInitializeRide(TaxiRideConfirmationBean conf) throws DriverDAOException, MapServiceException, MessagingException {
+        try {
+            facade.acceptRideConfirmationAndInitializeRide(conf);
+            System.out.println("Ride confirmation accepted and ride initialized.");
+        } catch (RideAlreadyActiveException e) {
+            System.out.println("Ride already active.");
+        }
+    }
+
+    private void rejectPendingRideConfirmation() throws DriverDAOException, MessagingException {
+        Integer driverID = SessionManager.getInstance().getLoggedDriver().getUserID();
+
+        try {
+            var optConf = facade.getNextRideConfirmation(driverID);
+
+            if (optConf.isEmpty()) {
+                System.out.println("No confirmation to reject.");
+                return;
+            }
+
+            TaxiRideConfirmationBean conf = optConf.get();
+
+            if (conf.getStatus() != RideConfirmationStatus.PENDING) {
+                System.out.println("No PENDING confirmations to reject.");
+                return;
+            }
+
+            System.out.print("Enter rejection reason: ");
+            String reason = scanner.nextLine();
+
+            facade.rejectRideConfirmation(conf, reason);
+            System.out.println("Ride confirmation rejected and client notified.");
+
+        } catch (DriverUnavailableException e) {
+            System.out.println("Driver not available: " + e.getMessage());
+        } catch (RideConfirmationNotFoundException e) {
+            System.out.println("Ride confirmation not found: " + e.getMessage());
         }
     }
 
@@ -234,26 +246,23 @@ public class DriverCliController {
         }
     }
 
-    private void startRideIfClientFetchedFalse() {
-        RideBean currentRide = DriverSessionContext.getInstance().getCurrentRide();
-        if (currentRide == null) {
-            System.out.println("No active ride.");
-            return;
-        }
+    private void startRideIfClientNotFetched() {
         try {
             facade.startRide();
             System.out.println("Ride started successfully.");
         } catch (ClientNotFetchedException e) {
-            System.out.println("Error: Client has not been picked up. " + e.getMessage());
+            System.out.println("Error:" + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error starting ride: " + e.getMessage());
         }
     }
 
-    private void showRideRoute() {
+    private void showRideRoute(String startEnd) {
         try {
             Map map = facade.loadDriverRouteBasedOnRideStatus();
-            System.out.println("Ride route:");
+            System.out.println("Ride route:" + startEnd);
+            System.out.println("Starting point:" + facade.getAddressFromCoordinatesString(map.getOrigin()));
+            System.out.println("End point:" + facade.getAddressFromCoordinatesString(map.getDestination()));
             System.out.println("Estimated distance: " + map.getDistanceKm() + " km");
             System.out.println("Estimated time: " + map.getEstimatedTimeMinutes() + " minutes");
         } catch (Exception e) {

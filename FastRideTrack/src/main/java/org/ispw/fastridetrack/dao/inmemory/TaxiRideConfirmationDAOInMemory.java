@@ -11,7 +11,6 @@ import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO {
     private final Map<Integer, TaxiRideConfirmation> rides = new HashMap<>();
@@ -91,7 +90,7 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
                         TaxiRideConfirmation::getConfirmationTime,
                         Comparator.nullsLast(Comparator.naturalOrder()) // gestisce i null in fondo
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

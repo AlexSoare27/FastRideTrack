@@ -5,6 +5,7 @@ import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.dao.RideDAO;
 import org.ispw.fastridetrack.exception.ClientNotFetchedException;
+import org.ispw.fastridetrack.exception.RideAlreadyActiveException;
 import org.ispw.fastridetrack.model.Location;
 import org.ispw.fastridetrack.session.SessionManager;
 import org.ispw.fastridetrack.model.Ride;
@@ -21,7 +22,14 @@ public class CurrentRideManagementApplicationController {
         this.rideDAO = SessionManager.getInstance().getRideDAO();
     }
 
-    public RideBean initializeCurrentRide(TaxiRideConfirmationBean confirmationBean) {
+    private boolean checkRideAlreadyActive(int driverID) {
+        return rideDAO.findActiveRideByDriver(driverID).isPresent();
+    }
+
+    public RideBean initializeCurrentRide(TaxiRideConfirmationBean confirmationBean) throws RideAlreadyActiveException {
+        if(checkRideAlreadyActive(confirmationBean.getDriver().getUserID())){
+            throw new RideAlreadyActiveException("Ride already active for driver: " + confirmationBean.getDriver().getUserID());
+        }
         Ride ride = new Ride(
                 confirmationBean.getRideID(),
                 confirmationBean.getClient().toModel(),

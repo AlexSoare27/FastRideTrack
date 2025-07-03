@@ -3,12 +3,11 @@ package org.ispw.fastridetrack.util;
 import org.ispw.fastridetrack.bean.LocationBean;
 import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
-import org.ispw.fastridetrack.model.Ride;
 
 @SuppressWarnings("java:S6548")
 public class DriverSessionContext {
 
-    private static DriverSessionContext INSTANCE;
+    private static DriverSessionContext instance;
 
     private RideBean currentRide;
     private TaxiRideConfirmationBean currentConfirmation;
@@ -17,11 +16,12 @@ public class DriverSessionContext {
 
     private DriverSessionContext() {}
 
+
     public static synchronized DriverSessionContext getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new DriverSessionContext();
+        if (instance == null) {
+            instance = new DriverSessionContext();
         }
-        return INSTANCE;
+        return instance;
     }
 
 
@@ -51,10 +51,6 @@ public class DriverSessionContext {
     // True se la corsa è attualmente attiva
     public boolean hasActiveRide() {
         return currentRide != null;
-    }
-
-    public void clearConfirmation(){
-        this.currentConfirmation = null;
     }
 
     public void setStartPoint(LocationBean startPoint) {

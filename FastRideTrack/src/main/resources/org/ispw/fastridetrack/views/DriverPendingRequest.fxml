@@ -91,13 +91,8 @@
             </children>
         </HBox>
 
-        <VBox fx:id="rejectBox" alignment="CENTER" layoutX="622.0" layoutY="531.0" prefHeight="122.0" prefWidth="378.0" spacing="5.0" visible="false">
+        <VBox fx:id="rejectBox" alignment="CENTER" layoutX="621.0" layoutY="547.0" prefHeight="122.0" prefWidth="378.0" spacing="5.0" visible="false">
             <children>
-                <Label fx:id="rideRejectedLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="158.0" text="Ride rejected">
-                    <font>
-                        <Font name="System Bold" size="18.0" />
-                    </font>
-                </Label>
             <Label fx:id="rideRejectedLabel1" alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="366.0" text="Please enter below the reason for refusal:">
                <font>
                   <Font name="System Bold" size="18.0" />
@@ -126,7 +121,7 @@
             </Button>
          </children>
       </VBox>
-      <Button fx:id="refreshButton" alignment="CENTER" layoutX="660.0" layoutY="572.0" mnemonicParsing="false" onAction="#onRefresh" prefHeight="30.0" prefWidth="249.0" style="-fx-background-color: #29bbbb;" text="View other request" textFill="WHITE" visible="false">
+      <Button fx:id="refreshButton" alignment="CENTER" layoutX="686.0" layoutY="581.0" mnemonicParsing="false" onAction="#onRefresh" prefHeight="30.0" prefWidth="249.0" style="-fx-background-color: #29bbbb;" text="View other request" textFill="WHITE" visible="false">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -136,6 +131,11 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
+          <Label fx:id="rideRejectedLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="726.0" layoutY="524.0" prefHeight="42.0" prefWidth="158.0" text="Ride rejected" visible="false">
+              <font>
+                  <Font name="System Bold" size="18.0" />
+              </font>
+          </Label>
 
     </children>
 </AnchorPane>

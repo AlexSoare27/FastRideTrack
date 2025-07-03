@@ -206,24 +206,28 @@ public class ApplicationFacade {
     }
 
 
-    public Optional<TaxiRideConfirmationBean> getNextRideConfirmation(Integer driverID) {
+    public Optional<TaxiRideConfirmationBean> getNextRideConfirmation(Integer driverID) throws DriverDAOException  {
         return rideConfirmationAC.getNextRideConfirmation(driverID);
     }
 
-    public void acceptRideConfirmationAndInitializeRide(TaxiRideConfirmationBean confirmationBean) throws DriverDAOException, MapServiceException, MessagingException {
+    public void acceptRideConfirmationAndInitializeRide(TaxiRideConfirmationBean confirmationBean) throws
+            DriverDAOException, MapServiceException, MessagingException, DriverUnavailableException,
+            RideConfirmationNotFoundException, RideAlreadyActiveException, RideConfirmationNotPendingException {
 
         GoogleMapsAdapter mapsAdapter = new GoogleMapsAdapter();
         GmailAdapter gmailAdapter = new GmailAdapter();
 
+        try {
+            rideConfirmationAC.acceptRideConfirmationAndRejectOthers(confirmationBean.getRideID(), confirmationBean.getDriver().getUserID());
+            RideBean rideBean = currentRideManagementAC.initializeCurrentRide(confirmationBean);
 
-        rideConfirmationAC.acceptRideConfirmationAndRejectOthers(
-                confirmationBean.getRideID(), confirmationBean.getDriver().getUserID());
-
-        RideBean rideBean = currentRideManagementAC.initializeCurrentRide(confirmationBean);
-
-        DriverSessionContext.getInstance().setCurrentRide(rideBean);
-        DriverSessionContext.getInstance().setCurrentConfirmation(confirmationBean);
-        DriverSessionContext.getInstance().getCurrentConfirmation().setStatus(RideConfirmationStatus.ACCEPTED);
+            DriverSessionContext.getInstance().setCurrentRide(rideBean);
+            DriverSessionContext.getInstance().setCurrentConfirmation(confirmationBean);
+            DriverSessionContext.getInstance().getCurrentConfirmation().setStatus(RideConfirmationStatus.ACCEPTED);
+        }catch(DriverUnavailableException | RideConfirmationNotFoundException | RideConfirmationNotPendingException | RideAlreadyActiveException e){
+            DriverSessionContext.getInstance().setCurrentConfirmation(null);
+            throw e;
+        }
 
         String originAddress = "Indirizzo non disponibile";
         CoordinateBean originCoord = confirmationBean.getUserLocation();
@@ -282,6 +286,13 @@ public class ApplicationFacade {
         gmailAdapter.sendEmail(confirmation.getClient().getEmail(), subject, body);
     }
 
+    public boolean isActiveRide() {
+        return DriverSessionContext.getInstance().hasActiveRide();
+    }
+
+    public boolean isConfirmationAccepted() {
+        return  DriverSessionContext.getInstance().hasPendingConfirmation();
+    }
 
     public Map loadDriverRouteBasedOnRideStatus() throws MapServiceException {
         RideBean currentActiveRide = DriverSessionContext.getInstance().getCurrentRide();
@@ -338,5 +349,4 @@ public class ApplicationFacade {
 
         DriverSessionContext.getInstance().setCurrentRide(updatedRide);
     }
-
 }

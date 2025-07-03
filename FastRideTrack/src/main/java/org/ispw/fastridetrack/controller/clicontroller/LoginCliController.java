@@ -1,6 +1,9 @@
 package org.ispw.fastridetrack.controller.clicontroller;
 
+import jakarta.mail.MessagingException;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
+import org.ispw.fastridetrack.exception.DriverDAOException;
+import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.enumeration.UserType;
 import org.ispw.fastridetrack.session.SessionManager;
 
@@ -11,25 +14,20 @@ public class LoginCliController {
     private final Scanner scanner = new Scanner(System.in);
     private final ApplicationFacade facade;
 
-    public LoginCliController() throws Exception {
+    public LoginCliController() {
         facade = new ApplicationFacade();
     }
 
-    public void start() {
+    public void start() throws MapServiceException, MessagingException, DriverDAOException {
         try {
             UserType loggedUserType = loginFlow();
 
-            if (loggedUserType == UserType.CLIENT) {
-                new ClientCliController().startClientFlow();
-            } else if (loggedUserType == UserType.DRIVER) {
-                new DriverCliController().startDriverFlow();
-            } else {
-                System.out.println("Unrecognized user type.");
+            switch (loggedUserType) {
+                case CLIENT -> new ClientCliController().startClientFlow();
+                case DRIVER -> new DriverCliController().startDriverFlow();
+                default -> System.out.println("Unrecognized user type.");
             }
 
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
         } finally {
             System.out.println("Closing application...");
             scanner.close();
@@ -37,7 +35,7 @@ public class LoginCliController {
         }
     }
 
-    private UserType loginFlow() throws Exception {
+    private UserType loginFlow() throws DriverDAOException {
         System.out.println("Welcome to FastRideTrack CLI!");
 
         while (true) {

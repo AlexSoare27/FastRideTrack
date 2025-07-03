@@ -12,9 +12,8 @@ import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.bean.LocationBean;
 import org.ispw.fastridetrack.bean.TaxiRideConfirmationBean;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
-import org.ispw.fastridetrack.exception.DriverDAOException;
-import org.ispw.fastridetrack.exception.FXMLLoadException;
-import org.ispw.fastridetrack.exception.MapServiceException;
+import org.ispw.fastridetrack.exception.*;
+import org.ispw.fastridetrack.model.enumeration.PaymentMethod;
 import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 import org.ispw.fastridetrack.util.DriverSessionContext;
 import org.ispw.fastridetrack.session.SessionManager;
@@ -32,14 +31,16 @@ public class DriverPendingRideConfirmationGUI {
     @FXML private Button destinationButton;
     @FXML private Button clientPositionButton;
     @FXML private Button acceptButton;
+    @FXML private Label rideRejectedLabel;
     @FXML private HBox buttonBox;
     @FXML private VBox rejectBox;
     @FXML private VBox acceptBox;
-    @FXML private Label confirmationLabel;
+    @FXML public Label confirmationLabel;
     @FXML private TextField reasonTextField;
     @FXML private Button refreshButton;
 
     private ApplicationFacade facade;
+    private static final String ERROR_CONFIRM = "Error accepting confirmation";
 
     public void setFacade(ApplicationFacade facade) {
         this.facade = facade;
@@ -70,31 +71,42 @@ public class DriverPendingRideConfirmationGUI {
 
     private void displayConfirmationData() {
         TaxiRideConfirmationBean confirmation = DriverSessionContext.getInstance().getCurrentConfirmation();
-        if (confirmation != null){
+        if (confirmation != null) {
             clientNameField.setText(confirmation.getClient().getName());
             destinationField.setText(confirmation.getDestination());
             estimatedTimeField.setText(confirmation.getEstimatedTime().toString());
             estimatedFareField.setText(confirmation.getEstimatedFare().toString());
-            switch (confirmation.getPaymentMethod()) {
-                case CASH ->  paymentInfoField.setText("Cash");
-                case CARD ->  paymentInfoField.setText("Card");
+
+            if (confirmation.getPaymentMethod() == PaymentMethod.CASH) {
+                paymentInfoField.setText("Cash");
+            } else if (confirmation.getPaymentMethod() == PaymentMethod.CARD) {
+                paymentInfoField.setText("Card");
             }
         }
     }
 
     @FXML
-    private void onAccept() {
+    private void onAccept() throws DriverDAOException, MapServiceException, MessagingException {
         TaxiRideConfirmationBean confirmation = DriverSessionContext.getInstance().getCurrentConfirmation();
-        try {
+        try{
             facade.acceptRideConfirmationAndInitializeRide(confirmation);
-        } catch (DriverDAOException | MapServiceException | MessagingException e) {
-            throw new RuntimeException(e);
+
+            buttonBox.setVisible(false);
+            acceptBox.setVisible(true);
+            destinationButton.setVisible(false);
+            clientPositionButton.setVisible(false);
+        } catch (DriverUnavailableException | RideAlreadyActiveException |
+                 RideConfirmationNotFoundException | RideConfirmationNotPendingException e) {
+            showAlert(ERROR_CONFIRM, e.getMessage(), Alert.AlertType.ERROR);
+            manageRideConfirmationNotAvailable();
         }
-        //setCurrentRide();
+    }
+
+    public void manageRideConfirmationNotAvailable() {
         buttonBox.setVisible(false);
-        acceptBox.setVisible(true);
-        destinationButton.setVisible(false);
-        clientPositionButton.setVisible(false);
+        rideRejectedLabel.setVisible(true);
+        acceptBox.setVisible(false);
+        refreshButton.setVisible(true);
     }
 
     @FXML
@@ -105,10 +117,10 @@ public class DriverPendingRideConfirmationGUI {
     @FXML
     public void onReject() {
         buttonBox.setVisible(false);
+        rideRejectedLabel.setVisible(true);
         rejectBox.setVisible(true);
         destinationButton.setVisible(false);
         clientPositionButton.setVisible(false);
-
     }
 
     @FXML
@@ -122,7 +134,7 @@ public class DriverPendingRideConfirmationGUI {
         try {
             facade.rejectRideConfirmation(confirmation, userInput);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            showAlert("Error rejecting confirmation", e.getMessage(), Alert.AlertType.WARNING);
         }
         rejectBox.setVisible(false);
         refreshButton.setVisible(true);
@@ -130,7 +142,7 @@ public class DriverPendingRideConfirmationGUI {
     }
 
     @FXML
-    private void onViewClientPosition() throws FXMLLoadException {
+    private void onViewClientPosition(){
         LocationBean start = new LocationBean(DriverSessionContext.getInstance().getCurrentConfirmation().getDriver().getCoordinate());
         LocationBean end = new LocationBean(DriverSessionContext.getInstance().getCurrentConfirmation().getClient().getCoordinate());
 
@@ -145,7 +157,7 @@ public class DriverPendingRideConfirmationGUI {
     }
 
     @FXML
-    private void onViewDestination() throws FXMLLoadException {
+    private void onViewDestination(){
         LocationBean start = new LocationBean(DriverSessionContext.getInstance().getCurrentConfirmation().getDriver().getCoordinate());
         LocationBean end = new LocationBean(DriverSessionContext.getInstance().getCurrentConfirmation().getDestination());
 
@@ -165,7 +177,7 @@ public class DriverPendingRideConfirmationGUI {
     }
 
     @FXML
-    public void onRefresh() throws FXMLLoadException {
+    public void onRefresh() throws FXMLLoadException, DriverDAOException {
         RideConfirmationRouter rideConfirmationRouter = new RideConfirmationRouter();
         rideConfirmationRouter.routeToNextConfirmationView();
     }

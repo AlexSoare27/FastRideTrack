@@ -9,7 +9,6 @@ import org.ispw.fastridetrack.model.Ride;
 import org.ispw.fastridetrack.model.enumeration.RideStatus;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

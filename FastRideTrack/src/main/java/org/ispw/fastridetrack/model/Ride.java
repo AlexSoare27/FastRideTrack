@@ -5,6 +5,7 @@ import org.ispw.fastridetrack.model.state.*;
 
 import java.time.LocalDateTime;
 
+@SuppressWarnings("java:S107")
 public class Ride {
     private Integer rideID;
     private Client client;
@@ -13,7 +14,7 @@ public class Ride {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Double totalPayed;
-    private Boolean clientFetched;
+    private boolean clientFetched;
     private RideStatus status;
 
     private RideState rideState;
@@ -99,7 +100,9 @@ public class Ride {
 
     public void setClientFetched(Boolean clientFetched) {this.clientFetched = clientFetched;}
 
-    public Boolean isClientFetched() {return clientFetched;}
+    public boolean isClientFetched() {
+        return clientFetched;
+    }
 
     public RideStatus getStatus() {return status;}
 

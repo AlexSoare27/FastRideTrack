@@ -28,7 +28,6 @@ public class SingletonDBSession {
             System.out.println("[DEBUG] Connessione stabilita.");
         } catch (SQLException e) {
             System.err.println("[ERRORE] Connessione MySQL fallita:");
-            e.printStackTrace();
             throw new DatabaseConnectionException("Connessione al database non riuscita", e);
         }
     }
@@ -66,7 +65,6 @@ public class SingletonDBSession {
                 System.out.println("[DEBUG] Connessione MySQL chiusa.");
             } catch (SQLException e) {
                 System.err.println("[WARN] Errore durante la chiusura della connessione:");
-                e.printStackTrace();
             }
         }
     }

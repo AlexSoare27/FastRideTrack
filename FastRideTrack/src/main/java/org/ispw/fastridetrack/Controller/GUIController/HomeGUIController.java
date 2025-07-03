@@ -53,7 +53,6 @@ public class HomeGUIController implements Initializable {
         initializeChoiceBox();
         displayUserName();
         restoreTemporaryData();
-        //loadMapWithDefaultLocation();
         loadCurrentLocationMap();
     }
 

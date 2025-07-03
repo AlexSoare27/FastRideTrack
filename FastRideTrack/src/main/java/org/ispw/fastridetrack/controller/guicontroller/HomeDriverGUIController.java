@@ -16,6 +16,7 @@ import org.ispw.fastridetrack.bean.DriverBean;
 import org.ispw.fastridetrack.bean.RideBean;
 import org.ispw.fastridetrack.controller.applicationcontroller.ApplicationFacade;
 import org.ispw.fastridetrack.exception.ClientNotFetchedException;
+import org.ispw.fastridetrack.exception.DriverDAOException;
 import org.ispw.fastridetrack.exception.FXMLLoadException;
 import org.ispw.fastridetrack.exception.MapServiceException;
 import org.ispw.fastridetrack.model.Map;
@@ -93,8 +94,8 @@ public class HomeDriverGUIController {
 
         switch (rideBean.getStatus()) {
             case INITIATED -> manageInitiateState(startpoint, destination, time);
-            case CLIENT_LOCATED -> manageClientLocatedState(startpoint, destination, time);
-            case ONGOING -> manageOngoingState(startpoint, destination, time);
+            case CLIENT_LOCATED -> manageClientLocatedState(startpoint, destination);
+            case ONGOING -> manageOngoingState(startpoint, destination);
             case FINISHED -> loadCurrentLocationMap();
         }
     }
@@ -130,7 +131,7 @@ public class HomeDriverGUIController {
         showAlert(title,text, Alert.AlertType.INFORMATION);
     }
 
-    private void manageClientLocatedState(String startPoint, String endPoint, double estimatedTimeMinutes) {
+    private void manageClientLocatedState(String startPoint, String endPoint) {
         startpointField.setText(startPoint);
         destinationField.setText(endPoint);
         rideStatusLabel.setText("client located");
@@ -154,27 +155,16 @@ public class HomeDriverGUIController {
     }
 
 
-    private void manageOngoingState(String startPoint, String endPoint, double estimatedTimeMinutes) {
+    private void manageOngoingState(String startPoint, String endPoint) {
         startpointField.setText(startPoint);
         destinationField.setText(endPoint);
         rideStatusLabel.setText("ride in progress");
         routeSetupButton.setText("Finish the ride");
         routeSetupButton.setDisable(false);
 
-        routeSetupButton.setOnAction(e -> {
-            routeSetupButton.setDisable(true);
-            /*try {
-                facade.finishRide();
-
-                /*RideBean updatedRide = DriverSessionContext.getInstance().getCurrentRide();
-                loadMapFromActiveRide(updatedRide);
-
-            } catch (Exception ex) {
-                showAlert("Errore", "Impossibile terminare la corsa", Alert.AlertType.ERROR);
-            } finally {
-                routeSetupButton.setDisable(false);
-            }*/
-        });
+        routeSetupButton.setOnAction(e ->
+            routeSetupButton.setDisable(true)
+        );
     }
 
 
@@ -196,7 +186,7 @@ public class HomeDriverGUIController {
             try {
                 SceneNavigator.switchTo(DRIVERPENDINGREQUEST_FXML,"Pending Confirmation");
             } catch (FXMLLoadException ex) {
-                throw new RuntimeException(ex);
+                showAlert("Error loading scene: " , ex.getMessage(), Alert.AlertType.ERROR);
             }
         });
     }
@@ -253,18 +243,18 @@ public class HomeDriverGUIController {
         rideRouter.manageCurrentRideView();
     }
 
-    private void routeToNextConfirmation() throws FXMLLoadException {
+    private void routeToNextConfirmation() throws FXMLLoadException, DriverDAOException {
         RideConfirmationRouter confirmationRouter = new RideConfirmationRouter();
         confirmationRouter.routeToNextConfirmationView();
     }
 
     @FXML
-    private void onPendingRequests() throws FXMLLoadException {
+    private void onPendingRequests() throws FXMLLoadException, DriverDAOException {
         routeToNextConfirmation();
     }
 
     @FXML
-    private void onViewConfirmations() throws FXMLLoadException {
+    private void onViewConfirmations() throws FXMLLoadException, DriverDAOException {
         routeToNextConfirmation();
     }
 

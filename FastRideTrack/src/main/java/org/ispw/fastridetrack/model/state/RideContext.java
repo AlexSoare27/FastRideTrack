@@ -1,7 +1,6 @@
 package org.ispw.fastridetrack.model.state;
 
 import org.ispw.fastridetrack.model.Coordinate;
-import org.ispw.fastridetrack.model.Ride;
 
 
 public class RideContext {

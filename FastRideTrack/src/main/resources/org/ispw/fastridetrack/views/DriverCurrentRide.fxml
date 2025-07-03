@@ -33,7 +33,7 @@
       <Button fx:id="currentRideButton" layoutX="87.0" layoutY="432.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="266.0" style="-fx-background-color: transparent;" />
       <Button fx:id="currentRideButton1" layoutX="87.0" layoutY="389.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="266.0" style="-fx-background-color: transparent;" />
       <Button fx:id="homeButton" layoutX="87.0" layoutY="346.0" mnemonicParsing="false" onAction="#onHomeDriver" prefHeight="42.0" prefWidth="266.0" style="-fx-background-color: transparent;" />
-      <Button fx:id="pendingConfirmationButton" layoutX="87.0" layoutY="474.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="266.0" style="-fx-background-color: transparent;" />
+      <Button fx:id="pendingConfirmationButton" layoutX="87.0" layoutY="474.0" mnemonicParsing="false" onAction="#onPendingConfirmation" prefHeight="42.0" prefWidth="266.0" style="-fx-background-color: transparent;" />
 
       <Button fx:id="viewLocationButton" layoutX="703.0" layoutY="556.0" mnemonicParsing="false" onAction="#onSetupLocationOnMap" prefHeight="30.0" prefWidth="249.0" style="-fx-background-color: #29bbbb;" text="View client location on map" textFill="WHITE">
          <font>
