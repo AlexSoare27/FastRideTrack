@@ -32,9 +32,6 @@ public class RideBean {
         this.status = status;
     }
 
-    public RideBean() {
-    }
-
     public static RideBean fromModel(Ride model) {
         if (model == null) return null;
 

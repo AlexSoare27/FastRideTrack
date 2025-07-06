@@ -11,22 +11,23 @@ import org.ispw.fastridetrack.model.enumeration.RideConfirmationStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO {
     private final Map<Integer, TaxiRideConfirmation> rides = new HashMap<>();
 
     public TaxiRideConfirmationDAOInMemory() {
         TaxiRideConfirmation confirmation = new TaxiRideConfirmation(
-                201,                         // rideID
-                d2,                          // Driver istanza già creata
-                client1,                     // recuperato dal DAO
-                new Coordinate(45.6370, 8.8330), // posizione stimata del client (vicino al driver)
-                "Via Garibaldi 20, Varese", // destinazione
+                201,
+                d2,
+                client1,
+                new Coordinate(45.6370, 8.8330),
+                "Via Garibaldi 20, Varese",
                 RideConfirmationStatus.PENDING,
-                17.80,                       // stima costo
-                9.0,                         // stima tempo (in minuti)
-                PaymentMethod.CARD,         // metodo pagamento del client
-                LocalDateTime.of(2025, 7, 2, 15, 45) // ora di conferma
+                17.80,
+                9.0,
+                PaymentMethod.CARD,
+                LocalDateTime.of(2025, 7, 2, 15, 45)
         );
         save(confirmation);
     }
@@ -90,7 +91,7 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
                         TaxiRideConfirmation::getConfirmationTime,
                         Comparator.nullsLast(Comparator.naturalOrder()) // gestisce i null in fondo
                 ))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
