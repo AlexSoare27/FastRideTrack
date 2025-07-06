@@ -12,6 +12,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDAO {
 
@@ -88,7 +89,7 @@ public class TaxiRideConfirmationDAOFileSystem implements TaxiRideConfirmationDA
         return findAll().stream()
                 .filter(ride -> ride.getDriver().getUserID() == driverID && ride.getStatus() == status)
                 .sorted(Comparator.comparing(TaxiRideConfirmation::getConfirmationTime))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<TaxiRideConfirmation> findAll() {
