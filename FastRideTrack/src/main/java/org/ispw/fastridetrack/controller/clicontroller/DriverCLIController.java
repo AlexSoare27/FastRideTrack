@@ -60,9 +60,9 @@ public class DriverCliController {
                 }
 
             } else {
-                System.out.printf("Active ride (ID %d) - Status: %s%n", currentRide.getRideID(), currentRide.getStatus());
+                System.out.printf("Active ride (ID %d) - Status: %s%n", currentRide.getRideID(), currentRide.getRideStatus());
 
-                switch (currentRide.getStatus()) {
+                switch (currentRide.getRideStatus()) {
                     case INITIATED -> showInitiatedRideMenu();
                     case CLIENT_LOCATED -> showClientLocatedRideMenu();
                     case ONGOING -> showOngoingRideMenu();
@@ -153,7 +153,6 @@ public class DriverCliController {
         System.out.println("Next ride confirmation:");
         System.out.println("Ride ID: " + conf.getRideID());
         System.out.println("Client: " + conf.getClient().getName());
-        System.out.println("Pickup location: " + conf.getUserLocation());
         System.out.println("Destination: " + conf.getDestination());
         System.out.printf("Estimated fare: €%.2f%n", conf.getEstimatedFare());
         System.out.printf("Estimated time: %.2f minutes%n", conf.getEstimatedTime());
@@ -233,14 +232,12 @@ public class DriverCliController {
 
     private void confirmClientLocated() {
         try {
-            System.out.print("Enter estimated arrival time (minutes): ");
-            double eta = Double.parseDouble(scanner.nextLine());
 
-            facade.markClientLocated(eta);
+            Map map = facade.loadDriverRouteBasedOnRideStatus();
+
+            facade.markClientLocated(map.getEstimatedTimeMinutes());
             System.out.println("Client marked as located and notified.");
 
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input for estimated time.");
         } catch (Exception e) {
             System.out.println("Error marking client as located: " + e.getMessage());
         }

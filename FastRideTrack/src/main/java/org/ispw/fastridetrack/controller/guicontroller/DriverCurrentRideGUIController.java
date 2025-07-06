@@ -18,6 +18,8 @@ public class DriverCurrentRideGUIController {
     @FXML private Label driverNameLabel;
     @FXML private Label destinationLabel;
     @FXML private Label clientNameLabel;
+    @FXML private Label phoneNumberLabel;
+    @FXML private Label emailLabel;
     @FXML private Button viewLocationButton;
     @FXML private VBox rideInitiatedBox;
     @FXML private VBox clientLocatedBox;
@@ -37,8 +39,8 @@ public class DriverCurrentRideGUIController {
             facade = SceneNavigator.getFacade();
         }
         showDriverName(rideBean.getDriver().getName());
-        showRideInfo(rideBean.getDestination(),rideBean.getClient().getName());
-        switch (rideBean.getStatus()) {
+        showRideInfo(rideBean.getDestination(),rideBean.getClient().getName(),rideBean.getClient().getPhoneNumber(), rideBean.getClient().getEmail());
+        switch (rideBean.getRideStatus()) {
             case INITIATED -> {
                 rideInitiatedBox.setVisible(true);
                 clientLocatedBox.setVisible(false);
@@ -70,9 +72,11 @@ public class DriverCurrentRideGUIController {
     }
 
     @FXML
-    private void showRideInfo(String destination, String clientName) {
+    private void showRideInfo(String destination, String clientName,  String phoneNumber, String email) {
         destinationLabel.setText(destination);
         clientNameLabel.setText(clientName);
+        phoneNumberLabel.setText(phoneNumber);
+        emailLabel.setText(email);
     }
 
     @FXML

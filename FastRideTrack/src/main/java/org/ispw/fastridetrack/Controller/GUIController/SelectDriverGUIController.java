@@ -205,57 +205,6 @@ public class SelectDriverGUIController {
         });
     }
 
-    /*private void startPollingRideStatus() {
-        pollingStartTime = System.currentTimeMillis();
-
-        pollingTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
-            TaxiRideConfirmationBean currentBean = tempMemory.getRideConfirmation();
-            if (currentBean == null) return;
-
-            var optionalUpdatedModel = SessionManager.getInstance()
-                    .getTaxiRideDAO()
-                    .findById(currentBean.getRideID());
-
-            if (optionalUpdatedModel.isEmpty()) return;
-
-            TaxiRideConfirmation updatedModel = optionalUpdatedModel.get();
-            RideConfirmationStatus updatedStatus = updatedModel.getStatus();
-            RideConfirmationStatus currentStatus = currentBean.getStatus();
-
-            // Se lo stato è cambiato
-            if (updatedStatus != currentStatus) {
-                pollingTimeline.stop();  // Ferma il polling
-                TaxiRideConfirmationBean updatedBean = TaxiRideConfirmationBean.fromModel(updatedModel);
-                tempMemory.setRideConfirmation(updatedBean);  // Aggiorna stato e notifica observer
-            }
-            // Timeout: ancora in stato PENDING e scaduto tempo massimo
-            else if (updatedStatus == RideConfirmationStatus.PENDING) {
-                long elapsed = System.currentTimeMillis() - pollingStartTime;
-                if (elapsed >= TIMEOUT_DURATION.toMillis()) {
-                    if (rideStatusHandled) return; // già gestito, non fare nulla
-                    rideStatusHandled = true;      // segna come gestito
-
-                    pollingTimeline.stop();
-
-                    // Aggiorna stato nel DB a REJECTED
-                    updatedModel.setStatus(RideConfirmationStatus.REJECTED);
-                    SessionManager.getInstance().getTaxiRideDAO().update(updatedModel);
-
-                    Platform.runLater(() -> {
-                        showError("Driver Busy", "The driver is busy with another ride. Please select another one.");
-                        try {
-                            SceneNavigator.switchTo(SELECT_TAXI_FXML, "Select Taxi");
-                        } catch (FXMLLoadException e) {
-                            throw new RideStatusUpdateException("Error switching screen after timeout.", e);
-                        }
-                    });
-                }
-            }
-        }));
-        pollingTimeline.setCycleCount(Animation.INDEFINITE);
-        pollingTimeline.play();
-    }*/
-
     private void loadMapInView() throws MapServiceException {
         if (taxiRideBean == null) return;
 

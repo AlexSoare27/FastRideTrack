@@ -22,12 +22,21 @@ public class CurrentRideManagementApplicationController {
         this.rideDAO = SessionManager.getInstance().getRideDAO();
     }
 
-    private boolean checkRideAlreadyActive(int driverID) {
+    private boolean checkRideAlreadyActiveForDriver(int driverID) {
         return rideDAO.findActiveRideByDriver(driverID).isPresent();
     }
 
+    public RideBean getCurrentActiveRideByDriver(int driverID){
+        Optional<Ride> existingRide = rideDAO.findActiveRideByDriver(driverID);
+        if (existingRide.isPresent()) {
+            Ride ride = existingRide.get();
+            return RideBean.fromModel(ride);
+        }
+        return null;
+    }
+
     public RideBean initializeCurrentRide(TaxiRideConfirmationBean confirmationBean) throws RideAlreadyActiveException {
-        if(checkRideAlreadyActive(confirmationBean.getDriver().getUserID())){
+        if(checkRideAlreadyActiveForDriver(confirmationBean.getDriver().getUserID())){
             throw new RideAlreadyActiveException("Ride already active for driver: " + confirmationBean.getDriver().getUserID());
         }
         Ride ride = new Ride(
@@ -46,62 +55,48 @@ public class CurrentRideManagementApplicationController {
     }
 
     public RideBean markClientLocated(RideBean rideBean) {
-        if (!verifyRideExists(rideBean.getRideID())) {
-            throw new IllegalStateException("The current ride does not exist.");
-        }
-        Ride ride = rideBean.toModel();
+        Ride ride = rideDAO.findById(rideBean.getRideID())
+                .orElseThrow(() -> new IllegalStateException("The current ride does not exist."));
+
         ride.markClientFound();
         rideDAO.update(ride);
         return RideBean.fromModel(ride);
     }
 
     public RideBean startRide(RideBean rideBean) throws ClientNotFetchedException {
-        if (!verifyRideExists(rideBean.getRideID())) {
-            throw new IllegalStateException("The current ride does not exist.");
-        }
-        if(!checkClientFetched(rideBean)){
+        Ride ride = rideDAO.findById(rideBean.getRideID())
+                .orElseThrow(() -> new IllegalStateException("current ride does not exist."));
+
+        if (!ride.isClientFetched()) {
             throw new ClientNotFetchedException("Client not yet fetched.");
         }
-        Ride ride = rideBean.toModel();
+
         ride.startRide();
         rideDAO.update(ride);
         return RideBean.fromModel(ride);
     }
 
-    public boolean checkClientFetched(RideBean rideBean) {
-        Optional<Ride> optionalRide = rideDAO.findById(rideBean.getRideID());
-        if (optionalRide.isPresent()) {
-            return optionalRide.get().isClientFetched();
-        } else {
-            // Gestisci il caso in cui la corsa non esiste, ad esempio:
-            throw new IllegalStateException("La corsa non esiste o è stata rimossa.");
-        }
-    }
-
     public RideBean finishRide(RideBean rideBean, Double totalFare) {
-        if (!verifyRideExists(rideBean.getRideID())) {
-            throw new IllegalStateException("The current ride does not exist.");
-        }
-        Ride ride = rideBean.toModel();
+        Ride ride = rideDAO.findById(rideBean.getRideID())
+                .orElseThrow(() -> new IllegalStateException("current ride does not exist."));
+
         ride.finishRide(totalFare);
         rideDAO.update(ride);
         return RideBean.fromModel(ride);
     }
 
-    public boolean verifyRideExists(int rideID) {
-        return rideDAO.exists(rideID);
+    public LocationBean getCurrentMapStartPoint(RideBean rideBean) {
+        Ride ride = rideDAO.findById(rideBean.getRideID())
+                .orElseThrow(() -> new IllegalStateException("ride does not exist."));
+        Location startpoint = ride.getMapStartPoint();
+        return LocationBean.fromModel(startpoint);
     }
 
-    public LocationBean getStartPoint(RideBean rideBean) {
-        Ride ride = rideBean.toModel();
-        Location start = ride.getMapStartPoint();
-        return LocationBean.fromModel(start);
-    }
-
-    public LocationBean getEndPoint(RideBean rideBean) {
-        Ride ride = rideBean.toModel();
-        Location end = ride.getMapEndPoint();
-        return LocationBean.fromModel(end);
+    public LocationBean getCurrentMapEndPoint(RideBean rideBean) {
+        Ride ride = rideDAO.findById(rideBean.getRideID())
+                .orElseThrow(() -> new IllegalStateException("ride does not exist."));
+        Location endpoint = ride.getMapEndPoint();
+        return LocationBean.fromModel(endpoint);
     }
 
 }

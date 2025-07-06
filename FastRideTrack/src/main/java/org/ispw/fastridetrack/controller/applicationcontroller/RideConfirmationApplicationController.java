@@ -21,7 +21,7 @@ public class RideConfirmationApplicationController {
         this.driverDAO = SessionManager.getInstance().getDriverDAO();
     }
 
-    public List<TaxiRideConfirmation> getPendingConfirmationsForDriver(int driverId) throws RideConfirmationNotFoundException {
+    private List<TaxiRideConfirmation> getPendingConfirmationsForDriver(int driverId) throws RideConfirmationNotFoundException {
         List<TaxiRideConfirmation> requests = taxiRideConfirmationDAO.findByDriverIDandStatus(driverId, RideConfirmationStatus.PENDING);
         requests.sort(Comparator.comparing(TaxiRideConfirmation::getConfirmationTime));
         return requests;

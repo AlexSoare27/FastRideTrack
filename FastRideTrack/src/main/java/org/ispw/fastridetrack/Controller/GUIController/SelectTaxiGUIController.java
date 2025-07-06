@@ -159,7 +159,6 @@ public class SelectTaxiGUIController implements Initializable {
             facade.confirmRideRequest(selectedDriver, paymentMethodEnum);
             SceneNavigator.switchTo(SELECT_DRIVER_FXML, "Conferma Driver");
         } catch (Exception e) {
-            e.printStackTrace();
             showAlert("Error while confirming the ride.");
         }
 
@@ -170,7 +169,6 @@ public class SelectTaxiGUIController implements Initializable {
         try {
             SceneNavigator.switchTo(HOMECLIENT_FXML, "Home");
         } catch (FXMLLoadException e) {
-            e.printStackTrace();
             showAlert("Error returning to Home screen.");
         }
     }

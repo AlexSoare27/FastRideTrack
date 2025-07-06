@@ -32,6 +32,9 @@ public class RideBean {
         this.status = status;
     }
 
+    public RideBean() {
+    }
+
     public static RideBean fromModel(Ride model) {
         if (model == null) return null;
 
@@ -90,8 +93,8 @@ public class RideBean {
 
     public void setTotalPayed(Double totalPayed) {this.totalPayed = totalPayed;}
 
-    public RideStatus getStatus() {return status;}
+    public RideStatus getRideStatus() {return status;}
 
-    public void setStatus(RideStatus status) {this.status = status;}
+    public void setRideStatus(RideStatus status) {this.status = status;}
 
 }

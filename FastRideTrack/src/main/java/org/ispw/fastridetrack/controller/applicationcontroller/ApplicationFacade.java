@@ -53,8 +53,8 @@ public class ApplicationFacade {
         }
         // Provo login driver
         if (loginAC.validateDriverCredentials(username, password, UserType.DRIVER)) {
-            if (loginAC.loadPossibleActiveRide(SessionManager.getInstance().getLoggedDriver().getUserID()) != null){
-                DriverSessionContext.getInstance().setCurrentRide(loginAC.loadPossibleActiveRide(SessionManager.getInstance().getLoggedDriver().getUserID()));
+            if (currentRideManagementAC.getCurrentActiveRideByDriver(SessionManager.getInstance().getLoggedDriver().getUserID()) != null){
+                DriverSessionContext.getInstance().setCurrentRide(currentRideManagementAC.getCurrentActiveRideByDriver(SessionManager.getInstance().getLoggedDriver().getUserID()));
             }
             return true;
         }
@@ -296,8 +296,8 @@ public class ApplicationFacade {
 
     public Map loadDriverRouteBasedOnRideStatus() throws MapServiceException {
         RideBean currentActiveRide = DriverSessionContext.getInstance().getCurrentRide();
-        LocationBean start = currentRideManagementAC.getStartPoint(currentActiveRide);
-        LocationBean end = currentRideManagementAC.getEndPoint(currentActiveRide);
+        LocationBean start = currentRideManagementAC.getCurrentMapStartPoint(currentActiveRide);
+        LocationBean end = currentRideManagementAC.getCurrentMapEndPoint(currentActiveRide);
         return mapAC.displayMapRoute(start, end);
     }
 

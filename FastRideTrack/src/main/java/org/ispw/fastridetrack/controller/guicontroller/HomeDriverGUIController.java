@@ -92,7 +92,7 @@ public class HomeDriverGUIController {
 
         double time = map.getEstimatedTimeMinutes();
 
-        switch (rideBean.getStatus()) {
+        switch (rideBean.getRideStatus()) {
             case INITIATED -> manageInitiateState(startpoint, destination, time);
             case CLIENT_LOCATED -> manageClientLocatedState(startpoint, destination);
             case ONGOING -> manageOngoingState(startpoint, destination);

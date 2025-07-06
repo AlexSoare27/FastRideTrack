@@ -72,7 +72,6 @@ public class SignInGUIController {
                 showErrorAlert("Login Failed", "Credenziali errate. Riprova.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             showErrorAlert("Errore di connessione", "Impossibile connettersi al database:\n" + e.getMessage());
         }
     }
