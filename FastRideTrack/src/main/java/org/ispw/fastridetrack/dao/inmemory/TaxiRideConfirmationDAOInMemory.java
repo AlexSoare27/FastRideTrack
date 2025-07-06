@@ -16,23 +16,7 @@ import java.util.stream.Collectors;
 public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO {
     private final Map<Integer, TaxiRideConfirmation> rides = new HashMap<>();
 
-    public TaxiRideConfirmationDAOInMemory() {
-        TaxiRideConfirmation confirmation = new TaxiRideConfirmation(
-                201,
-                d2,
-                client1,
-                new Coordinate(45.6370, 8.8330),
-                "Via Garibaldi 20, Varese",
-                RideConfirmationStatus.PENDING,
-                17.80,
-                9.0,
-                PaymentMethod.CARD,
-                LocalDateTime.of(2025, 7, 2, 15, 45)
-        );
-        save(confirmation);
-    }
-
-    Driver d2 = new Driver(
+    private final Driver d2 = new Driver(
             2,
             "luca88",
             "pass2",
@@ -47,15 +31,32 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
             true
     );
 
-    Client client1 = new Client(
+    private final Client client1 = new Client(
             1,
             "testclient",
             "testpass",
             "Mario Rossi",
             "mario@gmail.com",
             "1234567890",
+            new Coordinate(41.9028, 12.4964), // Coordinate Roma
             PaymentMethod.CARD
     );
+
+    public TaxiRideConfirmationDAOInMemory() {
+        TaxiRideConfirmation confirmation = new TaxiRideConfirmation(
+                201,
+                d2,
+                client1,
+                new Coordinate(45.6370, 8.8330), // posizione utente
+                "Roma",
+                RideConfirmationStatus.PENDING,
+                17.80,
+                9.0,
+                PaymentMethod.CARD,
+                LocalDateTime.of(2025, 7, 2, 15, 45)
+        );
+        save(confirmation);
+    }
 
     @Override
     public void save(TaxiRideConfirmation ride) {
@@ -89,7 +90,7 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
                 .filter(ride -> ride.getStatus() == status)
                 .sorted(Comparator.comparing(
                         TaxiRideConfirmation::getConfirmationTime,
-                        Comparator.nullsLast(Comparator.naturalOrder()) // gestisce i null in fondo
+                        Comparator.nullsLast(Comparator.naturalOrder())
                 ))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -102,6 +103,6 @@ public class TaxiRideConfirmationDAOInMemory implements TaxiRideConfirmationDAO 
         }
         ride.setStatus(newStatus);
     }
-
 }
+
 
