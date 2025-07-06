@@ -35,7 +35,7 @@ public class HomeGUIController implements Initializable {
     @FXML private Label welcomeLabel;
     @FXML private WebView mapWebView;
 
-    private CoordinateBean currentLocation = new CoordinateBean(40.8518, 14.2681); // Default Napoli centro
+    private CoordinateBean currentLocation;
 
     // Facade iniettata intenzionalmente da SceneNavigator
     @SuppressWarnings("java:S1104")
@@ -97,9 +97,7 @@ public class HomeGUIController implements Initializable {
         new Thread(() -> {
             try {
                 String ip = IPFetcher.getPublicIP();
-                System.out.println("IP pubblico: " + ip);
                 var coordModel = IPLocationService.getCoordinateFromIP(ip);
-                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
                 currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
 
                 Platform.runLater(() -> {
@@ -117,29 +115,14 @@ public class HomeGUIController implements Initializable {
                 Thread.currentThread().interrupt(); // re-set interrupt flag
                 Platform.runLater(() -> {
                     showAlert("Operation interrupted. Loading default map.");
-                    loadMapWithDefaultLocation();
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     showAlert("Unable to retrieve location. Loading default map.");
-                    loadMapWithDefaultLocation();
                 });
             }
 
         }).start();
-    }
-
-    private void loadMapWithDefaultLocation() {
-        Platform.runLater(() -> {
-            WebEngine engine = mapWebView.getEngine();
-            engine.setJavaScriptEnabled(true);
-            URL url = getClass().getResource("/org/ispw/fastridetrack/html/map.html");
-            if (url != null) {
-                engine.load(url.toExternalForm());
-            } else {
-                showAlert("map.html resource file not found.");
-            }
-        });
     }
 
     @FXML

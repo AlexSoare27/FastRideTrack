@@ -143,7 +143,7 @@ public class SelectDriverGUIController {
     }
 
     private void startPollingRideStatus() {
-        long pollingStartTime = System.currentTimeMillis();
+        long pollingStartTime = System.currentTimeMillis(); // 👈 dichiarato qui
 
         pollingTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             TaxiRideConfirmationBean currentBean = tempMemory.getRideConfirmation();
@@ -174,16 +174,15 @@ public class SelectDriverGUIController {
         return updated != current;
     }
 
-    // Timeout: ancora in stato PENDING e scaduto tempo massimo
     private boolean isPendingTooLong(RideConfirmationStatus status, long pollingStartTime) {
         long elapsed = System.currentTimeMillis() - pollingStartTime;
         return status == RideConfirmationStatus.PENDING && elapsed >= TIMEOUT_DURATION.toMillis();
     }
 
     private void handleStatusChange(TaxiRideConfirmation updatedModel) {
-        pollingTimeline.stop(); //Fermo il polling
+        pollingTimeline.stop();
         TaxiRideConfirmationBean updatedBean = TaxiRideConfirmationBean.fromModel(updatedModel);
-        tempMemory.setRideConfirmation(updatedBean); // notificherò l' observer
+        tempMemory.setRideConfirmation(updatedBean); // notificherà observer
     }
 
     private void handlePollingTimeout(TaxiRideConfirmation updatedModel) {
@@ -192,7 +191,7 @@ public class SelectDriverGUIController {
         rideStatusHandled = true;
         pollingTimeline.stop();
 
-        // Forzo il ride come REJECTED e aggiorno il DB
+        // Forza il ride come REJECTED e aggiorna il DB
         updatedModel.setStatus(RideConfirmationStatus.REJECTED);
         SessionManager.getInstance().getTaxiRideDAO().update(updatedModel);
 
