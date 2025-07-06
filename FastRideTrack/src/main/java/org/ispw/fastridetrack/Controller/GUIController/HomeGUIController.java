@@ -97,7 +97,9 @@ public class HomeGUIController implements Initializable {
         new Thread(() -> {
             try {
                 String ip = IPFetcher.getPublicIP();
+                System.out.println("IP pubblico: " + ip);
                 var coordModel = IPLocationService.getCoordinateFromIP(ip);
+                System.out.println("Coordinate ottenute: " + coordModel.getLatitude() + ", " + coordModel.getLongitude());
                 currentLocation = new CoordinateBean(coordModel.getLatitude(), coordModel.getLongitude());
 
                 Platform.runLater(() -> {
